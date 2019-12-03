@@ -27,7 +27,10 @@ func main() {
 func run(p []int) {
 	pc := 0
 
-	for op := p[pc]; op != 99; op += 4 {
+	for op := p[pc]; op != 99; {
+		log.Printf("program = %v", p)
+		log.Printf("fetch= %v", p[pc:pc+4])
+		log.Printf("pc = %d, op = %d", pc, op)
 		addr1 := p[pc+1]
 		addr2 := p[pc+2]
 		dest := p[pc+3]
@@ -36,10 +39,16 @@ func run(p []int) {
 		op2 := p[addr2]
 
 		if op == OpSum {
+			log.Printf("%d + %d into addr %d\n", op1, op2, dest)
 			p[dest] = op1 + op2
 		} else if op == OpMul {
+			log.Printf("%d * %d into addr %d\n", op1, op2, dest)
 			p[dest] = op1 * op2
 		}
+
+		pc += 4
+		op = p[pc]
+		log.Printf("NEW pc = %d, op = %d", pc, op)
 	}
 }
 
