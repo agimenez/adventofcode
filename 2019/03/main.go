@@ -47,8 +47,7 @@ func (c *circuit) runWiring(wire []motion) {
 	c.wirings = append(c.wirings, map[point]int{})
 
 	for _, m := range wire {
-		steps++
-		cableTip = c.doMotion(m, cableTip, steps)
+		cableTip, steps = c.doMotion(m, cableTip, steps)
 	}
 
 	c.checkShortCircuits()
@@ -76,11 +75,13 @@ func (c *circuit) checkShortCircuits() {
 
 }
 
-func (c *circuit) doMotion(m motion, cableTip point, step int) point {
+func (c *circuit) doMotion(m motion, cableTip point, step int) (point, int) {
 	wire := len(c.wirings) - 1
 	dbg(" Motion Wire %d[%03d]: %c -> %d", wire, step, m.dir, m.length)
 
 	for i := 0; i < m.length; i++ {
+		step++
+
 		switch m.dir {
 		case 'U':
 			cableTip.y++
@@ -101,7 +102,7 @@ func (c *circuit) doMotion(m motion, cableTip point, step int) point {
 		//dbg("  -> New cableTip: %v", c.cableTip)
 	}
 
-	return cableTip
+	return cableTip, step
 }
 
 func (c *circuit) minManhattanShortCircuit() int {
@@ -116,6 +117,28 @@ func (c *circuit) minManhattanShortCircuit() int {
 	}
 
 	return minDistance
+}
+
+func (c *circuit) minSignalDelay() int {
+	minSignalDelay := math.MaxInt32
+
+	for point := range c.shortCircuits {
+		dbg("Checking signal delay to %v", point)
+		pointSignalDelay := 0
+		for _, wiring := range c.wirings {
+			if s, ok := wiring[point]; ok {
+				dbg(" -> got wiring with %d steps", s)
+				pointSignalDelay += s
+			}
+		}
+		if pointSignalDelay < minSignalDelay {
+			minSignalDelay = pointSignalDelay
+			dbg("** New min signal delay! %d", minSignalDelay)
+		}
+
+	}
+
+	return minSignalDelay
 }
 
 func abs(x int) int {
@@ -150,6 +173,7 @@ func main() {
 	c.runWiring(w2)
 
 	log.Printf("Min Manhattan: %d", c.minManhattanShortCircuit())
+	log.Printf("Min Signal Delay: %d", c.minSignalDelay())
 
 }
 
