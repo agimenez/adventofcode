@@ -14,13 +14,48 @@ const (
 )
 
 type point struct {
-	motion rune
-	x, y   int
+	x, y int
 }
 
 type motion struct {
 	dir    rune
 	length int
+}
+
+func (m motion) String() string {
+	return fmt.Sprintf("%c:%d", m.dir, m.length)
+}
+
+type circuit struct {
+	wired    map[point]bool
+	cableTip point
+}
+
+func (c *circuit) runWiring(wire []motion) {
+	c.cableTip = point{0, 0}
+
+	for _, m := range wire {
+		c.doMotion(m)
+	}
+}
+
+func (c *circuit) doMotion(m motion) {
+	dbg("Motion: %c -> %d", m.dir, m.length)
+	switch m.dir {
+	case 'U':
+		c.cableTip.y += m.length
+	case 'D':
+		c.cableTip.y -= m.length
+	case 'L':
+		c.cableTip.x -= m.length
+	case 'R':
+		c.cableTip.x += m.length
+	default:
+		panic(fmt.Sprintf("Bad input motion direction %c", m.dir))
+	}
+
+	dbg("  -> New cableTip: %v", c.cableTip)
+	c.wired[c.cableTip] = true
 }
 
 func dbg(fmt string, v ...interface{}) {
@@ -42,7 +77,12 @@ func main() {
 	w1 := parseWiring(wire1)
 	w2 := parseWiring(wire1)
 
-	fmt.Printf("%v %v\n", w1, w2)
+	c := circuit{
+		wired:    make(map[point]bool, len(w1)),
+		cableTip: point{0, 0},
+	}
+	c.runWiring(w1)
+	c.runWiring(w2)
 
 }
 
