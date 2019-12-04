@@ -67,12 +67,12 @@ func (c *circuit) checkShortCircuits() {
 	for i, wiring := range c.wirings[:len(c.wirings)-1] {
 		dbg("Checking shortcircuits %d/%d", i, len(c.wirings)-1)
 		for point := range topWire {
-			dbg(" -> Point %v", point)
+			dbg("\t-> Point %v", point)
 			if wiring[point] {
-				dbg("   *** MATCH! ***")
+				dbg("\t   *** MATCH! ***")
 				c.shortCircuits[point] = true
 			} else {
-				dbg("   (nope)")
+				dbg("\t   (nope)")
 			}
 		}
 	}
