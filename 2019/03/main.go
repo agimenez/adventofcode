@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"strings"
 )
 
@@ -100,6 +101,20 @@ func (c *circuit) doMotion(m motion, cableTip point) point {
 	return cableTip
 }
 
+func (c *circuit) minManhattanShortCircuit() int {
+	minDistance := math.MaxInt32
+
+	for point := range c.shortCircuits {
+		d := point.x + point.y
+		if d < minDistance {
+			dbg("Got new min distance %d", d)
+			minDistance = d
+		}
+	}
+
+	return minDistance
+}
+
 func dbg(fmt string, v ...interface{}) {
 	if debug {
 		log.Printf(fmt, v...)
@@ -122,6 +137,8 @@ func main() {
 	c := newCircuit()
 	c.runWiring(w1)
 	c.runWiring(w2)
+
+	log.Printf("Min Manhattan: %d", c.minManhattanShortCircuit())
 
 }
 
