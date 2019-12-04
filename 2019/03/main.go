@@ -28,25 +28,27 @@ func (m motion) String() string {
 }
 
 type circuit struct {
-	wirings       []map[point]bool
+	wirings       []map[point]int
 	shortCircuits map[point]bool
 }
 
 func newCircuit() *circuit {
 	return &circuit{
-		wirings:       []map[point]bool{},
+		wirings:       []map[point]int{},
 		shortCircuits: make(map[point]bool, 100),
 	}
 }
 
 func (c *circuit) runWiring(wire []motion) {
 	dbg("*** Running new wiring %d ***", len(c.wirings))
-	cableTip := point{0, 0}
 
-	c.wirings = append(c.wirings, map[point]bool{})
+	cableTip := point{0, 0}
+	steps := 0
+	c.wirings = append(c.wirings, map[point]int{})
 
 	for _, m := range wire {
-		cableTip = c.doMotion(m, cableTip)
+		steps++
+		cableTip = c.doMotion(m, cableTip, steps)
 	}
 
 	c.checkShortCircuits()
@@ -65,7 +67,7 @@ func (c *circuit) checkShortCircuits() {
 		dbg("Checking shortcircuits %d/%d", i, len(c.wirings)-1)
 		for point := range topWire {
 			dbg("\t-> Point %v", point)
-			if wiring[point] {
+			if wiring[point] != 0 {
 				dbg("\t   *** MATCH! ***")
 				c.shortCircuits[point] = true
 			}
@@ -74,9 +76,9 @@ func (c *circuit) checkShortCircuits() {
 
 }
 
-func (c *circuit) doMotion(m motion, cableTip point) point {
+func (c *circuit) doMotion(m motion, cableTip point, step int) point {
 	wire := len(c.wirings) - 1
-	dbg(" Motion Wire %d: %c -> %d", wire, m.dir, m.length)
+	dbg(" Motion Wire %d[%03d]: %c -> %d", wire, step, m.dir, m.length)
 
 	for i := 0; i < m.length; i++ {
 		switch m.dir {
@@ -92,7 +94,10 @@ func (c *circuit) doMotion(m motion, cableTip point) point {
 			panic(fmt.Sprintf("Bad input motion direction %c", m.dir))
 		}
 
-		c.wirings[wire][cableTip] = true
+		// Only count the steps the first time we hit the position
+		if c.wirings[wire][cableTip] == 0 {
+			c.wirings[wire][cableTip] = step
+		}
 		//dbg("  -> New cableTip: %v", c.cableTip)
 	}
 
