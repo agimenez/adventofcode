@@ -68,8 +68,6 @@ func (c *circuit) checkShortCircuits() {
 			if wiring[point] {
 				dbg("\t   *** MATCH! ***")
 				c.shortCircuits[point] = true
-			} else {
-				dbg("\t   (nope)")
 			}
 		}
 	}
