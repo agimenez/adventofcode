@@ -27,11 +27,13 @@ func (m motion) String() string {
 }
 
 type circuit struct {
-	wired    map[point]bool
-	cableTip point
+	wired         map[point]bool
+	cableTip      point
+	shortCircuits map[point]bool
 }
 
 func (c *circuit) runWiring(wire []motion) {
+	dbg("*** Running new wiring ***")
 	c.cableTip = point{0, 0}
 
 	for _, m := range wire {
@@ -41,21 +43,24 @@ func (c *circuit) runWiring(wire []motion) {
 
 func (c *circuit) doMotion(m motion) {
 	dbg("Motion: %c -> %d", m.dir, m.length)
-	switch m.dir {
-	case 'U':
-		c.cableTip.y += m.length
-	case 'D':
-		c.cableTip.y -= m.length
-	case 'L':
-		c.cableTip.x -= m.length
-	case 'R':
-		c.cableTip.x += m.length
-	default:
-		panic(fmt.Sprintf("Bad input motion direction %c", m.dir))
+
+	for i := 0; i < m.length; i++ {
+		switch m.dir {
+		case 'U':
+			c.cableTip.y++
+		case 'D':
+			c.cableTip.y--
+		case 'L':
+			c.cableTip.x--
+		case 'R':
+			c.cableTip.x++
+		default:
+			panic(fmt.Sprintf("Bad input motion direction %c", m.dir))
+		}
+		c.wired[c.cableTip] = true
+		dbg("  -> New cableTip: %v", c.cableTip)
 	}
 
-	dbg("  -> New cableTip: %v", c.cableTip)
-	c.wired[c.cableTip] = true
 }
 
 func dbg(fmt string, v ...interface{}) {
@@ -75,7 +80,7 @@ func main() {
 	dbg("wire2: %s", wire2)
 
 	w1 := parseWiring(wire1)
-	w2 := parseWiring(wire1)
+	w2 := parseWiring(wire2)
 
 	c := circuit{
 		wired:    make(map[point]bool, len(w1)),
