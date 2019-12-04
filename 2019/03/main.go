@@ -103,7 +103,7 @@ func (c *circuit) minManhattanShortCircuit() int {
 	minDistance := math.MaxInt32
 
 	for point := range c.shortCircuits {
-		d := point.x + point.y
+		d := abs(point.x) + abs(point.y)
 		if d < minDistance {
 			dbg("Got new min distance %d", d)
 			minDistance = d
@@ -111,6 +111,14 @@ func (c *circuit) minManhattanShortCircuit() int {
 	}
 
 	return minDistance
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+
+	return x
 }
 
 func dbg(fmt string, v ...interface{}) {
