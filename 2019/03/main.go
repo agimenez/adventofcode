@@ -28,30 +28,26 @@ func (m motion) String() string {
 
 type circuit struct {
 	wirings       []map[point]bool
-	wires         int
 	shortCircuits map[point]bool
 }
 
 func newCircuit() *circuit {
 	return &circuit{
 		wirings:       []map[point]bool{},
-		wires:         0,
 		shortCircuits: make(map[point]bool, 100),
 	}
 }
 
 func (c *circuit) runWiring(wire []motion) {
-	dbg("*** Running new wiring %d ***", c.wires)
+	dbg("*** Running new wiring %d ***", len(c.wirings))
 	cableTip := point{0, 0}
 
-	//c.wiring[c.wires] = make(map[point]bool, len(wire))
 	c.wirings = append(c.wirings, map[point]bool{})
 
 	for _, m := range wire {
 		cableTip = c.doMotion(m, cableTip)
 	}
 
-	c.wires++
 	c.checkShortCircuits()
 }
 
@@ -80,7 +76,8 @@ func (c *circuit) checkShortCircuits() {
 }
 
 func (c *circuit) doMotion(m motion, cableTip point) point {
-	dbg(" Motion Wire %d: %c -> %d", c.wires, m.dir, m.length)
+	wire := len(c.wirings) - 1
+	dbg(" Motion Wire %d: %c -> %d", wire, m.dir, m.length)
 
 	for i := 0; i < m.length; i++ {
 		switch m.dir {
@@ -96,7 +93,7 @@ func (c *circuit) doMotion(m motion, cableTip point) point {
 			panic(fmt.Sprintf("Bad input motion direction %c", m.dir))
 		}
 
-		c.wirings[c.wires][cableTip] = true
+		c.wirings[wire][cableTip] = true
 		//dbg("  -> New cableTip: %v", c.cableTip)
 	}
 
