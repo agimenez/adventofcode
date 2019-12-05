@@ -40,10 +40,9 @@ func checkCompliant(c int) bool {
 
 	adjacent := false
 	groupSize := 1
-	//dbg("Checking %d", c)
+	dbg("Checking %d", c)
 	for i := 5; i >= 0; i-- {
 		curDigit := c % 10
-		dbg(" digit = %d, groupsize = %d", curDigit, groupSize)
 
 		// check if it decreases (backwards increasing)
 		if curDigit > last {
@@ -59,9 +58,15 @@ func checkCompliant(c int) bool {
 			}
 			groupSize = 1
 		}
+		dbg(" digit = %d, groupsize = %d", curDigit, groupSize)
 
 		last = curDigit
 		c = c / 10
+	}
+
+	// check for the last groupsize
+	if groupSize == 2 {
+		adjacent = true
 	}
 
 	return adjacent

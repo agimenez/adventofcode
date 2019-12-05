@@ -10,6 +10,7 @@ func TestCompliance(t *testing.T) {
 		{112233, true},
 		{123444, false},
 		{111122, true},
+		{556669, true},
 	}
 
 	for _, n := range numbers {
