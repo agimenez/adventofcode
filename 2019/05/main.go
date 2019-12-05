@@ -3,76 +3,34 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
+	"math"
 	"strconv"
 	"strings"
 )
 
 const (
-	OpSum = 1
-	OpMul = 2
+	debug = true
 )
 
-func main() {
-	var in string
-
-	fmt.Scan(&in)
-	originalProgram := parseProgram(in)
-
-	program := make([]int, len(originalProgram))
-
-	for i := 0; i <= 99; i++ {
-		for j := 0; j <= 99; j++ {
-			log.Printf("noun = %d, verb = %d", i, j)
-			copy(program, originalProgram)
-			initialize(program, i, j)
-			run(program)
-			if program[0] == 19690720 {
-				log.Printf("noun = %d, verb = %d", i, j)
-				log.Printf("answer = %d", 100*i+j)
-				os.Exit(0)
-			}
-			//log.Printf("p[0] = %d\n", program[0])
-		}
-	}
-
-}
-
-func run(p []int) {
-	pc := 0
-
-	for op := p[pc]; op != 99; {
-		//	log.Printf("program = %v", p)
-		//	log.Printf("fetch= %v", p[pc:pc+4])
-		//	log.Printf("pc = %d, op = %d", pc, op)
-		addr1 := p[pc+1]
-		addr2 := p[pc+2]
-		dest := p[pc+3]
-
-		op1 := p[addr1]
-		op2 := p[addr2]
-
-		if op == OpSum {
-			//		log.Printf("%d + %d into addr %d\n", op1, op2, dest)
-			p[dest] = op1 + op2
-		} else if op == OpMul {
-			//		log.Printf("%d * %d into addr %d\n", op1, op2, dest)
-			p[dest] = op1 * op2
-		}
-
-		pc += 4
-		op = p[pc]
-		//	log.Printf("NEW pc = %d, op = %d", pc, op)
+func dbg(fmt string, v ...interface{}) {
+	if debug {
+		log.Printf(fmt, v...)
 	}
 }
 
-func initialize(p []int, noun int, verb int) {
-	p[1] = noun
-	p[2] = verb
+type program struct {
+	mem    []int
+	pc     int
+	output []int
 }
 
-func parseProgram(p string) []int {
-	var bytecode []int
+func newProgram(p string) *program {
+
+	pr := &program{
+		mem:    []int{},
+		pc:     0,
+		output: []int{},
+	}
 
 	pSlice := strings.Split(p, ",")
 	for _, b := range pSlice {
@@ -81,8 +39,65 @@ func parseProgram(p string) []int {
 			log.Fatal(err)
 		}
 
-		bytecode = append(bytecode, i)
+		pr.mem = append(pr.mem, i)
 	}
 
-	return bytecode
+	return pr
+}
+
+func (p *program) run(input []int) {
+
+	for op := p.mem[p.pc]; op != 99; {
+		dbg("op = %v", op)
+
+		opcode := op % 100
+		dbg("opcode = %v", opcode)
+
+		switch opcode {
+		case 1: // Add
+			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			p.mem[c] = a + b
+			p.pc += 4
+		case 2: // Mul
+			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			p.mem[c] = a * b
+			p.pc += 4
+		case 3: // In
+			var in int
+			in, input = input[0], input[1:]
+			p.mem[p.pc+1] = in
+			p.pc += 2
+		case 4: // Out
+			p.output = append(p.output, p.mem[p.pc+1])
+			p.pc += 2
+		default:
+			log.Fatalf("Bad opcode = %v", op)
+		}
+
+		op = p.mem[p.pc]
+	}
+}
+
+func (p *program) fetchParameter(n int) int {
+	opcode := p.mem[p.pc]
+	parameter := p.mem[p.pc+n]
+	mode := opcode / int(math.Pow10(n+1)) % 10
+
+	dbg("mode: %d", mode)
+	if mode == 0 {
+		return p.mem[parameter]
+	}
+
+	return parameter
+}
+
+func main() {
+	var in string
+
+	fmt.Scan(&in)
+	program := newProgram(in)
+
+	program.run([]int{1})
+
+	log.Printf("%v", program.output)
 }
