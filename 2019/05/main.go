@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	debug = true
+	debug = false
 )
 
 func dbg(fmt string, v ...interface{}) {
