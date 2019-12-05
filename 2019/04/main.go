@@ -8,7 +8,7 @@ const (
 	Start = 134564
 	End   = 585159
 
-	debug = true
+	debug = false
 )
 
 func dbg(fmt string, v ...interface{}) {
