@@ -82,6 +82,35 @@ func (p *program) run(input []int) {
 
 			p.output = append(p.output, p.mem[src])
 			p.pc += 2
+
+		case 5: // JMP IF TRUE
+			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
+			if tst != 0 {
+				p.pc = newpc
+			}
+
+		case 6: // JMP IF FALSE
+			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
+			if tst == 0 {
+				p.pc = newpc
+			}
+
+		case 7: // LT
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			if first < second {
+				p.mem[dst] = 1
+			} else {
+				p.mem[dst] = 0
+			}
+
+		case 8: // EQ
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			if first == second {
+				p.mem[dst] = 1
+			} else {
+				p.mem[dst] = 0
+			}
+
 		default:
 			log.Fatalf("Bad opcode = %v", op)
 		}
