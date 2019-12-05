@@ -7,8 +7,6 @@ import (
 const (
 	Start = 134564
 	End   = 585159
-	//Start = 123444
-	//End   = 123445
 
 	debug = true
 )
@@ -26,6 +24,8 @@ func main() {
 		if checkCompliant(candidate) {
 			dbg("%d is compliant", candidate)
 			compliant++
+		} else {
+			//dbg("%d is NOT compliant", candidate)
 		}
 	}
 
@@ -39,8 +39,8 @@ func checkCompliant(c int) bool {
 	last := 10
 
 	adjacent := false
-	groupSize := 0
-	dbg("Checking %d", c)
+	groupSize := 1
+	//dbg("Checking %d", c)
 	for i := 5; i >= 0; i-- {
 		curDigit := c % 10
 		dbg(" digit = %d, groupsize = %d", curDigit, groupSize)
