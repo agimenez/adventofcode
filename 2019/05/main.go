@@ -48,31 +48,44 @@ func newProgram(p string) *program {
 func (p *program) run(input []int) {
 
 	for op := p.mem[p.pc]; op != 99; {
-		dbg("op = %v", op)
+		dbg("MEM = %v", p.mem)
+		dbg("pc = %d; op = %v", p.pc, op)
 
 		opcode := op % 100
 		dbg("opcode = %v", opcode)
 
 		switch opcode {
 		case 1: // Add
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			dbg(" ADD %d %d -> %d", a, b, c)
 			p.mem[c] = a + b
 			p.pc += 4
 		case 2: // Mul
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			dbg(" MUL %d %d -> %d", a, b, c)
 			p.mem[c] = a * b
 			p.pc += 4
 		case 3: // In
-			var in int
-			in, input = input[0], input[1:]
-			p.mem[p.pc+1] = in
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+2])
+			var in, dst int
+			in, input, dst = input[0], input[1:], p.mem[p.pc+1]
+			dbg(" IN  %d -> %d", in, dst)
+			p.mem[dst] = in
 			p.pc += 2
 		case 4: // Out
-			p.output = append(p.output, p.mem[p.pc+1])
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+2])
+
+			src := p.mem[p.pc+1]
+			dbg(" OUT %d", p.mem[src])
+
+			p.output = append(p.output, p.mem[src])
 			p.pc += 2
 		default:
 			log.Fatalf("Bad opcode = %v", op)
 		}
+		dbg("MEM = %v", p.mem)
 
 		op = p.mem[p.pc]
 	}
