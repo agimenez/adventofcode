@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	debug = false
+	debug = true
 )
 
 func dbg(fmt string, v ...interface{}) {
@@ -84,32 +84,45 @@ func (p *program) run(input []int) {
 			p.pc += 2
 
 		case 5: // JMP IF TRUE
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+3])
 			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
+			dbg(" JMP %d if %d != 0", newpc, tst)
 			if tst != 0 {
 				p.pc = newpc
 			}
+			p.pc += 3
 
 		case 6: // JMP IF FALSE
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+3])
 			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
+			dbg(" JMP %d if %d == 0", newpc, tst)
 			if tst == 0 {
 				p.pc = newpc
 			}
+			p.pc += 3
 
 		case 7: // LT
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			dbg(" LT %d %d %d", first, second, dst)
 			if first < second {
 				p.mem[dst] = 1
 			} else {
 				p.mem[dst] = 0
 			}
 
+			p.pc += 4
+
 		case 8: // EQ
+			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			dbg(" EQ %d %d %d", first, second, dst)
 			if first == second {
 				p.mem[dst] = 1
 			} else {
 				p.mem[dst] = 0
 			}
+			p.pc += 4
 
 		default:
 			log.Fatalf("Bad opcode = %v", op)
@@ -125,7 +138,7 @@ func (p *program) fetchParameter(n int) int {
 	parameter := p.mem[p.pc+n]
 	mode := opcode / int(math.Pow10(n+1)) % 10
 
-	dbg("mode: %d", mode)
+	dbg("  (fetch) param[%d](%d) mode: %d", n, parameter, mode)
 	if mode == 0 {
 		return p.mem[parameter]
 	}
