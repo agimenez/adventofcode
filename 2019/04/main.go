@@ -7,8 +7,10 @@ import (
 const (
 	Start = 134564
 	End   = 585159
+	//Start = 123444
+	//End   = 123445
 
-	debug = false
+	debug = true
 )
 
 func dbg(fmt string, v ...interface{}) {
@@ -37,16 +39,25 @@ func checkCompliant(c int) bool {
 	last := 10
 
 	adjacent := false
+	groupSize := 0
+	dbg("Checking %d", c)
 	for i := 5; i >= 0; i-- {
 		curDigit := c % 10
+		dbg(" digit = %d, groupsize = %d", curDigit, groupSize)
 
 		// check if it decreases (backwards increasing)
 		if curDigit > last {
 			return false
-		}
-
-		if curDigit == last {
-			adjacent = true
+		} else if curDigit == last {
+			groupSize++
+		} else {
+			// digit changed to a decreasing one, check previous groupsize for
+			// compliance
+			if groupSize == 2 {
+				dbg("  -> Adjacent!")
+				adjacent = true
+			}
+			groupSize = 1
 		}
 
 		last = curDigit
