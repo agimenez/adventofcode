@@ -20,19 +20,31 @@ func dbg(fmt string, v ...interface{}) {
 func main() {
 
 	orbits := readSystem()
-	total := 0
-	for orbit := range orbits {
-		parent := orbit
 
-		for parent != "COM" {
-			total++
-			parent = orbits[parent]
+	myOrbit, distance := orbits["YOU"], 0
+	//	santaOrbit, distance := orbits["SAN"], 0
 
-		}
+	transfers := make(map[string]int)
 
+	for myOrbit != "COM" {
+		transfers[myOrbit] = distance
+		myOrbit = orbits[myOrbit]
+		distance++
 	}
 
-	log.Printf("%v", total)
+	// Find intersection between our trasnfer path and Santa's
+	santaOrbit, distance := orbits["SAN"], 0
+	for santaOrbit != "COM" {
+		if dist, ok := transfers[santaOrbit]; ok {
+			distance += dist
+			break
+		}
+
+		santaOrbit = orbits[santaOrbit]
+		distance++
+	}
+
+	log.Printf("%v", distance)
 }
 
 func readSystem() map[string]string {
