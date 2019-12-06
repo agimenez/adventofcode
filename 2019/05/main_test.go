@@ -13,6 +13,9 @@ type progTest struct {
 }
 
 func testProgram(t *testing.T, pt *progTest) {
+
+	t.Helper()
+
 	p := newProgram(pt.code)
 	p.run([]int{pt.in})
 
