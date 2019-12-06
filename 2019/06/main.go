@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"log"
+	"os"
+	"strings"
 )
 
 const (
-	debug = false
+	debug = true
 )
 
 func dbg(fmt string, v ...interface{}) {
@@ -16,9 +18,32 @@ func dbg(fmt string, v ...interface{}) {
 }
 
 func main() {
-	var in string
 
-	fmt.Scan(&in)
+	orbits := readSystem()
+	total := 0
+	for orbit := range orbits {
+		parent := orbit
 
-	log.Printf("%v", in)
+		for parent != "COM" {
+			total++
+			parent = orbits[parent]
+
+		}
+
+	}
+
+	log.Printf("%v", total)
+}
+
+func readSystem() map[string]string {
+
+	orbit := make(map[string]string, 100)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		planets := strings.Split(scanner.Text(), ")")
+		orbit[planets[1]] = planets[0]
+	}
+
+	return orbit
 }
