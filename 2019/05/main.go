@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	debug = true
+	debug = false
 )
 
 func dbg(fmt string, v ...interface{}) {
@@ -76,11 +76,10 @@ func (p *program) run(input []int) {
 			p.pc += 2
 		case 4: // Out
 			dbg(" INSTR = %v", p.mem[p.pc:p.pc+2])
+			src := p.fetchParameter(1)
+			dbg(" OUT %d", src)
 
-			src := p.mem[p.pc+1]
-			dbg(" OUT %d", p.mem[src])
-
-			p.output = append(p.output, p.mem[src])
+			p.output = append(p.output, src)
 			p.pc += 2
 
 		case 5: // JMP IF TRUE
@@ -89,8 +88,9 @@ func (p *program) run(input []int) {
 			dbg(" JMP %d if %d != 0", newpc, tst)
 			if tst != 0 {
 				p.pc = newpc
+			} else {
+				p.pc += 3
 			}
-			p.pc += 3
 
 		case 6: // JMP IF FALSE
 			dbg(" INSTR = %v", p.mem[p.pc:p.pc+3])
@@ -98,12 +98,13 @@ func (p *program) run(input []int) {
 			dbg(" JMP %d if %d == 0", newpc, tst)
 			if tst == 0 {
 				p.pc = newpc
+			} else {
+				p.pc += 3
 			}
-			p.pc += 3
 
 		case 7: // LT
 			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
-			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(" LT %d %d %d", first, second, dst)
 			if first < second {
 				p.mem[dst] = 1
@@ -115,7 +116,7 @@ func (p *program) run(input []int) {
 
 		case 8: // EQ
 			dbg(" INSTR = %v", p.mem[p.pc:p.pc+4])
-			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.fetchParameter(3)
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(" EQ %d %d %d", first, second, dst)
 			if first == second {
 				p.mem[dst] = 1
@@ -152,7 +153,7 @@ func main() {
 	fmt.Scan(&in)
 	program := newProgram(in)
 
-	program.run([]int{1})
+	program.run([]int{5})
 
 	log.Printf("%v", program.output)
 }
