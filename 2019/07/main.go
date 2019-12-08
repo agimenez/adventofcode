@@ -180,11 +180,32 @@ func slicePermutations(s []int) [][]int {
 
 func main() {
 	var in string
-
 	fmt.Scan(&in)
-	program := newProgram(in)
 
-	program.run([]int{5})
+	maxOutput := 0
+	perms := slicePermutations([]int{0, 1, 2, 3, 4})
+	for _, perm := range perms {
+		thrustersSignal := runPermutation(&in, perm)
+		log.Printf("Got signal from perm %v: %v", perm, thrustersSignal)
+		if thrustersSignal > maxOutput {
+			maxOutput = thrustersSignal
+		}
+	}
 
-	log.Printf("%v", program.output)
+	log.Printf("Max output: %v", maxOutput)
+
+}
+
+func runPermutation(in *string, phaseSettings []int) int {
+	input := 0
+	for _, ampSetting := range phaseSettings {
+		program := newProgram(*in)
+		program.run([]int{ampSetting, input})
+
+		// input for the next phase
+		input = program.output[0]
+
+	}
+
+	return input
 }
