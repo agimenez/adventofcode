@@ -19,17 +19,15 @@ func dbg(fmt string, v ...interface{}) {
 }
 
 type program struct {
-	mem    []int
-	pc     int
-	output []int
+	mem []int
+	pc  int
 }
 
 func newProgram(p string) *program {
 
 	pr := &program{
-		mem:    []int{},
-		pc:     0,
-		output: []int{},
+		mem: []int{},
+		pc:  0,
 	}
 
 	pSlice := strings.Split(p, ",")
@@ -45,7 +43,7 @@ func newProgram(p string) *program {
 	return pr
 }
 
-func (p *program) run(input []int) {
+func (p *program) run(input <-chan int, output chan<- int) {
 
 	for op := p.mem[p.pc]; op != 99; {
 		dbg("MEM = %v", p.mem)
@@ -70,7 +68,7 @@ func (p *program) run(input []int) {
 		case 3: // In
 			dbg(" INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
-			in, input, dst = input[0], input[1:], p.mem[p.pc+1]
+			in, dst = <-input, p.mem[p.pc+1]
 			dbg(" IN  %d -> %d", in, dst)
 			p.mem[dst] = in
 			p.pc += 2
@@ -79,7 +77,7 @@ func (p *program) run(input []int) {
 			src := p.fetchParameter(1)
 			dbg(" OUT %d", src)
 
-			p.output = append(p.output, src)
+			output <- src
 			p.pc += 2
 
 		case 5: // JMP IF TRUE
@@ -197,15 +195,17 @@ func main() {
 }
 
 func runPermutation(in *string, phaseSettings []int) int {
-	input := 0
+	input := make(chan int)
+	output := make(chan int)
 	for _, ampSetting := range phaseSettings {
 		program := newProgram(*in)
-		program.run([]int{ampSetting, input})
+		input <- ampSetting
+		program.run(input, output)
 
 		// input for the next phase
-		input = program.output[0]
+		input, output = output, make(chan int)
 
 	}
 
-	return input
+	return <-output
 }

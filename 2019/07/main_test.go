@@ -17,10 +17,13 @@ func testProgram(t *testing.T, pt *progTest) {
 	t.Helper()
 
 	p := newProgram(pt.code)
-	p.run([]int{pt.in})
-
-	if p.output[0] != pt.out {
-		t.Errorf("Got %d, expected %d", p.output[0], pt.out)
+	input := make(chan int)
+	output := make(chan int)
+	go p.run(input, output)
+	input <- pt.in
+	out := <-output
+	if out != pt.out {
+		t.Errorf("Got %d, expected %d", out, pt.out)
 	}
 }
 
@@ -190,4 +193,8 @@ func TestIntegration(t *testing.T) {
 			testProgram(t, &test)
 		})
 	}
+}
+
+func TestAmps(t *testing.T) {
+
 }
