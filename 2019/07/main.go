@@ -187,28 +187,34 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	maxOutput := 0
 	perms := slicePermutations([]int{0, 1, 2, 3, 4})
+	max := maxAmpsOutput(in, perms)
+
+	log.Printf("Max output: %v", max)
+
+}
+
+func maxAmpsOutput(program string, perms [][]int) int {
+	maxOutput := 0
 	for _, perm := range perms {
-		thrustersSignal := runPermutation(&in, perm)
+		thrustersSignal := runPermutation(program, perm)
 		dbg(1, "Got signal from perm %v: %v", perm, thrustersSignal)
 		if thrustersSignal > maxOutput {
 			maxOutput = thrustersSignal
 		}
 	}
 
-	log.Printf("Max output: %v", maxOutput)
-
+	return maxOutput
 }
 
-func runPermutation(in *string, phaseSettings []int) int {
+func runPermutation(in string, phaseSettings []int) int {
 	input := make(chan int)
 	output := make(chan int)
 
 	initialInput := input
 	oldOutput := output
 	for i, ampSetting := range phaseSettings {
-		program := newProgram(*in)
+		program := newProgram(in)
 		dbg(1, "Spawn %d with input %v and output %v", i, input, output)
 		go program.run(input, output)
 		input <- ampSetting
