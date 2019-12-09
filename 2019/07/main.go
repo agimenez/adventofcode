@@ -204,15 +204,21 @@ func main() {
 func runPermutation(in *string, phaseSettings []int) int {
 	input := make(chan int)
 	output := make(chan int)
-	for _, ampSetting := range phaseSettings {
+
+	initialInput := input
+	oldOutput := output
+	for i, ampSetting := range phaseSettings {
 		program := newProgram(*in)
+		dbg(1, "Spawn %d with input %v and output %v", i, input, output)
+		go program.run(input, output)
 		input <- ampSetting
-		program.run(input, output)
 
 		// input for the next phase
-		input, output = output, make(chan int)
+		oldOutput, input, output = output, output, make(chan int)
 
 	}
+	dbg(1, "initialInput: %v, output: %v, oldOutput %v", initialInput, output, oldOutput)
+	initialInput <- 0
 
-	return <-output
+	return <-oldOutput
 }
