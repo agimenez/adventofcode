@@ -187,7 +187,7 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	perms := slicePermutations([]int{0, 1, 2, 3, 4})
+	perms := slicePermutations([]int{5, 6, 7, 8, 9})
 	max := maxAmpsOutput(in, perms)
 
 	log.Printf("Max output: %v", max)
@@ -208,23 +208,44 @@ func maxAmpsOutput(program string, perms [][]int) int {
 }
 
 func runPermutation(in string, phaseSettings []int) int {
-	input := make(chan int)
-	output := make(chan int)
+	var channels []chan int
 
-	initialInput := input
-	oldOutput := output
+	// The first channel is special since the last loop of the last amp will write to
+	// this channel (intended to be input of the first one), but in this case, the
+	// first amp would have finished its work, thus leaving the channel blocked.
+	// Buffer the first channel so the last amp can write to it and we can read from
+	// it when exiting to provide the max value
+	channels = append(channels, make(chan int, 1))
+
+	for i := 1; i < len(phaseSettings); i++ {
+		channels = append(channels, make(chan int))
+	}
+
+	// indicates that the whole system halted (need to wait for a signal from every
+	// amp. If we don't sync with this, after the loop exits from launching the
+	// goroutines, we'd get some random value from channels[0] while the system
+	// didn't finish its whole processing.
+	done := make(chan bool, len(phaseSettings))
+
 	for i, ampSetting := range phaseSettings {
 		program := newProgram(in)
-		dbg(1, "Spawn %d with input %v and output %v", i, input, output)
-		go program.run(input, output)
-		input <- ampSetting
-
-		// input for the next phase
-		oldOutput, input, output = output, output, make(chan int)
+		chanIn := channels[i]
+		chanOut := channels[(i+1)%len(channels)]
+		id := i
+		go func() {
+			dbg(1, "Spawn %d with input %v and output %v", id, chanIn, chanOut)
+			program.run(chanIn, chanOut)
+			dbg(1, "Spawn %d done", id)
+			done <- true
+		}()
+		channels[i] <- ampSetting
 
 	}
-	dbg(1, "initialInput: %v, output: %v, oldOutput %v", initialInput, output, oldOutput)
-	initialInput <- 0
+	channels[0] <- 0
+	for range phaseSettings {
+		<-done
+	}
 
-	return <-oldOutput
+	max := <-channels[0]
+	return max
 }
