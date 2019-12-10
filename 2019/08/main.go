@@ -32,8 +32,8 @@ func main() {
 
 	minz := math.MaxInt32
 	res := 0
-	for start, end := 0, wide*tall; start < len(in); start, end = end, end+(wide*tall) {
-		dbg(1, "start = %d, end = %d", start, end)
+	for i, start, end := 0, 0, wide*tall; start < len(in); i, start, end = i+1, end, end+(wide*tall) {
+		dbg(1, "%d: start = %d, end = %d", i, start, end)
 		str := in[start:end]
 		z := strings.Count(str, "0")
 		dbg(2, "str = %s, z = %d (%d)", str, z, minz)
