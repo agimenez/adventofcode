@@ -246,6 +246,5 @@ func runPermutation(in string, phaseSettings []int) int {
 		<-done
 	}
 
-	max := <-channels[0]
-	return max
+	return <-channels[0]
 }
