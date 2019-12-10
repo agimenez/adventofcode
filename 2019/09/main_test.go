@@ -27,6 +27,36 @@ func testProgram(t *testing.T, pt *progTest) {
 	}
 }
 
+func TestSetMem(t *testing.T) {
+	// dummy 10-position code just to initialize
+	code := "0,1,2,3,4,5,6,7,8,9"
+	tests := []struct {
+		dstpos int
+		dstval int
+		size   int
+	}{
+		{3, 10, 10},
+		{10, 10, 11},
+		{15, 10, 16},
+	}
+
+	prog := newProgram(code)
+	for _, test := range tests {
+		prog.setMem(test.dstpos, test.dstval)
+
+		if len(prog.mem) != test.size {
+			t.Errorf("Memory size %d, expected %d", len(prog.mem), test.size)
+		}
+
+		if val := prog.mem[test.dstpos]; val != test.dstval {
+			t.Errorf("Destination set was %d, expected %d", val, test.dstval)
+		}
+
+		t.Logf("%v", prog)
+	}
+
+}
+
 func TestEQ(t *testing.T) {
 
 	tests := []progTest{

@@ -44,6 +44,15 @@ func newProgram(p string) *program {
 	return pr
 }
 
+func (p *program) setMem(dst, val int) {
+	extend := dst - len(p.mem) + 1
+	if dst >= len(p.mem) {
+		p.mem = append(p.mem, make([]int, extend)...)
+	}
+
+	p.mem[dst] = val
+}
+
 func (p *program) run(input <-chan int, output chan<- int) {
 
 	for op := p.mem[p.pc]; op != 99; {
