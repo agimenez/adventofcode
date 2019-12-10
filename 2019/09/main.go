@@ -67,20 +67,20 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(3, " ADD %d %d -> %d", a, b, c)
-			p.mem[c] = a + b
+			p.setMem(c, a+b)
 			p.pc += 4
 		case 2: // Mul
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(3, " MUL %d %d -> %d", a, b, c)
-			p.mem[c] = a * b
+			p.setMem(c, a*b)
 			p.pc += 4
 		case 3: // In
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
 			in, dst = <-input, p.mem[p.pc+1]
 			dbg(3, " IN  %d -> %d", in, dst)
-			p.mem[dst] = in
+			p.setMem(dst, in)
 			p.pc += 2
 		case 4: // Out
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
@@ -115,9 +115,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(3, " LT %d %d %d", first, second, dst)
 			if first < second {
-				p.mem[dst] = 1
+				p.setMem(dst, 1)
 			} else {
-				p.mem[dst] = 0
+				p.setMem(dst, 0)
 			}
 
 			p.pc += 4
@@ -127,9 +127,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
 			dbg(3, " EQ %d %d %d", first, second, dst)
 			if first == second {
-				p.mem[dst] = 1
+				p.setMem(dst, 1)
 			} else {
-				p.mem[dst] = 0
+				p.setMem(dst, 0)
 			}
 			p.pc += 4
 
