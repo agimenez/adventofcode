@@ -20,15 +20,17 @@ func dbg(level int, fmt string, v ...interface{}) {
 }
 
 type program struct {
-	mem []int
-	pc  int
+	mem  []int
+	pc   int
+	base int
 }
 
 func newProgram(p string) *program {
 
 	pr := &program{
-		mem: []int{},
-		pc:  0,
+		mem:  []int{},
+		pc:   0,
+		base: 0,
 	}
 
 	pSlice := strings.Split(p, ",")
@@ -133,11 +135,12 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			}
 			p.pc += 4
 
-		case 9: // TODO: RELBASE
+		case 9: // RELBASE
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
-			dst := p.fetchParameter(1)
-			dbg(3, " RELBASE  %d", dst)
+			offset := p.fetchParameter(1)
+			dbg(3, " RELBASE  %d", offset)
 
+			p.base += offset
 			p.pc += 2
 
 		default:
