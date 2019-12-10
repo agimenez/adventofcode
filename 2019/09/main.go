@@ -156,6 +156,25 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
+	chanIn := make(chan int)
+	chanOut := make(chan int)
+
+	program := newProgram(in)
+
+	go func() {
+		program.run(chanIn, chanOut)
+		close(chanOut)
+	}()
+
+	chanIn <- 1
+	for {
+		val, ok := <-chanOut
+		if !ok {
+			break
+		}
+		log.Printf("%v", val)
+	}
+
 	log.Printf("input: %v", in)
 
 }
