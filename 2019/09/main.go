@@ -78,10 +78,10 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			p.setMem(c, a*b)
 			p.pc += 4
 		case 3: // In
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
 			in, dst = <-input, p.mem[p.pc+1]
-			dbg(3, " IN  %d -> %d", in, dst)
+			dbg(2, " IN  %d -> %d", in, dst)
 			p.setMem(dst, in)
 			p.pc += 2
 		case 4: // Out
@@ -157,11 +157,19 @@ func (p *program) fetchParameter(n int) int {
 	parameter := p.mem[p.pc+n]
 	mode := opcode / int(math.Pow10(n+1)) % 10
 
-	dbg(3, "  (fetch) param[%d](%d) mode: %d", n, parameter, mode)
+	dbg(2, "  (fetch %d) param[%d](%d) mode: %d, base %d, memsize %d", opcode, n, parameter, mode, p.base, len(p.mem))
 	if mode == 0 {
+		// position mode
+		dbg(2, "   (posmode) -> mem[%d] = %d", parameter, p.mem[parameter])
 		return p.mem[parameter]
+	} else if mode == 2 {
+		// relative mode
+		dbg(2, "   (relmode) -> mem[%d+%d] = %d", p.base, parameter, p.mem[p.base+parameter])
+		return p.mem[p.base+parameter]
 	}
 
+	// immediate mode
+	dbg(2, "   (immmode) -> = %d", parameter)
 	return parameter
 }
 
