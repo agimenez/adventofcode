@@ -133,6 +133,13 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			}
 			p.pc += 4
 
+		case 9: // TODO: RELBASE
+			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
+			dst := p.fetchParameter(1)
+			dbg(3, " RELBASE  %d", dst)
+
+			p.pc += 2
+
 		default:
 			log.Fatalf("Bad opcode = %v", op)
 		}
@@ -176,14 +183,15 @@ func main() {
 	}()
 
 	chanIn <- 1
+	unknownOps := []string{}
 	for {
 		val, ok := <-chanOut
 		if !ok {
 			break
 		}
-		log.Printf("%v", val)
+		unknownOps = append(unknownOps, fmt.Sprintf("%d", val))
 	}
 
-	log.Printf("input: %v", in)
+	log.Printf("List of unknownOps: %s", strings.Join(unknownOps, ", "))
 
 }
