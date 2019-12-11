@@ -213,15 +213,16 @@ func main() {
 	}()
 
 	chanIn <- 1
-	unknownOps := []string{}
+	output := []string{}
 	for {
 		val, ok := <-chanOut
 		if !ok {
 			break
 		}
-		unknownOps = append(unknownOps, fmt.Sprintf("%d", val))
+		output = append(output, fmt.Sprintf("%d", val))
 	}
 
-	log.Printf("List of unknownOps: %s", strings.Join(unknownOps, ", "))
+	log.Printf("List of unknownOps: %s", strings.Join(output[:len(output)-1], ", "))
+	log.Printf("BOOST keycode: %s", output[len(output)-1])
 
 }
