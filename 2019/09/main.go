@@ -225,4 +225,17 @@ func main() {
 	log.Printf("List of unknownOps: %s", strings.Join(output[:len(output)-1], ", "))
 	log.Printf("BOOST keycode: %s", output[len(output)-1])
 
+	// part 2
+	program = newProgram(in)
+	chanIn = make(chan int)
+	chanOut = make(chan int)
+
+	go func() {
+		program.run(chanIn, chanOut)
+		close(chanOut)
+	}()
+	chanIn <- 2
+	coords := <-chanOut
+	log.Printf("Coordinates: %d", coords)
+
 }
