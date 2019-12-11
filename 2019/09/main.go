@@ -52,6 +52,7 @@ func (p *program) setMem(dst, val int) {
 		p.mem = append(p.mem, make([]int, extend)...)
 	}
 
+	dbg(2, "  (setMem) p.mem[%d] = %d", dst, val)
 	p.mem[dst] = val
 }
 
@@ -67,21 +68,21 @@ func (p *program) run(input <-chan int, output chan<- int) {
 		switch opcode {
 		case 1: // Add
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
-			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(3, " ADD %d %d -> %d", a, b, c)
 			p.setMem(c, a+b)
 			p.pc += 4
 		case 2: // Mul
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
-			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(3, " MUL %d %d -> %d", a, b, c)
 			p.setMem(c, a*b)
 			p.pc += 4
 		case 3: // In
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
-			in, dst = <-input, p.mem[p.pc+1]
-			dbg(2, " IN  %d -> %d", in, dst)
+			in, dst = <-input, p.getAddrIndex(1)
+			dbg(2, " IN  %d -> mem[%d]", in, dst)
 			p.setMem(dst, in)
 			p.pc += 2
 		case 4: // Out
@@ -114,7 +115,7 @@ func (p *program) run(input <-chan int, output chan<- int) {
 
 		case 7: // LT
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
-			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(3, " LT %d %d %d", first, second, dst)
 			if first < second {
 				p.setMem(dst, 1)
@@ -126,7 +127,7 @@ func (p *program) run(input <-chan int, output chan<- int) {
 
 		case 8: // EQ
 			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
-			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.mem[p.pc+3]
+			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(3, " EQ %d %d %d", first, second, dst)
 			if first == second {
 				p.setMem(dst, 1)
@@ -136,9 +137,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			p.pc += 4
 
 		case 9: // RELBASE
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			offset := p.fetchParameter(1)
-			dbg(3, " RELBASE  %d", offset)
+			dbg(2, " RELBASE  %d", offset)
 
 			p.base += offset
 			p.pc += 2
@@ -152,12 +153,30 @@ func (p *program) run(input <-chan int, output chan<- int) {
 	}
 }
 
-func (p *program) fetchParameter(n int) int {
+func (p *program) instructionMode(offset int) int {
 	opcode := p.mem[p.pc]
-	parameter := p.mem[p.pc+n]
-	mode := opcode / int(math.Pow10(n+1)) % 10
+	return opcode / int(math.Pow10(offset+1)) % 10
+}
 
-	dbg(2, "  (fetch %d) param[%d](%d) mode: %d, base %d, memsize %d", opcode, n, parameter, mode, p.base, len(p.mem))
+// This is for writing to mem operations (IN, etc)
+func (p *program) getAddrIndex(n int) int {
+	parameter := p.mem[p.pc+n]
+	mode := p.instructionMode(n)
+
+	if mode == 0 {
+		return parameter
+	} else if mode == 2 {
+		return p.base + parameter
+	} else {
+		panic("unsupported immediate mode for writing")
+	}
+}
+
+func (p *program) fetchParameter(n int) int {
+	mode := p.instructionMode(n)
+	parameter := p.mem[p.pc+n]
+	dbg(2, "   param[%d](%d) mode: %d, base %d, memsize %d", n, parameter, mode, p.base, len(p.mem))
+
 	if mode == 0 {
 		// position mode
 		dbg(2, "   (posmode) -> mem[%d] = %d", parameter, p.mem[parameter])
