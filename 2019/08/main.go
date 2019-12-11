@@ -23,13 +23,7 @@ func init() {
 	flag.Parse()
 }
 
-func main() {
-
-	var in string
-	fmt.Scan(&in)
-	wide := 25
-	tall := 6
-
+func checkSum(in string, wide, tall int) int {
 	minz := math.MaxInt32
 	res := 0
 	for i, start, end := 0, 0, wide*tall; start < len(in); i, start, end = i+1, end, end+(wide*tall) {
@@ -48,6 +42,18 @@ func main() {
 
 	}
 
-	log.Printf("Max output: %v", res)
+	return res
+}
+
+func main() {
+
+	var in string
+	fmt.Scan(&in)
+	wide := 25
+	tall := 6
+
+	sum := checkSum(in, wide, tall)
+
+	log.Printf("Max output: %v", sum)
 
 }
