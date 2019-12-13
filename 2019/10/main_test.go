@@ -1,29 +1,28 @@
 package main
 
 import (
+	"strings"
 	"testing"
 )
 
-func TestSetMem(t *testing.T) {
-	// dummy 10-position code just to initialize
-	code := "0,1,2,3,4,5,6,7,8,9"
-	tests := []struct {
-		astmap   []string
-		loc      coord
-		detected int
-	}{
-		{
-			`.#..#
+var tests = []struct {
+	astmap   string
+	loc      Asteroid
+	detected int
+}{
+	{
+		`.#..#
 .....
 #####
 ....#
 ...##`,
-			{3, 4},
-			8,
-		},
+		Asteroid{3, 4},
+		8,
+		//
+	},
 
-		{
-			`......#.#.
+	{
+		`......#.#.
 #..#.#....
 ..#######.
 .#.#.###..
@@ -33,12 +32,12 @@ func TestSetMem(t *testing.T) {
 .##.#..###
 ##...#..#.
 .#....####`,
-			{5, 8},
-			33,
-		},
+		Asteroid{5, 8},
+		33,
+	},
 
-		{
-			`#.#...#.#.
+	{
+		`#.#...#.#.
 .###....#.
 .#....#...
 ##.#.#.#.#
@@ -48,12 +47,12 @@ func TestSetMem(t *testing.T) {
 ..##....##
 ......#...
 .####.###.`,
-			{1, 2},
-			35,
-		},
+		Asteroid{1, 2},
+		35,
+	},
 
-		{
-			`.#..#..###
+	{
+		`.#..#..###
 ####.###.#
 ....###.#.
 ..###.##.#
@@ -63,11 +62,11 @@ func TestSetMem(t *testing.T) {
 #..#.#.###
 .##...##.#
 .....#.#..`,
-			{6, 3},
-			41,
-		},
-		{
-			`.#..##.###...#######
+		Asteroid{6, 3},
+		41,
+	},
+	{
+		`.#..##.###...#######
 ##.############..##.
 .#.######.########.#
 .###.#######.####.#.
@@ -87,9 +86,18 @@ func TestSetMem(t *testing.T) {
 .#.#.###########.###
 #.#.#.#####.####.###
 ###.##.####.##.#..##`,
-			{11, 13},
-			210,
-		},
-	}
+		Asteroid{11, 13},
+		210,
+	},
+}
 
+func TestParser(t *testing.T) {
+
+	for _, tst := range tests {
+		m := parseInput(strings.NewReader(tst.astmap))
+		// Basic check: the winner asteroid should exist in the structure
+		if _, ok := m[tst.loc]; !ok {
+			t.Errorf("Asteroid %v should exist in the map (not found)", tst.loc)
+		}
+	}
 }
