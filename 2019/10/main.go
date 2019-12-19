@@ -93,6 +93,22 @@ func (m *Map) calculateAllSights() {
 	}
 }
 
+func (m *Map) getBestLocation() Asteroid {
+	bestLocation := Asteroid{}
+	bestSights := 0
+
+	for a, s := range *m {
+		dbg(3, "Asteroid %v, sights %d", a, len(s))
+		if len(s) > bestSights {
+			dbg(3, " -> New best! (%d > %d)", len(s), bestSights)
+			bestLocation = a
+			bestSights = len(s)
+		}
+	}
+
+	return bestLocation
+}
+
 func init() {
 	flag.IntVar(&debug, "debug", 0, "debug level")
 	flag.Parse()
@@ -102,6 +118,8 @@ func main() {
 
 	m := parseInput(os.Stdin)
 	m.calculateAllSights()
-	fmt.Printf("%v\n", m)
+	a := m.getBestLocation()
+
+	fmt.Printf("Best Asteroid %v, max sights %d\n", a, len(m[a]))
 
 }
