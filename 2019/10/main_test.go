@@ -65,3 +65,24 @@ func TestParser(t *testing.T) {
 
 	}
 }
+
+func TestBest(t *testing.T) {
+	for _, tst := range tests {
+		file, err := os.Open(tst.testfile)
+		if err != nil {
+			t.Error(err)
+		}
+		m := parseInput(file)
+		m.calculateAllSights()
+		a := m.getBestLocation()
+
+		if a != tst.best {
+			t.Errorf("Best sight expected %v, got %v", tst.best, a)
+		}
+
+		if len(m[a]) != tst.bestSight {
+			t.Errorf("Num sights expected %d, got %d", tst.bestSight, len(m[a]))
+		}
+
+	}
+}
