@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sort"
 )
 
 var (
@@ -59,6 +60,7 @@ func (a *Asteroid) distance(b Asteroid) float64 {
 
 // Get all seen asteroids from one of them
 func (m Map) calculateSights(ast Asteroid) {
+	m[ast] = make(map[float64]Asteroid)
 	for candidate := range m {
 		if candidate == ast {
 			continue
@@ -124,17 +126,47 @@ func (m *Map) getBestLocation() Asteroid {
 	return bestLocation
 }
 
-func (m *Map) vaporizeFrom(station Asteroid) []Asteroid {
+func (m Map) getSortedListSights(a Asteroid) []Asteroid {
+	l := []float64{}
+	s := []Asteroid{}
+	for angle := range m[a] {
+		l = append(l, angle)
+	}
+
+	sort.Float64s(l)
+	for _, angle := range l {
+		s = append(s, m[a][angle])
+	}
+
+	return s
+}
+
+func (m Map) vaporizeFrom(station Asteroid) []Asteroid {
 	list := []Asteroid{}
 
-	return list
-
-	for len(*m) > 1 {
+	for len(m) > 1 {
 		m.calculateSights(station)
+		s := m.getSortedListSights(station)
+		dbg(3, "List of sorted sights: %v", s)
 
+		list = append(list, s...)
+		dbg(2, "map before deletion: len %d, v = %v", len(m), m)
+		for _, a := range s {
+			delete(m, a)
+		}
+		//m.deleteAsteroids(s)
+		dbg(2, "New len: %d, v = %v", len(m), m)
 	}
 
 	return list
+}
+
+func (m *Map) deleteAsteroids(ast []Asteroid) {
+	for _, a := range ast {
+		delete(*m, a)
+	}
+
+	dbg(3, "map after deletion: %v", *m)
 }
 
 func init() {
@@ -152,6 +184,6 @@ func main() {
 	// part two: vaporize all the map
 	vaporized := m.vaporizeFrom(a)
 
-	fmt.Printf("Vaporized: %v\n", vaporized)
+	fmt.Printf("Vaporized[200]: %v, result = %d\n", vaporized[199], vaporized[199].x*100+vaporized[199].y)
 
 }
