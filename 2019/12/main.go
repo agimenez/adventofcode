@@ -91,14 +91,23 @@ func timeStep(moons []Moon) {
 			moons[j] = m2
 		}
 
-		dbg(2, "Moon[%d] = %v", i, m1)
+		moons[i].Pos = m1.Pos.Add(m1.Vel)
+		dbg(2, "Moon[%d] = %v", i, moons[i])
 	}
 }
 
+func (p Point) Add(p2 Point) Point {
+	return Point{
+		x: p.x + p2.x,
+		y: p.y + p2.y,
+		z: p.z + p2.z,
+	}
+}
 func main() {
 	moons := getMoons(os.Stdin)
 
-	for i := 0; i < 5; i++ {
+	for i := 1; i <= 10; i++ {
+		dbg(2, "step %d", i)
 		timeStep(moons)
 	}
 }
