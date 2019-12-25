@@ -255,9 +255,7 @@ func (r *Robot) Run() {
 		if !ok {
 			break
 		}
-		if color == White {
-			r.panels[r.cur] = White
-		}
+		r.panels[r.cur] = color
 
 		dir, ok := <-r.actions
 		if !ok {
