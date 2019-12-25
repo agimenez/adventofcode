@@ -192,9 +192,60 @@ func (p *program) fetchParameter(n int) int {
 	return parameter
 }
 
+const (
+	Black = 0
+	White = 1
+)
+
+// Direction types
+type Direction int
+
+const (
+	Up = iota
+	Right
+	Down
+	Left
+)
+
+type Turn int
+
+const (
+	TurnLeft  = 0
+	TurnRight = 1
+)
+
+type Robot struct {
+	cpu    *program
+	cam    chan int
+	action chan int
+	dir    Direction
+	cur    Point
+	panels map[Point]int
+}
+
+type Point struct {
+	x, y int
+}
+
+var P0 = Point{0, 0}
+
 func init() {
 	flag.IntVar(&debug, "debug", 0, "debug level")
 	flag.Parse()
+}
+
+func newRobot(code string) *Robot {
+	return &Robot{
+		cpu:    newProgram(code),
+		cam:    make(chan int),
+		action: make(chan int),
+		dir:    Up,
+		cur:    P0,
+		panels: make(map[Point]int),
+	}
+}
+
+func (r *Robot) Run() {
 }
 
 func main() {
@@ -202,10 +253,7 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	chanIn := make(chan int)
-	chanOut := make(chan int)
-
-	program := newProgram(in)
+	painter := newRobot(in)
 
 	go func() {
 		program.run(chanIn, chanOut)
