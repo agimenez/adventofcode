@@ -250,7 +250,7 @@ func (r *Robot) Run() {
 	}()
 
 	for {
-		r.cam <- r.GetPanelColor()
+		r.cam <- r.panels[r.cur]
 		color, ok := <-r.actions
 		if !ok {
 			break
@@ -266,14 +266,6 @@ func (r *Robot) Run() {
 		r.DoTurn(dir)
 		r.Forward()
 	}
-}
-
-func (r *Robot) GetPanelColor() int {
-	if _, ok := r.panels[r.cur]; !ok {
-		return Black
-	}
-
-	return White
 }
 
 func mod(a, b int) int {
