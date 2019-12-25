@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -103,11 +104,38 @@ func (p Point) Add(p2 Point) Point {
 		z: p.z + p2.z,
 	}
 }
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+
+	return x
+}
+
+func (p Point) Energy() int {
+	return abs(p.x) + abs(p.y) + abs(p.z)
+}
+
+func calculateEnergy(moons []Moon) int {
+	total := 0
+	for _, m := range moons {
+		pot := m.Pos.Energy()
+		kin := m.Vel.Energy()
+		total += pot * kin
+	}
+
+	return total
+}
+
 func main() {
 	moons := getMoons(os.Stdin)
 
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= 100; i++ {
 		dbg(2, "step %d", i)
 		timeStep(moons)
 	}
+
+	energy := calculateEnergy(moons)
+	fmt.Printf("Energy: %d\n", energy)
 }
