@@ -249,7 +249,7 @@ func init() {
 func newRobot(code string) *Robot {
 	return &Robot{
 		cpu:     newProgram(code),
-		cam:     make(chan int),
+		cam:     make(chan int, 1),
 		actions: make(chan int),
 		dir:     Up,
 		cur:     P0,
@@ -258,25 +258,28 @@ func newRobot(code string) *Robot {
 }
 
 func (r *Robot) Run() {
+	halt := make(chan bool)
 	go func() {
 		r.cpu.run(r.cam, r.actions)
-		close(r.actions)
+		halt <- true
 	}()
 
 	for {
+		dbg(1, "(%v) Sending %v to cam", r.cur, r.panels[r.cur])
 		r.cam <- r.panels[r.cur]
-		color, ok := <-r.actions
-		if !ok {
-			break
-		}
-		r.panels[r.cur] = color
+		select {
+		case color := <-r.actions:
+			r.panels[r.cur] = color
+			dbg(1, "-> got paint %d", color)
 
-		dir, ok := <-r.actions
-		if !ok {
-			break
+			dir := <-r.actions
+			dbg(1, "-> got action %d", dir)
+			r.DoTurn(dir)
+			r.Forward()
+		case <-halt:
+			return
 		}
-		r.DoTurn(dir)
-		r.Forward()
+
 	}
 }
 
@@ -319,5 +322,6 @@ func main() {
 
 	painter := newRobot(in)
 	painter.Run()
+	fmt.Printf("Painted panels: %d\n", len(painter.panels))
 
 }
