@@ -205,9 +205,8 @@ const (
 	Right
 	Down
 	Left
+	DirLast
 )
-
-type Turn int
 
 const (
 	TurnLeft  = 0
@@ -215,12 +214,12 @@ const (
 )
 
 type Robot struct {
-	cpu    *program
-	cam    chan int
-	action chan int
-	dir    Direction
-	cur    Point
-	panels map[Point]int
+	cpu     *program
+	cam     chan int
+	actions chan int
+	dir     Direction
+	cur     Point
+	panels  map[Point]int
 }
 
 type Point struct {
@@ -236,16 +235,73 @@ func init() {
 
 func newRobot(code string) *Robot {
 	return &Robot{
-		cpu:    newProgram(code),
-		cam:    make(chan int),
-		action: make(chan int),
-		dir:    Up,
-		cur:    P0,
-		panels: make(map[Point]int),
+		cpu:     newProgram(code),
+		cam:     make(chan int),
+		actions: make(chan int),
+		dir:     Up,
+		cur:     P0,
+		panels:  make(map[Point]int),
 	}
 }
 
 func (r *Robot) Run() {
+	go func() {
+		r.cpu.run(r.cam, r.actions)
+		close(r.actions)
+	}()
+
+	for {
+		r.cam <- r.GetPanelColor()
+		color, ok := <-r.actions
+		if !ok {
+			break
+		}
+		if color == White {
+			r.panels[r.cur] = White
+		}
+
+		dir, ok := <-r.actions
+		if !ok {
+			break
+		}
+		r.DoTurn(dir)
+		r.Forward()
+	}
+}
+
+func (r *Robot) GetPanelColor() int {
+	if _, ok := r.panels[r.cur]; !ok {
+		return Black
+	}
+
+	return White
+}
+
+func (r *Robot) DoTurn(where int) {
+
+	switch where {
+	case TurnRight:
+		r.dir = (r.dir + 1) % DirLast
+	case TurnLeft:
+		r.dir = (r.dir - 1) % DirLast
+	default:
+		panic("Unknown turn")
+	}
+	dbg(2, "Turn %d, new dir -> %d", where, r.dir)
+
+}
+
+func (r *Robot) Forward() {
+	switch r.dir {
+	case Up:
+		r.cur.y++
+	case Right:
+		r.cur.x++
+	case Down:
+		r.cur.y--
+	case Left:
+		r.cur.x--
+	}
 }
 
 func main() {
@@ -254,36 +310,6 @@ func main() {
 	fmt.Scan(&in)
 
 	painter := newRobot(in)
-
-	go func() {
-		program.run(chanIn, chanOut)
-		close(chanOut)
-	}()
-
-	chanIn <- 1
-	output := []string{}
-	for {
-		val, ok := <-chanOut
-		if !ok {
-			break
-		}
-		output = append(output, fmt.Sprintf("%d", val))
-	}
-
-	log.Printf("List of unknownOps: %s", strings.Join(output[:len(output)-1], ", "))
-	log.Printf("BOOST keycode: %s", output[len(output)-1])
-
-	// part 2
-	program = newProgram(in)
-	chanIn = make(chan int)
-	chanOut = make(chan int)
-
-	go func() {
-		program.run(chanIn, chanOut)
-		close(chanOut)
-	}()
-	chanIn <- 2
-	coords := <-chanOut
-	log.Printf("Coordinates: %d", coords)
+	painter.Run()
 
 }
