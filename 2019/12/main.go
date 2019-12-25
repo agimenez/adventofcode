@@ -131,7 +131,7 @@ func calculateEnergy(moons []Moon) int {
 func main() {
 	moons := getMoons(os.Stdin)
 
-	for i := 1; i <= 100; i++ {
+	for i := 1; i <= 1000; i++ {
 		dbg(2, "step %d", i)
 		timeStep(moons)
 	}
