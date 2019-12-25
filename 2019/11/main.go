@@ -304,11 +304,11 @@ func (r *Robot) DoTurn(where int) {
 func (r *Robot) Forward() {
 	switch r.dir {
 	case Up:
-		r.cur.y++
+		r.cur.y--
 	case Right:
 		r.cur.x++
 	case Down:
-		r.cur.y--
+		r.cur.y++
 	case Left:
 		r.cur.x--
 	}
