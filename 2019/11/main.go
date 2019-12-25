@@ -46,16 +46,28 @@ func newProgram(p string) *program {
 	return pr
 }
 
-func (p *program) setMem(dst, val int) {
-	extend := dst - len(p.mem) + 1
-	if dst >= len(p.mem) {
+// ensureAddr ensures that a given address is reachable, by growing the memory slice
+// if neccessary
+func (p *program) ensureAddr(addr int) {
+	extend := addr - len(p.mem) + 1
+	if addr >= len(p.mem) {
 		p.mem = append(p.mem, make([]int, extend)...)
 	}
-
-	dbg(2, "  (setMem) p.mem[%d] = %d", dst, val)
-	p.mem[dst] = val
 }
 
+func (p *program) setMem(addr, val int) {
+	p.ensureAddr(addr)
+
+	dbg(2, "  (setMem) p.mem[%d] = %d", addr, val)
+	p.mem[addr] = val
+}
+
+func (p *program) getMem(addr int) int {
+	p.ensureAddr(addr)
+
+	dbg(2, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
+	return p.mem[addr]
+}
 func (p *program) run(input <-chan int, output chan<- int) {
 
 	for op := p.mem[p.pc]; op != 99; {
@@ -179,12 +191,14 @@ func (p *program) fetchParameter(n int) int {
 
 	if mode == 0 {
 		// position mode
-		dbg(2, "   (posmode) -> mem[%d] = %d", parameter, p.mem[parameter])
-		return p.mem[parameter]
+		val := p.getMem(parameter)
+		dbg(2, "   (posmode) -> mem[%d] = %d", parameter, val)
+		return val
 	} else if mode == 2 {
 		// relative mode
-		dbg(2, "   (relmode) -> mem[%d+%d] = %d", p.base, parameter, p.mem[p.base+parameter])
-		return p.mem[p.base+parameter]
+		val := p.getMem(p.base + parameter)
+		dbg(2, "   (relmode) -> mem[%d+%d] = %d", p.base, parameter, val)
+		return val
 	}
 
 	// immediate mode
