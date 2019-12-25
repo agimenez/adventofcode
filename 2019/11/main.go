@@ -15,7 +15,7 @@ var (
 
 func dbg(level int, fmt string, v ...interface{}) {
 	if debug >= level {
-		log.Printf(fmt, v...)
+		log.Printf(fmt+"\n", v...)
 	}
 }
 
