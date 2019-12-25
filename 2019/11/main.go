@@ -192,14 +192,13 @@ func (p *program) fetchParameter(n int) int {
 	return parameter
 }
 
+// Colours.
 const (
 	Black = 0
 	White = 1
 )
 
-// Direction types
-type Direction int
-
+// Directions.
 const (
 	Up = iota
 	Right
@@ -217,7 +216,7 @@ type Robot struct {
 	cpu     *program
 	cam     chan int
 	actions chan int
-	dir     Direction
+	dir     int
 	cur     Point
 	panels  map[Point]int
 }
@@ -277,17 +276,21 @@ func (r *Robot) GetPanelColor() int {
 	return White
 }
 
+func mod(a, b int) int {
+	return (a%b + b) % b
+}
+
 func (r *Robot) DoTurn(where int) {
 
 	switch where {
 	case TurnRight:
-		r.dir = (r.dir + 1) % DirLast
+		r.dir = mod(r.dir+1, DirLast)
 	case TurnLeft:
-		r.dir = (r.dir - 1) % DirLast
+		r.dir = mod(r.dir-1, DirLast)
 	default:
 		panic("Unknown turn")
 	}
-	dbg(2, "Turn %d, new dir -> %d", where, r.dir)
+	dbg(1, "Turn %d, new dir -> %d", where, r.dir)
 
 }
 
@@ -302,6 +305,7 @@ func (r *Robot) Forward() {
 	case Left:
 		r.cur.x--
 	}
+	dbg(1, "Cur: %v", r.cur)
 }
 
 func main() {
