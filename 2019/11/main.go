@@ -257,16 +257,15 @@ func newRobot(code string) *Robot {
 	}
 }
 
-func (r *Robot) Run() {
+func (r *Robot) Run(color int) {
 	halt := make(chan bool)
 	go func() {
 		r.cpu.run(r.cam, r.actions)
 		halt <- true
 	}()
 
+	r.cam <- color
 	for {
-		dbg(1, "(%v) Sending %v to cam", r.cur, r.panels[r.cur])
-		r.cam <- r.panels[r.cur]
 		select {
 		case color := <-r.actions:
 			r.panels[r.cur] = color
@@ -279,6 +278,8 @@ func (r *Robot) Run() {
 		case <-halt:
 			return
 		}
+		dbg(1, "(%v) Sending %v to cam", r.cur, r.panels[r.cur])
+		r.cam <- r.panels[r.cur]
 
 	}
 }
@@ -321,7 +322,60 @@ func main() {
 	fmt.Scan(&in)
 
 	painter := newRobot(in)
-	painter.Run()
+	painter.Run(Black)
 	fmt.Printf("Painted panels: %d\n", len(painter.panels))
 
+	// ----------- part 2 ------------------
+	painter = newRobot(in)
+	painter.Run(White)
+	fmt.Printf("Painted panels: %d\n", len(painter.panels))
+
+	var min, max Point
+	for pos := range painter.panels {
+		min = min.Min(pos)
+		max = max.Max(pos)
+	}
+	dbg(1, "Panels: %v", painter.panels)
+
+	for y := min.y; y <= max.y; y++ {
+		for x := min.x; x <= max.x; x++ {
+			if painter.panels[Point{x, y}] == White {
+				fmt.Print("#")
+			} else {
+				fmt.Print(" ")
+			}
+		}
+		fmt.Println()
+	}
+
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
+}
+
+func (p Point) Min(p2 Point) Point {
+	return Point{
+		x: min(p.x, p2.x),
+		y: min(p.y, p2.y),
+	}
+}
+
+func (p Point) Max(p2 Point) Point {
+	return Point{
+		x: max(p.x, p2.x),
+		y: max(p.y, p2.y),
+	}
 }
