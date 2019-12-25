@@ -59,7 +59,7 @@ func (p *program) setMem(dst, val int) {
 func (p *program) run(input <-chan int, output chan<- int) {
 
 	for op := p.mem[p.pc]; op != 99; {
-		dbg(3, "MEM = %v", p.mem)
+		dbg(4, "MEM = %v", p.mem)
 		dbg(3, "pc = %d; op = %v", p.pc, op)
 
 		opcode := op % 100
@@ -147,7 +147,7 @@ func (p *program) run(input <-chan int, output chan<- int) {
 		default:
 			log.Fatalf("Bad opcode = %v", op)
 		}
-		dbg(3, " MEM = %v", p.mem)
+		dbg(4, " MEM = %v", p.mem)
 
 		op = p.mem[p.pc]
 	}
