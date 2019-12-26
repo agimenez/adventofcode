@@ -289,6 +289,17 @@ func (a *Arcade) Paint() {
 	}
 }
 
+func (a *Arcade) CountTiles(id int) int {
+	count := 0
+	for _, t := range a.screen {
+		if t == id {
+			count++
+		}
+	}
+
+	return count
+}
+
 func mod(a, b int) int {
 	return (a%b + b) % b
 }
@@ -301,6 +312,8 @@ func main() {
 	machine := newArcade(in)
 	machine.Run()
 	machine.Paint()
+	blocks := machine.CountTiles(Block)
+	fmt.Printf("Part one: %d\n", blocks)
 
 }
 
