@@ -68,7 +68,7 @@ func (p *program) getMem(addr int) int {
 	dbg(2, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
 	return p.mem[addr]
 }
-func (p *program) run(input <-chan int, output chan<- int) {
+func (p *program) run(input <-chan int, output chan<- int, wantinput chan<- bool) {
 
 	for op := p.mem[p.pc]; op != 99; {
 		dbg(4, "MEM = %v", p.mem)
@@ -93,6 +93,7 @@ func (p *program) run(input <-chan int, output chan<- int) {
 		case 3: // In
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
+			wantinput <- true
 			in, dst = <-input, p.getAddrIndex(1)
 			dbg(2, " IN  %d -> mem[%d]", in, dst)
 			p.setMem(dst, in)
@@ -216,9 +217,13 @@ const (
 )
 
 type Arcade struct {
-	cpu    *program
-	output chan int
-	screen map[Point]int
+	cpu       *program
+	input     chan int
+	output    chan int
+	screen    map[Point]int
+	ballPos   Point
+	paddlePos Point
+	score     int
 }
 
 type Point struct {
@@ -234,18 +239,31 @@ func init() {
 
 func newArcade(code string) *Arcade {
 	return &Arcade{
-		cpu:    newProgram(code),
-		output: make(chan int),
-		screen: make(map[Point]int),
+		cpu:       newProgram(code),
+		input:     make(chan int),
+		output:    make(chan int),
+		screen:    make(map[Point]int),
+		ballPos:   P0,
+		paddlePos: P0,
+		score:     0,
 	}
 }
 
 func (a *Arcade) Run() {
 	halt := make(chan bool)
+	wantinput := make(chan bool)
 	go func() {
-		a.cpu.run(nil, a.output)
+		a.cpu.setMem(0, 2) // hack for free games!
+		a.cpu.run(a.input, a.output, wantinput)
 		halt <- true
 	}()
+
+	//go func() {
+	//	for {
+	//		t := a.ballPos.TiltWith(a.paddlePos)
+	//		dbg(1, "Tilt: %d (ball: %v, paddle %v)", t, a.ballPos, a.paddlePos)
+	//	}
+	//}()
 
 	for {
 		select {
@@ -253,7 +271,30 @@ func (a *Arcade) Run() {
 			y := <-a.output
 			id := <-a.output
 			dbg(1, "-> got coords {%d, %d} -> %d", x, y, id)
+
+			// Gather score
+			if x == -1 && y == 0 {
+				a.score = id
+				//a.input <- a.ballPos.TiltWith(a.paddlePos)
+				//dbg(1, "Sent Tilt!")
+				//wantinput <- true
+				break
+			}
+
 			a.screen[Point{x, y}] = id
+			switch id {
+			case Ball:
+				a.ballPos = Point{x, y}
+				dbg(1, "Got ball %v", a.ballPos)
+			case Paddle:
+				a.paddlePos = Point{x, y}
+				dbg(1, "Got paddle %v", a.paddlePos)
+			}
+
+			a.Paint()
+		case <-wantinput:
+			a.input <- a.ballPos.TiltWith(a.paddlePos)
+			dbg(1, "Sent Tilt!")
 
 		case <-halt:
 			return
@@ -262,7 +303,26 @@ func (a *Arcade) Run() {
 	}
 }
 
+// TiltWidth checks whether p1 is left, right to or aligned with p2. It returns:
+// 	-1 if p1 is left of p2
+//	 0 if p1 is aligned with p2
+//  +1 if p1 is right of p2
+func (p1 Point) TiltWith(p2 Point) int {
+	switch {
+	case p1.x < p2.x:
+		return -1
+	case p1.x > p2.x:
+		return 1
+	}
+
+	return 0
+
+}
+
 func (a *Arcade) Paint() {
+	if debug < 1 {
+		return
+	}
 	var min, max Point
 
 	for p := range a.screen {
@@ -287,6 +347,7 @@ func (a *Arcade) Paint() {
 		}
 		fmt.Println()
 	}
+	fmt.Printf("== Score: %3d ==\n", a.score)
 }
 
 func (a *Arcade) CountTiles(id int) int {
@@ -314,6 +375,7 @@ func main() {
 	machine.Paint()
 	blocks := machine.CountTiles(Block)
 	fmt.Printf("Part one: %d\n", blocks)
+	fmt.Printf("Part two: %d\n", machine.score)
 
 }
 
