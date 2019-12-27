@@ -209,7 +209,7 @@ func (p *program) fetchParameter(n int) int {
 type Robot struct {
 	cpu   *program
 	cam   chan int
-	image [][]rune
+	image []string
 }
 
 type Point struct {
@@ -227,26 +227,56 @@ func newRobot(code string) *Robot {
 	return &Robot{
 		cpu:   newProgram(code),
 		cam:   make(chan int),
-		image: [][]rune{},
+		image: []string{},
 	}
 }
 
 func (r *Robot) Run() {
-	halt := make(chan bool)
 	go func() {
 		r.cpu.run(nil, r.cam)
-		halt <- true
+		close(r.cam)
 	}()
 
+	var b strings.Builder
 	for {
-		select {
-		case char := <-r.cam:
-			dbg(1, "Char: %c", rune(char))
-		case <-halt:
-			return
+		char, ok := <-r.cam
+		if !ok {
+			break
 		}
-
+		dbg(1, "Char: %c (%d)", rune(char), rune(char))
+		b.WriteRune(rune(char))
 	}
+
+	r.image = strings.Split(b.String(), "\n")
+
+}
+
+func (r *Robot) Paint() {
+	for _, line := range r.image {
+		fmt.Println(line)
+	}
+}
+
+func (r *Robot) GetIntersections() []Point {
+	intersections := []Point{}
+	for y := 1; y < len(r.image)-1; y++ {
+		for x := 1; x < len(r.image[y])-1; x++ {
+			dbg(2, "Checking: {%d, %d}", y, x)
+			if r.image[y][x] == '#' && r.IsIntersection(x, y) {
+				dbg(1, " -> Int: {%d, %d}", y, x)
+				intersections = append(intersections, Point{x, y})
+			}
+		}
+	}
+
+	return intersections
+}
+
+func (r *Robot) IsIntersection(x, y int) bool {
+	return r.image[y-1][x] == '#' &&
+		r.image[y+1][x] == '#' &&
+		r.image[y][x-1] == '#' &&
+		r.image[y][x+1] == '#'
 }
 
 func mod(a, b int) int {
@@ -258,9 +288,11 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	painter := newRobot(in)
-	painter.Run()
-	fmt.Printf("Painted panels: %v\n", painter.image)
+	r := newRobot(in)
+	r.Run()
+	r.Paint()
+	ints := r.GetIntersections()
+	fmt.Printf("Intersections: %#v\n", ints)
 
 }
 
