@@ -7,7 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"regexp"
+	"strings"
 )
 
 var (
@@ -30,10 +30,9 @@ func getReactions(in io.Reader) int {
 	for scanner.Scan() {
 		line := scanner.Text()
 		dbg(1, "Line: %v", line)
-		pattern := regexp.MustCompile(`(\d+) (\w+)(, (\d+) (\w))* => (\d+) (\w+)`)
-		reacts := pattern.FindStringSubmatch(line)
+		parts := strings.Split(line, "=>")
 
-		fmt.Printf("Reactions: %#v\n", reacts)
+		dbg(1, "Parts: %#v\n", parts)
 
 	}
 
