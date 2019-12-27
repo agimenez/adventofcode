@@ -58,36 +58,36 @@ func (p *program) ensureAddr(addr int) {
 func (p *program) setMem(addr, val int) {
 	p.ensureAddr(addr)
 
-	dbg(2, "  (setMem) p.mem[%d] = %d", addr, val)
+	dbg(3, "  (setMem) p.mem[%d] = %d", addr, val)
 	p.mem[addr] = val
 }
 
 func (p *program) getMem(addr int) int {
 	p.ensureAddr(addr)
 
-	dbg(2, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
+	dbg(3, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
 	return p.mem[addr]
 }
 func (p *program) run(input <-chan int, output chan<- int) {
 
 	for op := p.mem[p.pc]; op != 99; {
 		dbg(4, "MEM = %v", p.mem)
-		dbg(3, "pc = %d; op = %v", p.pc, op)
+		dbg(2, "pc = %d; op = %v", p.pc, op)
 
 		opcode := op % 100
-		dbg(3, "opcode = %v", opcode)
+		dbg(2, "opcode = %v", opcode)
 
 		switch opcode {
 		case 1: // Add
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
-			dbg(3, " ADD %d %d -> %d", a, b, c)
+			dbg(2, " ADD %d %d -> %d", a, b, c)
 			p.setMem(c, a+b)
 			p.pc += 4
 		case 2: // Mul
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
-			dbg(3, " MUL %d %d -> %d", a, b, c)
+			dbg(2, " MUL %d %d -> %d", a, b, c)
 			p.setMem(c, a*b)
 			p.pc += 4
 		case 3: // In
@@ -98,17 +98,17 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			p.setMem(dst, in)
 			p.pc += 2
 		case 4: // Out
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+2])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			src := p.fetchParameter(1)
-			dbg(3, " OUT %d", src)
+			dbg(2, " OUT %d", src)
 
 			output <- src
 			p.pc += 2
 
 		case 5: // JMP IF TRUE
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+3])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+3])
 			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
-			dbg(3, " JMP %d if %d != 0", newpc, tst)
+			dbg(2, " JMP %d if %d != 0", newpc, tst)
 			if tst != 0 {
 				p.pc = newpc
 			} else {
@@ -116,9 +116,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			}
 
 		case 6: // JMP IF FALSE
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+3])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+3])
 			tst, newpc := p.fetchParameter(1), p.fetchParameter(2)
-			dbg(3, " JMP %d if %d == 0", newpc, tst)
+			dbg(2, " JMP %d if %d == 0", newpc, tst)
 			if tst == 0 {
 				p.pc = newpc
 			} else {
@@ -126,9 +126,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			}
 
 		case 7: // LT
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
-			dbg(3, " LT %d %d %d", first, second, dst)
+			dbg(2, " LT %d %d %d", first, second, dst)
 			if first < second {
 				p.setMem(dst, 1)
 			} else {
@@ -138,9 +138,9 @@ func (p *program) run(input <-chan int, output chan<- int) {
 			p.pc += 4
 
 		case 8: // EQ
-			dbg(3, " INSTR = %v", p.mem[p.pc:p.pc+4])
+			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
-			dbg(3, " EQ %d %d %d", first, second, dst)
+			dbg(2, " EQ %d %d %d", first, second, dst)
 			if first == second {
 				p.setMem(dst, 1)
 			} else {
@@ -187,22 +187,22 @@ func (p *program) getAddrIndex(n int) int {
 func (p *program) fetchParameter(n int) int {
 	mode := p.instructionMode(n)
 	parameter := p.mem[p.pc+n]
-	dbg(2, "   param[%d](%d) mode: %d, base %d, memsize %d", n, parameter, mode, p.base, len(p.mem))
+	dbg(3, "   param[%d](%d) mode: %d, base %d, memsize %d", n, parameter, mode, p.base, len(p.mem))
 
 	if mode == 0 {
 		// position mode
 		val := p.getMem(parameter)
-		dbg(2, "   (posmode) -> mem[%d] = %d", parameter, val)
+		dbg(3, "   (posmode) -> mem[%d] = %d", parameter, val)
 		return val
 	} else if mode == 2 {
 		// relative mode
 		val := p.getMem(p.base + parameter)
-		dbg(2, "   (relmode) -> mem[%d+%d] = %d", p.base, parameter, val)
+		dbg(3, "   (relmode) -> mem[%d+%d] = %d", p.base, parameter, val)
 		return val
 	}
 
 	// immediate mode
-	dbg(2, "   (immmode) -> = %d", parameter)
+	dbg(3, "   (immmode) -> = %d", parameter)
 	return parameter
 }
 
@@ -255,6 +255,7 @@ func (r *Robot) Paint() {
 	for _, line := range r.image {
 		fmt.Println(line)
 	}
+	fmt.Printf("h: %d, w: %d\n", len(r.image), len(r.image[0]))
 }
 
 func (r *Robot) GetIntersections() []Point {
