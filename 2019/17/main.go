@@ -247,7 +247,7 @@ func (r *Robot) Run() {
 		b.WriteRune(rune(char))
 	}
 
-	r.image = strings.Split(b.String(), "\n")
+	r.image = strings.Split(strings.TrimSpace(b.String()), "\n")
 
 }
 
@@ -255,7 +255,6 @@ func (r *Robot) Paint() {
 	for _, line := range r.image {
 		fmt.Println(line)
 	}
-	fmt.Printf("h: %d, w: %d\n", len(r.image), len(r.image[0]))
 }
 
 func (r *Robot) GetIntersections() []Point {
@@ -280,6 +279,15 @@ func (r *Robot) IsIntersection(x, y int) bool {
 		r.image[y][x+1] == '#'
 }
 
+func (r *Robot) SumAlignmentParameters() int {
+	tot := 0
+	for _, p := range r.GetIntersections() {
+		tot += p.x * p.y
+	}
+
+	return tot
+}
+
 func mod(a, b int) int {
 	return (a%b + b) % b
 }
@@ -292,8 +300,8 @@ func main() {
 	r := newRobot(in)
 	r.Run()
 	r.Paint()
-	ints := r.GetIntersections()
-	fmt.Printf("Intersections: %#v\n", ints)
+	part1 := r.SumAlignmentParameters()
+	fmt.Printf("Part one: %#v\n", part1)
 
 }
 
