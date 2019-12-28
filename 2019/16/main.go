@@ -22,15 +22,23 @@ func init() {
 	flag.Parse()
 }
 
+var pcache [][]int
+
 func pattern(position int) []int {
 	var basePattern = []int{0, 1, 0, -1}
 	p := []int{}
+	if len(pcache) >= position {
+		dbg(1, "HIT")
+		return pcache[position-1]
+	}
 
 	for _, n := range basePattern {
 		for i := position; i > 0; i-- {
 			p = append(p, n)
 		}
 	}
+
+	pcache = append(pcache, p)
 
 	return p
 }
@@ -62,6 +70,7 @@ func FFTPhase(in string) string {
 func FFT(in string, phases int) string {
 	var digits string
 	for ; phases > 0; phases-- {
+		dbg(1, "Phases: %d", phases)
 		digits = FFTPhase(in)
 		in = digits
 	}
@@ -74,7 +83,13 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	result := FFT(in, 100)
+	var out string
+	for i := 1; i < 10000; i++ {
+		out += in
+	}
+	fmt.Printf("Len: %d\n", len(out))
+
+	result := FFT(out, 100)
 
 	fmt.Printf("Part one: %#v\n", result[:8])
 
