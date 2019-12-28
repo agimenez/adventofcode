@@ -163,6 +163,8 @@ func (p *program) run(input <-chan int, output chan<- int) {
 
 		op = p.mem[p.pc]
 	}
+
+	dbg(2, "HALT")
 }
 
 func (p *program) instructionMode(offset int) int {
@@ -236,14 +238,20 @@ func newDroneSystem(code string) *DroneSystem {
 func (r *DroneSystem) Run() int {
 	go func() {
 		r.cpu.run(r.input, r.output)
+		dbg(1, "PROGRAM DONE")
 	}()
 
 	total := 0
 	for y := 0; y < 50; y++ {
 		for x := 0; x < 50; x++ {
+			dbg(1, "Pos {%d, %d}", y, x)
 			r.input <- x
+			dbg(1, " Sent x")
 			r.input <- y
+			dbg(1, " Sent y")
 			state := <-r.output
+			dbg(1, " Got state")
+
 			total += state
 			if state != 0 {
 				r.image[y][x] = '#'
