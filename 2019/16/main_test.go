@@ -24,3 +24,24 @@ func TestPattern(t *testing.T) {
 
 	}
 }
+
+func TestFFT(t *testing.T) {
+	ffts := []struct {
+		phases int
+		input  string
+		output string
+	}{
+		{4, "12345678", "01029498"},
+		{100, "80871224585914546619083218645595", "24176176"},
+		{100, "19617804207202209144916044189917", "73745418"},
+		{100, "69317163492948606335995924319873", "52432133"},
+	}
+
+	for _, fft := range ffts {
+		res := FFT(fft.input, fft.phases)
+
+		if res[:8] != fft.output {
+			t.Errorf("Got %v, expected %v", res, fft.output)
+		}
+	}
+}

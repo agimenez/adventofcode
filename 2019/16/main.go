@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"strings"
 )
 
 var (
@@ -21,12 +22,12 @@ func init() {
 	flag.Parse()
 }
 
-func pattern(phase int) []int {
+func pattern(position int) []int {
 	var basePattern = []int{0, 1, 0, -1}
 	p := []int{}
 
 	for _, n := range basePattern {
-		for i := phase; i > 0; i-- {
+		for i := position; i > 0; i-- {
 			p = append(p, n)
 		}
 	}
@@ -34,12 +35,50 @@ func pattern(phase int) []int {
 	return p
 }
 
+func FFTnthDigit(in string, pos int) rune {
+	total := 0
+	p := pattern(pos)
+	dbg(1, "Pattern: %v", p)
+	for i, d := range in {
+		num := int(d - '0')
+		dbg(2, " %d * %d", num, p[(i+1)%len(p)])
+		total += num * p[(i+1)%len(p)]
+	}
+
+	dbg(1, "Pos %d, Total: %d", pos, total)
+	t := fmt.Sprintf("%d", total)
+	return rune(t[len(t)-1])
+}
+
+func FFTPhase(in string) string {
+	var b strings.Builder
+	for i := range in {
+		b.WriteRune(FFTnthDigit(in, i+1))
+	}
+
+	return b.String()
+}
+
+func FFT(in string, phases int) string {
+	var digits string
+	for ; phases > 0; phases-- {
+		digits = FFTPhase(in)
+		in = digits
+	}
+
+	return digits
+}
+
 func main() {
 
 	var in string
 	fmt.Scan(&in)
 
-	fmt.Printf("Part one: %#v\n", in)
+	// test
+	in = "12345678"
+	result := FFT(in, 4)
+
+	fmt.Printf("Part one: %#v\n", result)
 
 }
 
