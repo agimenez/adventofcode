@@ -235,26 +235,24 @@ func newDroneSystem(code string) *DroneSystem {
 	}
 }
 
-func (r *DroneSystem) Run() int {
-	go func() {
-		r.cpu.run(r.input, r.output)
-		dbg(1, "PROGRAM DONE")
-	}()
-
+func (r *DroneSystem) Run(code string) int {
 	total := 0
 	for y := 0; y < 50; y++ {
 		for x := 0; x < 50; x++ {
-			dbg(1, "Pos {%d, %d}", y, x)
+			go func() {
+				r.cpu = newProgram(code)
+				r.cpu.run(r.input, r.output)
+			}()
+
 			r.input <- x
-			dbg(1, " Sent x")
 			r.input <- y
-			dbg(1, " Sent y")
 			state := <-r.output
-			dbg(1, " Got state")
 
 			total += state
 			if state != 0 {
 				r.image[y][x] = '#'
+			} else {
+				r.image[y][x] = '.'
 			}
 		}
 	}
@@ -274,7 +272,7 @@ func main() {
 	fmt.Scan(&in)
 
 	r := newDroneSystem(in)
-	tot := r.Run()
+	tot := r.Run(in)
 	r.Paint()
 	fmt.Printf("Part one: %#v\n", tot)
 
