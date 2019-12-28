@@ -209,6 +209,7 @@ func (p *program) fetchParameter(n int) int {
 }
 
 type DroneSystem struct {
+	code   string
 	cpu    *program
 	input  chan int
 	output chan int
@@ -228,6 +229,7 @@ func init() {
 
 func newDroneSystem(code string) *DroneSystem {
 	return &DroneSystem{
+		code:   code,
 		cpu:    newProgram(code),
 		input:  make(chan int),
 		output: make(chan int),
@@ -239,17 +241,8 @@ func (r *DroneSystem) Run(code string) int {
 	total := 0
 	for y := 0; y < 50; y++ {
 		for x := 0; x < 50; x++ {
-			go func() {
-				r.cpu = newProgram(code)
-				r.cpu.run(r.input, r.output)
-			}()
-
-			r.input <- x
-			r.input <- y
-			state := <-r.output
-
-			total += state
-			if state != 0 {
+			if r.IsBeam(x, y) {
+				total++
 				r.image[y][x] = '#'
 			} else {
 				r.image[y][x] = '.'
@@ -258,6 +251,18 @@ func (r *DroneSystem) Run(code string) int {
 	}
 
 	return total
+}
+
+func (r *DroneSystem) IsBeam(x, y int) bool {
+	go func() {
+		r.cpu = newProgram(r.code)
+		r.cpu.run(r.input, r.output)
+	}()
+
+	r.input <- x
+	r.input <- y
+	return <-r.output == 1
+
 }
 
 func (r *DroneSystem) Paint() {
