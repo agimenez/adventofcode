@@ -74,11 +74,9 @@ func main() {
 	var in string
 	fmt.Scan(&in)
 
-	// test
-	in = "12345678"
-	result := FFT(in, 4)
+	result := FFT(in, 100)
 
-	fmt.Printf("Part one: %#v\n", result)
+	fmt.Printf("Part one: %#v\n", result[:8])
 
 }
 
