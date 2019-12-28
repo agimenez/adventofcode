@@ -266,8 +266,8 @@ func (r *DroneSystem) IsBeam(x, y int) bool {
 }
 
 func (r *DroneSystem) Paint() {
-	for _, line := range r.image {
-		fmt.Println(string(line[:]))
+	for y, line := range r.image {
+		fmt.Println(string(line[:]), y)
 	}
 }
 
