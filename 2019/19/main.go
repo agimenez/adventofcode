@@ -217,7 +217,7 @@ type DroneSystem struct {
 }
 
 type Point struct {
-	x, y int
+	y, x int
 }
 
 var P0 = Point{0, 0}
