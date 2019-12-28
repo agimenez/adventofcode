@@ -237,7 +237,7 @@ func newDroneSystem(code string) *DroneSystem {
 	}
 }
 
-func (r *DroneSystem) Run(code string) int {
+func (r *DroneSystem) Run(code string) (int, Point) {
 	total := 0
 	for y := 0; y < 50; y++ {
 		for x := 0; x < 50; x++ {
@@ -249,8 +249,39 @@ func (r *DroneSystem) Run(code string) int {
 			}
 		}
 	}
+	// part 2, algorithm borrowed from https://elixirforum.com/t/advent-of-code-2019-day-19/27676/3
+	y, x := 10, 0
+	nw := Point{y, x}
+	for {
+		dbg(1, "=== START NW: %v", nw)
+		for !r.PointInBeam(nw.NE()) {
+			nw.y++
+			dbg(1, "NE: %v", nw.NE())
+		}
+		for !r.PointInBeam(nw.SW()) {
+			nw.x++
+		}
+		dbg(1, " = NW: %v =", nw)
+		dbg(1, " = NE: %v =", nw.NE())
+		dbg(1, " = SW: %v =", nw.SW())
 
-	return total
+		if r.PointInBeam(nw) && r.PointInBeam(nw.NE()) && r.PointInBeam(nw.SW()) {
+			return total, nw
+		}
+
+	}
+
+	return total, P0
+}
+
+func (p Point) NE() Point {
+	return Point{p.y, p.x + 99}
+}
+func (p Point) SW() Point {
+	return Point{p.y + 99, p.x}
+}
+func (r *DroneSystem) PointInBeam(p Point) bool {
+	return r.IsBeam(p.x, p.y)
 }
 
 func (r *DroneSystem) IsBeam(x, y int) bool {
@@ -277,9 +308,10 @@ func main() {
 	fmt.Scan(&in)
 
 	r := newDroneSystem(in)
-	tot := r.Run(in)
+	tot, p := r.Run(in)
 	r.Paint()
 	fmt.Printf("Part one: %#v\n", tot)
+	fmt.Printf("Part two: %#v\n", p.x*10000+p.y)
 
 }
 
