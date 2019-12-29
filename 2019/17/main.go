@@ -70,6 +70,7 @@ func (p *program) getMem(addr int) int {
 }
 func (p *program) run(input <-chan int, output chan<- int) {
 
+	p.pc = 0
 	for op := p.mem[p.pc]; op != 99; {
 		dbg(4, "MEM = %v", p.mem)
 		dbg(2, "pc = %d; op = %v", p.pc, op)
