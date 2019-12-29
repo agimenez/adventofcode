@@ -92,7 +92,7 @@ func (r *Robot) ReadLine() string {
 
 	for {
 		c := <-r.output
-		utils.Dbg(1, "Got %c (%d)", c, c)
+		//utils.Dbg(1, "Got %c (%d)", c, c)
 		b.WriteRune(rune(c))
 		if c == '\n' {
 			break
@@ -109,6 +109,21 @@ func (r *Robot) WriteLine(cmd string) {
 	r.input <- '\n'
 }
 
+func (r *Robot) ReadCam() {
+	for {
+		l := r.ReadLine()
+		if l[0] == '\n' {
+			break
+		}
+		r.image = append(r.image, l)
+	}
+}
+
+func DrawImage(img []string) {
+	for i := range img {
+		fmt.Print(img[i])
+	}
+}
 func (r *Robot) RunPartTwo() int {
 	go func() {
 		r.cpu.SetMem(0, 2) // HACK THE CODE!!!
@@ -120,15 +135,19 @@ func (r *Robot) RunPartTwo() int {
 		"R,12,L,12",
 		"R,12,L,12",
 		"R,12,L,12",
-		"y",
+		"n",
 	}
+
+	// This was not clear from the exercise spec, but it seems that the first output
+	// is just a snapshot of the current camera status. Then it asks for the values,
+	// using a prompt
+	r.ReadCam()
 
 	for _, cmd := range inputs {
 		prompt := r.ReadLine()
 		utils.Dbg(1, "> %s", prompt)
 		r.WriteLine(cmd)
 		utils.Dbg(1, "< %s", cmd)
-
 	}
 
 	return <-r.output
@@ -143,12 +162,13 @@ func main() {
 	fmt.Scan(&in)
 
 	r := newRobot(in)
-	r.Run()
+	//r.Run()
 	r.Paint()
 	part1 := r.SumAlignmentParameters()
 	fmt.Printf("Part one: %#v\n", part1)
 
 	// reset program
+	r = newRobot(in)
 	dust := r.RunPartTwo()
 	fmt.Printf("Part two: %#v\n", dust)
 
