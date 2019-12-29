@@ -207,9 +207,10 @@ func (p *program) fetchParameter(n int) int {
 }
 
 type Robot struct {
-	cpu   *program
-	cam   chan int
-	image []string
+	cpu    *program
+	input  chan int
+	output chan int
+	image  []string
 }
 
 type Point struct {
@@ -225,21 +226,22 @@ func init() {
 
 func newRobot(code string) *Robot {
 	return &Robot{
-		cpu:   newProgram(code),
-		cam:   make(chan int),
-		image: []string{},
+		cpu:    newProgram(code),
+		input:  make(chan int),
+		output: make(chan int),
+		image:  []string{},
 	}
 }
 
 func (r *Robot) Run() {
 	go func() {
-		r.cpu.run(nil, r.cam)
-		close(r.cam)
+		r.cpu.run(r.input, r.output)
+		close(r.output)
 	}()
 
 	var b strings.Builder
 	for {
-		char, ok := <-r.cam
+		char, ok := <-r.output
 		if !ok {
 			break
 		}
@@ -288,6 +290,52 @@ func (r *Robot) SumAlignmentParameters() int {
 	return tot
 }
 
+func (r *Robot) ReadLine() string {
+	var b strings.Builder
+
+	for {
+		c := <-r.output
+		dbg(1, "Got %c (%d)", c, c)
+		b.WriteRune(rune(c))
+		if c == '\n' {
+			break
+		}
+	}
+
+	return b.String()
+}
+
+func (r *Robot) WriteLine(cmd string) {
+	for _, c := range cmd {
+		r.input <- int(c)
+	}
+	r.input <- '\n'
+}
+
+func (r *Robot) RunPartTwo() int {
+	go func() {
+		r.cpu.setMem(0, 2) // HACK THE CODE!!!
+		r.cpu.run(r.input, r.output)
+	}()
+
+	inputs := []string{
+		"A,B,C",
+		"R,12,L,12",
+		"R,12,L,12",
+		"R,12,L,12",
+		"y",
+	}
+
+	for _, cmd := range inputs {
+		prompt := r.ReadLine()
+		dbg(1, "> %s", prompt)
+		r.WriteLine(cmd)
+		dbg(1, "< %s", cmd)
+
+	}
+
+	return <-r.output
+}
 func mod(a, b int) int {
 	return (a%b + b) % b
 }
@@ -302,6 +350,10 @@ func main() {
 	r.Paint()
 	part1 := r.SumAlignmentParameters()
 	fmt.Printf("Part one: %#v\n", part1)
+
+	// reset program
+	dust := r.RunPartTwo()
+	fmt.Printf("Part two: %#v\n", dust)
 
 }
 
