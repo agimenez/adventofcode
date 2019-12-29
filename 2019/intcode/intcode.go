@@ -18,15 +18,15 @@ func dbg(level int, fmt string, v ...interface{}) {
 	}
 }
 
-type program struct {
+type Program struct {
 	mem  []int
 	pc   int
 	base int
 }
 
-func NewProgram(p string) *program {
+func NewProgram(p string) *Program {
 
-	pr := &program{
+	pr := &Program{
 		mem:  []int{},
 		pc:   0,
 		base: 0,
@@ -47,27 +47,27 @@ func NewProgram(p string) *program {
 
 // ensureAddr ensures that a given address is reachable, by growing the memory slice
 // if neccessary
-func (p *program) ensureAddr(addr int) {
+func (p *Program) ensureAddr(addr int) {
 	extend := addr - len(p.mem) + 1
 	if addr >= len(p.mem) {
 		p.mem = append(p.mem, make([]int, extend)...)
 	}
 }
 
-func (p *program) setMem(addr, val int) {
+func (p *Program) SetMem(addr, val int) {
 	p.ensureAddr(addr)
 
-	dbg(3, "  (setMem) p.mem[%d] = %d", addr, val)
+	dbg(3, "  (SetMem) p.mem[%d] = %d", addr, val)
 	p.mem[addr] = val
 }
 
-func (p *program) getMem(addr int) int {
+func (p *Program) getMem(addr int) int {
 	p.ensureAddr(addr)
 
 	dbg(3, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
 	return p.mem[addr]
 }
-func (p *program) Run(input <-chan int, output chan<- int) {
+func (p *Program) Run(input <-chan int, output chan<- int) {
 
 	p.pc = 0
 	for op := p.mem[p.pc]; op != 99; {
@@ -82,20 +82,20 @@ func (p *program) Run(input <-chan int, output chan<- int) {
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(2, " ADD %d %d -> %d", a, b, c)
-			p.setMem(c, a+b)
+			p.SetMem(c, a+b)
 			p.pc += 4
 		case 2: // Mul
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+4])
 			a, b, c := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(2, " MUL %d %d -> %d", a, b, c)
-			p.setMem(c, a*b)
+			p.SetMem(c, a*b)
 			p.pc += 4
 		case 3: // In
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
 			var in, dst int
 			in, dst = <-input, p.getAddrIndex(1)
 			dbg(2, " IN  %d -> mem[%d]", in, dst)
-			p.setMem(dst, in)
+			p.SetMem(dst, in)
 			p.pc += 2
 		case 4: // Out
 			dbg(2, " INSTR = %v", p.mem[p.pc:p.pc+2])
@@ -130,9 +130,9 @@ func (p *program) Run(input <-chan int, output chan<- int) {
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(2, " LT %d %d %d", first, second, dst)
 			if first < second {
-				p.setMem(dst, 1)
+				p.SetMem(dst, 1)
 			} else {
-				p.setMem(dst, 0)
+				p.SetMem(dst, 0)
 			}
 
 			p.pc += 4
@@ -142,9 +142,9 @@ func (p *program) Run(input <-chan int, output chan<- int) {
 			first, second, dst := p.fetchParameter(1), p.fetchParameter(2), p.getAddrIndex(3)
 			dbg(2, " EQ %d %d %d", first, second, dst)
 			if first == second {
-				p.setMem(dst, 1)
+				p.SetMem(dst, 1)
 			} else {
-				p.setMem(dst, 0)
+				p.SetMem(dst, 0)
 			}
 			p.pc += 4
 
@@ -165,13 +165,13 @@ func (p *program) Run(input <-chan int, output chan<- int) {
 	}
 }
 
-func (p *program) instructionMode(offset int) int {
+func (p *Program) instructionMode(offset int) int {
 	opcode := p.mem[p.pc]
 	return opcode / int(math.Pow10(offset+1)) % 10
 }
 
 // This is for writing to mem operations (IN, etc)
-func (p *program) getAddrIndex(n int) int {
+func (p *Program) getAddrIndex(n int) int {
 	parameter := p.mem[p.pc+n]
 	mode := p.instructionMode(n)
 
@@ -184,7 +184,7 @@ func (p *program) getAddrIndex(n int) int {
 	}
 }
 
-func (p *program) fetchParameter(n int) int {
+func (p *Program) fetchParameter(n int) int {
 	mode := p.instructionMode(n)
 	parameter := p.mem[p.pc+n]
 	dbg(3, "   param[%d](%d) mode: %d, base %d, memsize %d", n, parameter, mode, p.base, len(p.mem))
