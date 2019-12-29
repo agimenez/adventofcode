@@ -1,23 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/agimenez/adventofcode2019/intcode"
+	"github.com/agimenez/adventofcode2019/utils"
 )
-
-var (
-	debug int
-)
-
-func dbg(level int, fmt string, v ...interface{}) {
-	if debug >= level {
-		log.Printf(fmt+"\n", v...)
-	}
-}
 
 type Robot struct {
 	cpu    *intcode.Program
@@ -31,11 +20,6 @@ type Point struct {
 }
 
 var P0 = Point{0, 0}
-
-func init() {
-	flag.IntVar(&debug, "debug", 0, "debug level")
-	flag.Parse()
-}
 
 func newRobot(code string) *Robot {
 	return &Robot{
@@ -58,7 +42,7 @@ func (r *Robot) Run() {
 		if !ok {
 			break
 		}
-		dbg(1, "Char: %c (%d)", rune(char), rune(char))
+		utils.Dbg(1, "Char: %c (%d)", rune(char), rune(char))
 		b.WriteRune(rune(char))
 	}
 
@@ -76,9 +60,9 @@ func (r *Robot) GetIntersections() []Point {
 	intersections := []Point{}
 	for y := 1; y < len(r.image)-1; y++ {
 		for x := 1; x < len(r.image[y])-1; x++ {
-			dbg(2, "Checking: {%d, %d}", y, x)
+			utils.Dbg(2, "Checking: {%d, %d}", y, x)
 			if r.image[y][x] == '#' && r.IsIntersection(x, y) {
-				dbg(1, " -> Int: {%d, %d}", y, x)
+				utils.Dbg(1, " -> Int: {%d, %d}", y, x)
 				intersections = append(intersections, Point{x, y})
 			}
 		}
@@ -108,7 +92,7 @@ func (r *Robot) ReadLine() string {
 
 	for {
 		c := <-r.output
-		dbg(1, "Got %c (%d)", c, c)
+		utils.Dbg(1, "Got %c (%d)", c, c)
 		b.WriteRune(rune(c))
 		if c == '\n' {
 			break
@@ -141,9 +125,9 @@ func (r *Robot) RunPartTwo() int {
 
 	for _, cmd := range inputs {
 		prompt := r.ReadLine()
-		dbg(1, "> %s", prompt)
+		utils.Dbg(1, "> %s", prompt)
 		r.WriteLine(cmd)
-		dbg(1, "< %s", cmd)
+		utils.Dbg(1, "< %s", cmd)
 
 	}
 
