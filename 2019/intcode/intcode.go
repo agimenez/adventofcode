@@ -24,7 +24,7 @@ type program struct {
 	base int
 }
 
-func newProgram(p string) *program {
+func NewProgram(p string) *program {
 
 	pr := &program{
 		mem:  []int{},
@@ -67,7 +67,7 @@ func (p *program) getMem(addr int) int {
 	dbg(3, "  (get) p.mem[%d] = %d", addr, p.mem[addr])
 	return p.mem[addr]
 }
-func (p *program) run(input <-chan int, output chan<- int) {
+func (p *program) Run(input <-chan int, output chan<- int) {
 
 	p.pc = 0
 	for op := p.mem[p.pc]; op != 99; {
