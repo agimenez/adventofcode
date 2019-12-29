@@ -1,4 +1,4 @@
-package main
+package intcode
 
 import (
 	"fmt"
@@ -16,10 +16,10 @@ func testProgram(t *testing.T, pt *progTest) {
 
 	t.Helper()
 
-	p := newProgram(pt.code)
+	p := NewProgram(pt.code)
 	input := make(chan int)
 	output := make(chan int)
-	go p.run(input, output)
+	go p.Run(input, output)
 	input <- pt.in
 	out := <-output
 	if out != pt.out {
@@ -40,9 +40,9 @@ func TestSetMem(t *testing.T) {
 		{15, 10, 16},
 	}
 
-	prog := newProgram(code)
+	prog := NewProgram(code)
 	for _, test := range tests {
-		prog.setMem(test.dstpos, test.dstval)
+		prog.SetMem(test.dstpos, test.dstval)
 
 		if len(prog.mem) != test.size {
 			t.Errorf("Memory size %d, expected %d", len(prog.mem), test.size)
