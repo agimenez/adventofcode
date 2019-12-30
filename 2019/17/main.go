@@ -93,10 +93,10 @@ func (r *Robot) ReadLine() string {
 	for {
 		c := <-r.output
 		//utils.Dbg(1, "Got %c (%d)", c, c)
-		b.WriteRune(rune(c))
 		if c == '\n' {
 			break
 		}
+		b.WriteRune(rune(c))
 	}
 
 	return b.String()
@@ -121,7 +121,77 @@ func (r *Robot) ReadCam() {
 
 func DrawImage(img []string) {
 	for i := range img {
-		fmt.Print(img[i])
+		fmt.Println(img[i])
+	}
+}
+
+type Location struct {
+	coord Point
+	dir   Direction
+}
+
+type Direction Point
+
+var (
+	dirN = Direction{0, -1}
+	dirE = Direction{1, 0}
+	dirS = Direction{0, 1}
+	dirW = Direction{-1, 0}
+)
+
+func (l Location) Forward() Location {
+	return Location{Point{l.coord.x + l.dir.x, l.coord.y + l.dir.y}, l.dir}
+}
+
+func (l Location) Valid(img []string) bool {
+	if l.coord.y >= len(img) {
+		return false
+	}
+
+	if l.coord.x >= len(img[0]) {
+		return false
+	}
+
+	if img[l.coord.y][l.coord.x] != '#' {
+		return false
+	}
+
+	return true
+}
+
+func (r *Robot) Location() Location {
+	for y := range r.image {
+		for x := range r.image[y] {
+			switch r.image[y][x] {
+			case '^':
+				return Location{Point{x, y}, dirN}
+			case '>':
+				return Location{Point{x, y}, dirE}
+			case 'v':
+				return Location{Point{x, y}, dirS}
+			case '<':
+				return Location{Point{x, y}, dirW}
+			}
+		}
+	}
+
+	return Location{}
+}
+
+func (r *Robot) FindDirection(l Location) Direction {
+	fwd := l.Forward()
+	if fwd.Valid(r.image) {
+		return l.dir
+	}
+
+}
+
+func (r *Robot) RunScaffolding(l Location) string {
+	var b strings.Builder
+
+	fwd := 0
+	for {
+
 	}
 }
 func (r *Robot) RunPartTwo() int {
@@ -142,6 +212,8 @@ func (r *Robot) RunPartTwo() int {
 	// is just a snapshot of the current camera status. Then it asks for the values,
 	// using a prompt
 	r.ReadCam()
+	p := r.Location()
+	r.RunScaffolding(p)
 
 	for _, cmd := range inputs {
 		prompt := r.ReadLine()
