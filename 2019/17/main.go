@@ -112,7 +112,10 @@ func (r *Robot) WriteLine(cmd string) {
 func (r *Robot) ReadCam() {
 	for {
 		l := r.ReadLine()
-		if l[0] == '\n' {
+
+		// We don't return newlines in r.ReadLine(), so if an empty line comes from
+		// the camera, we return an empty string instead of just a newline rune
+		if len(l) == 0 {
 			break
 		}
 		r.image = append(r.image, l)
@@ -139,6 +142,25 @@ var (
 	dirW = Direction{-1, 0}
 )
 
+func (r *Robot) Location() Location {
+	for y := range r.image {
+		for x := range r.image[y] {
+			switch r.image[y][x] {
+			case '^':
+				return Location{Point{x, y}, dirN}
+			case '>':
+				return Location{Point{x, y}, dirE}
+			case 'v':
+				return Location{Point{x, y}, dirS}
+			case '<':
+				return Location{Point{x, y}, dirW}
+			}
+		}
+	}
+
+	return Location{}
+}
+
 func (l Location) Forward() Location {
 	return Location{Point{l.coord.x + l.dir.x, l.coord.y + l.dir.y}, l.dir}
 }
@@ -159,39 +181,69 @@ func (l Location) Valid(img []string) bool {
 	return true
 }
 
-func (r *Robot) Location() Location {
-	for y := range r.image {
-		for x := range r.image[y] {
-			switch r.image[y][x] {
-			case '^':
-				return Location{Point{x, y}, dirN}
-			case '>':
-				return Location{Point{x, y}, dirE}
-			case 'v':
-				return Location{Point{x, y}, dirS}
-			case '<':
-				return Location{Point{x, y}, dirW}
-			}
-		}
+func (l Location) Right() Location {
+	nl := l
+	switch l.dir {
+	case dirN:
+		l.dir = dirE
+	case dirE:
+		l.dir = dirS
+	case dirS:
+		l.dir = dirW
+	case dirW:
+		l.dir = dirN
 	}
 
-	return Location{}
+	return nl
 }
 
-func (r *Robot) FindDirection(l Location) Direction {
-	fwd := l.Forward()
-	if fwd.Valid(r.image) {
-		return l.dir
+func (l Location) Left() Location {
+	nl := l
+	switch l.dir {
+	case dirN:
+		l.dir = dirW
+	case dirE:
+		l.dir = dirN
+	case dirS:
+		l.dir = dirE
+	case dirW:
+		l.dir = dirS
 	}
 
+	return nl
+}
+func (r *Robot) FindDirection(l Location) rune {
+	if l.Forward().Valid(r.image) {
+		return 'F'
+	}
+
+	if l.Right().Forward().Valid(r.image) {
+		return 'R'
+	}
+
+	if l.Left().Forward().Valid(r.image) {
+		return 'L'
+	}
+
+	// should not get here
+	return 'F'
 }
 
 func (r *Robot) RunScaffolding(l Location) string {
 	var b strings.Builder
 
 	fwd := 0
+	turn := r.FindDirection(l)
+	b.WriteRune(turn)
 	for {
-
+		for l.Forward().Valid(r.image) {
+			l = l.Forward()
+			fwd++
+		}
+		b.WriteString(fmt.Sprintf("%d", fwd))
+		fwd = 0
+		turn := r.FindDirection(l)
+		b.WriteRune(turn)
 	}
 }
 func (r *Robot) RunPartTwo() int {
