@@ -35,8 +35,23 @@ func main() {
 			}
 
 			if nums[i]+nums[j] == 2020 {
-				log.Printf("%v", nums[i]*nums[j])
-				os.Exit(0)
+				log.Printf("Part one: %v", nums[i]*nums[j])
+			}
+		}
+	}
+
+	// This is not ideal, I think we could calculate both parts within the same loop,
+	// but I can't be bothered...
+	for i := 0; i < len(nums); i++ {
+		for j := i + 1; j < len(nums); j++ {
+			for k := j + 1; k < len(nums); k++ {
+				if nums[i]+nums[j]+nums[k] > 2020 {
+					break
+				}
+
+				if nums[i]+nums[j]+nums[k] == 2020 {
+					log.Printf("Part two: %v", nums[i]*nums[j]*nums[k])
+				}
 			}
 		}
 	}
