@@ -38,18 +38,34 @@ func checkPolicy(l string) bool {
 	return c >= min && c <= max
 }
 
+func xor(a, b bool) bool {
+	return a != b // Love you, stackoverflow
+}
+
+func checkCurrentPolicy(l string) bool {
+	min, max, char, pw := parsePolicy(l)
+
+	return xor(pw[min-1] == char[0], pw[max-1] == char[0])
+}
+
 func main() {
 	s := bufio.NewScanner(os.Stdin)
-	correct := 0
+	correct1, correct2 := 0, 0
 	for s.Scan() {
 		l := s.Text()
 
 		if checkPolicy(l) {
-			correct++
+			correct1++
 			dbg("%v is correct!\n", l)
+		}
+
+		if checkCurrentPolicy(l) {
+			correct2++
+
 		}
 	}
 
-	log.Printf("Part 1: %v\n", correct)
+	log.Printf("Part 1: %v\n", correct1)
+	log.Printf("Part 2: %v\n", correct2)
 
 }
