@@ -55,7 +55,7 @@ func newSlope(s *bufio.Scanner) *slope {
 func (s *slope) countTrees(v Point) int {
 	cur := Point{0, 0}
 	count := 0
-	for i := 0; i <= s.height; i++ {
+	for cur.y < s.height {
 		if _, ok := s.grid[cur]; ok {
 			dbg("Tree at %v!\n", cur)
 			count++
