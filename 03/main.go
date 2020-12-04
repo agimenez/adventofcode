@@ -74,7 +74,10 @@ func main() {
 	g := newSlope(s)
 	part1 := g.countTrees(Point{3, 1})
 
+	part2 := g.countTrees(Point{1, 1}) * part1 * g.countTrees(Point{5, 1}) *
+		g.countTrees(Point{7, 1}) * g.countTrees(Point{1, 2})
+
 	log.Printf("Part 1: %v\n", part1)
-	log.Printf("Part 2: \n")
+	log.Printf("Part 2: %v\n", part2)
 
 }
