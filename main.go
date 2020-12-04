@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"log"
+	"os"
 )
 
 const (
@@ -16,9 +17,15 @@ func dbg(fmt string, v ...interface{}) {
 }
 
 func main() {
-	var in string
 
-	fmt.Scan(&in)
+	s := bufio.NewScanner(os.Stdin)
+	for s.Scan() {
+		l := s.Text()
 
-	log.Printf("%v", in)
+		dbg("Line: %v\n", l)
+	}
+
+	log.Printf("Part 1: \n")
+	log.Printf("Part 2: \n")
+
 }
