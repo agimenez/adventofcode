@@ -48,16 +48,20 @@ var validators map[string]validateFunc = map[string]validateFunc{
 }
 
 func validateIntRange(s string, min, max int) bool {
-	if len(s) != 4 {
-		return false
-	}
-
 	y, _ := strconv.Atoi(s)
 	if y < min || y > max {
 		return false
 	}
 
 	return true
+}
+
+func validateYear(s string, min, max int) bool {
+	if len(s) != 4 {
+		return false
+	}
+
+	return validateIntRange(s, min, max)
 }
 
 func validateByr(s string) bool {
@@ -73,6 +77,7 @@ func validateEyr(s string) bool {
 func validateHgt(s string) bool {
 	re := regexp.MustCompile(`(\d*)(\w*)`)
 	v := re.FindStringSubmatch(s)[1:]
+	dbg("Parsed: %v", v)
 
 	switch v[1] {
 	case "cm":
@@ -110,7 +115,9 @@ func validFields(p passport) bool {
 	}
 
 	for f, v := range p {
+		dbg("Validating %v:%v", f, v)
 		if validators[f](v) == false {
+			dbg("Invalid!")
 			return false
 		}
 	}
