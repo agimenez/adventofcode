@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -32,6 +34,90 @@ func validPassport(p passport) bool {
 	return false
 }
 
+type validateFunc func(s string) bool
+
+var validators map[string]validateFunc = map[string]validateFunc{
+	"byr": validateByr,
+	"iyr": validateIyr,
+	"eyr": validateEyr,
+	"hgt": validateHgt,
+	"hcl": validateHcl,
+	"ecl": validateEcl,
+	"pid": validatePid,
+	"cid": validateCid,
+}
+
+func validateIntRange(s string, min, max int) bool {
+	if len(s) != 4 {
+		return false
+	}
+
+	y, _ := strconv.Atoi(s)
+	if y < min || y > max {
+		return false
+	}
+
+	return true
+}
+
+func validateByr(s string) bool {
+	return validateIntRange(s, 1920, 2002)
+}
+func validateIyr(s string) bool {
+	return validateIntRange(s, 2010, 2020)
+}
+func validateEyr(s string) bool {
+	return validateIntRange(s, 2020, 2030)
+}
+
+func validateHgt(s string) bool {
+	re := regexp.MustCompile(`(\d*)(\w*)`)
+	v := re.FindStringSubmatch(s)[1:]
+
+	switch v[1] {
+	case "cm":
+		return validateIntRange(v[0], 150, 193)
+	case "in":
+		return validateIntRange(v[0], 59, 76)
+	}
+
+	return false
+}
+func validateHcl(s string) bool {
+	m, _ := regexp.MatchString(`^#[[:xdigit:]]{6}$`, s)
+	return m
+}
+func validateEcl(s string) bool {
+	switch s {
+	case "amb", "blu", "brn", "gry", "grn", "hzl", "oth":
+		return true
+	}
+
+	return false
+}
+func validatePid(s string) bool {
+	m, _ := regexp.MatchString(`^\d{9}$`, s)
+	return m
+}
+
+func validateCid(s string) bool {
+	return true
+}
+
+func validFields(p passport) bool {
+	if !validPassport(p) {
+		return false
+	}
+
+	for f, v := range p {
+		if validators[f](v) == false {
+			return false
+		}
+	}
+
+	return true
+}
+
 func main() {
 
 	s := bufio.NewScanner(os.Stdin)
@@ -58,14 +144,18 @@ func main() {
 	}
 	list = append(list, p)
 
-	part1 := 0
+	part1, part2 := 0, 0
 	for _, p := range list {
 		if validPassport(p) {
 			part1++
 		}
+
+		if validFields(p) {
+			part2++
+		}
 	}
 
 	log.Printf("Part 1: %v", part1)
-	log.Printf("Part 2: \n")
+	log.Printf("Part 2: %v", part2)
 
 }
