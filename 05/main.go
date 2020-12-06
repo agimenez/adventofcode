@@ -51,16 +51,27 @@ func main() {
 
 	s := bufio.NewScanner(os.Stdin)
 	max := 0
+	var seen [1024]bool
 	for s.Scan() {
 		l := s.Text()
 		r := getSeatID(l)
+		seen[r] = true
 		if r > max {
 			max = r
 		}
 
 	}
 
+	var mySeat int
+	for i := 1; i < len(seen)-1; i++ {
+		dbg("%v: %v", i, seen[i])
+		if !seen[i] && seen[i-1] {
+			mySeat = i
+			break
+		}
+	}
+
 	log.Printf("Part 1: %v\n", max)
-	log.Printf("Part 2: \n")
+	log.Printf("Part 2: %v\n", mySeat)
 
 }
