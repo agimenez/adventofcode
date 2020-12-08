@@ -76,6 +76,7 @@ func main() {
 		panic("could not read input")
 	}
 	lines := strings.Split(string(p), "\n")
+	lines = lines[:len(lines)-1]
 
 	m := NewMachine(lines)
 	dbg("%#v", m)
