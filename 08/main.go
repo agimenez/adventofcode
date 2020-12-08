@@ -24,12 +24,12 @@ type Machine struct {
 	acc int
 }
 
-func NewMachine(program string) *Machine {
+func NewMachine(program []string) *Machine {
 	dbg("prog: %v", program)
 	return &Machine{
 		pc:  0,
 		acc: 0,
-		mem: strings.Split(program, "\n"),
+		mem: program,
 	}
 
 }
@@ -75,8 +75,9 @@ func main() {
 	if err != nil {
 		panic("could not read input")
 	}
+	lines := strings.Split(string(p), "\n")
 
-	m := NewMachine(string(p))
+	m := NewMachine(lines)
 	dbg("%#v", m)
 	runUntilLoop(m)
 	part1 = m.acc
