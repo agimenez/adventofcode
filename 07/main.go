@@ -32,6 +32,30 @@ func findContainers(containedBy map[string][]string, s string) []string {
 
 }
 
+var depth int
+
+func findContains(contains map[string]map[string]int, s string) int {
+	spc := strings.Repeat(" ", 4*depth)
+	dbg("[%v]%sFinding %v", depth, spc, s)
+	if len(contains[s]) == 0 {
+		dbg("[%v]%s -> no containers!", depth, spc)
+		return 1
+	}
+
+	acc := 0
+	for bag, count := range contains[s] {
+
+		depth++
+		c := findContains(contains, bag)
+		dbg("[%v]%s'%v' contains a total of %v bags, times %v", depth, spc, bag, c, count)
+
+		acc += count * findContains(contains, bag)
+	}
+
+	depth--
+	return acc + 1
+}
+
 func deduplicate(list []string) []string {
 	uniq := map[string]struct{}{}
 
@@ -51,6 +75,7 @@ func main() {
 
 	s := bufio.NewScanner(os.Stdin)
 	part1, part2 := 0, 0
+	depth = 0
 	contains := make(map[string]map[string]int)
 	containedBy := make(map[string][]string)
 	for s.Scan() {
@@ -85,6 +110,10 @@ func main() {
 
 	bags := deduplicate(findContainers(containedBy, "shiny gold"))
 	part1 = len(bags)
+
+	// The recursive function will account for the shiny gold bag itself, and we are
+	// only asked the number of bags contained in it
+	part2 = findContains(contains, "shiny gold") - 1
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
