@@ -9,13 +9,42 @@ import (
 )
 
 const (
-	debug = true
+	debug = false
 )
 
 func dbg(fmt string, v ...interface{}) {
 	if debug {
 		log.Printf(fmt, v...)
 	}
+}
+
+func findContainers(containedBy map[string][]string, s string) []string {
+	if _, ok := containedBy[s]; !ok {
+		return []string{}
+	}
+
+	bags := containedBy[s]
+	for _, b := range containedBy[s] {
+		bags = append(bags, findContainers(containedBy, b)...)
+	}
+
+	return bags
+
+}
+
+func deduplicate(list []string) []string {
+	uniq := map[string]struct{}{}
+
+	for _, b := range list {
+		uniq[b] = struct{}{}
+	}
+
+	res := []string{}
+	for b := range uniq {
+		res = append(res, b)
+	}
+
+	return res
 }
 
 func main() {
@@ -28,12 +57,12 @@ func main() {
 		l := s.Text()
 
 		s1 := strings.Split(l, " bags contain ")
+		container := s1[0]
+		contains[container] = make(map[string]int)
 		if s1[1] == "no other bags." {
 			continue
 		}
 
-		container := s1[0]
-		contains[container] = make(map[string]int)
 		contents := strings.Split(s1[1], ", ")
 		dbg("Container: %v", container)
 		for _, bag := range contents {
@@ -53,6 +82,9 @@ func main() {
 		dbg("ContainedBy: %+v", containedBy)
 
 	}
+
+	bags := deduplicate(findContainers(containedBy, "shiny gold"))
+	part1 = len(bags)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
