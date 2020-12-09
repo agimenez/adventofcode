@@ -77,6 +77,34 @@ func (x *XMAS) next() int {
 	return x.data[x.baseIndex+x.window]
 }
 
+func (x *XMAS) findContiguousSumLimits(target int) (int, int) {
+	var low, high int
+	for i, v := range x.data {
+		sum := v
+		low, high = v, v
+
+		for j := i + 1; ; j++ {
+			sum += x.data[j]
+			if sum > target {
+				break
+			}
+
+			if x.data[j] < low {
+				low = x.data[j]
+			}
+			if x.data[j] > high {
+				high = x.data[j]
+			}
+
+			if sum == target {
+				return low, high
+			}
+
+		}
+	}
+	return 0, 0
+}
+
 func (x *XMAS) findInvalid() int {
 
 	for {
@@ -97,9 +125,12 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
-	x := NewXMAS(lines, 25)
 
+	x := NewXMAS(lines, 25)
 	part1 = x.findInvalid()
+
+	low, high := x.findContiguousSumLimits(part1)
+	part2 = low + high
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
