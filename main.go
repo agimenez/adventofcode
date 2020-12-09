@@ -2,12 +2,13 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"log"
 	"os"
 )
 
-const (
-	debug = false
+var (
+	debug bool
 )
 
 func dbg(fmt string, v ...interface{}) {
@@ -16,6 +17,10 @@ func dbg(fmt string, v ...interface{}) {
 	}
 }
 
+func init() {
+	flag.BoolVar(&debug, "debug", false, "enable debug")
+	flag.Parse()
+}
 func main() {
 
 	s := bufio.NewScanner(os.Stdin)
