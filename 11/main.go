@@ -28,31 +28,46 @@ type Seat struct {
 	r, c int
 }
 
-type Layout map[Seat]rune
+type Layout struct {
+	seats map[Seat]rune
+	rows  int
+	cols  int
+}
 
-func newLayout(lines []string) Layout {
-	l := make(Layout)
+func newLayout(lines []string) *Layout {
+	l := &Layout{
+		seats: make(map[Seat]rune),
+		rows:  0,
+		cols:  0,
+	}
 
 	for row, line := range lines {
+		l.rows = row
+		l.cols = len(line)
 		for col, c := range line {
 			p := Seat{row, col}
-			l[p] = c
+			l.seats[p] = c
 		}
 	}
 
 	return l
 }
 
-func (l Layout) copy() Layout {
-	c := make(map[Seat]rune, len(l))
-	for k, v := range l {
-		c[k] = v
+func (l *Layout) copy() *Layout {
+	c := &Layout{
+		seats: make(map[Seat]rune, len(l.seats)),
+		cols:  l.cols,
+		rows:  l.rows,
+	}
+
+	for k, v := range l.seats {
+		c.seats[k] = v
 	}
 
 	return c
 }
 
-func (l Layout) occupiedNeighbours(p Seat) int {
+func (l *Layout) occupiedNeighbours(p Seat) int {
 	count := 0
 	for r := -1; r < 2; r++ {
 		for c := -1; c < 2; c++ {
@@ -61,7 +76,7 @@ func (l Layout) occupiedNeighbours(p Seat) int {
 			}
 
 			p2 := Seat{p.r + r, p.c + c}
-			if n, ok := l[p2]; ok && n == '#' {
+			if n, ok := l.seats[p2]; ok && n == '#' {
 				count++
 			}
 
@@ -71,20 +86,20 @@ func (l Layout) occupiedNeighbours(p Seat) int {
 	return count
 }
 
-func (l Layout) round() (map[Seat]rune, bool) {
+func (l *Layout) round() (*Layout, bool) {
 	cur := l.copy()
 	changed := false
-	for p, c := range l {
+	for p, c := range l.seats {
 		if c == '.' {
 			continue
 		}
 
 		n := l.occupiedNeighbours(p)
 		if c == 'L' && n == 0 {
-			cur[p] = '#'
+			cur.seats[p] = '#'
 			changed = true
 		} else if c == '#' && n >= 4 {
-			cur[p] = 'L'
+			cur.seats[p] = 'L'
 			changed = true
 		}
 	}
@@ -92,11 +107,11 @@ func (l Layout) round() (map[Seat]rune, bool) {
 	return cur, changed
 }
 
-func (l Layout) board() Layout {
+func (l *Layout) board() *Layout {
 	for {
 		changed := false
 		l, changed = l.round()
-		//l.print(10, 10)
+		l.print()
 
 		if !changed {
 			break
@@ -106,10 +121,13 @@ func (l Layout) board() Layout {
 	return l
 }
 
-func (l Layout) print(rows, cols int) {
-	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
-			fmt.Printf("%c", l[Seat{r, c}])
+func (l *Layout) print() {
+	if !debug {
+		return
+	}
+	for r := 0; r < l.rows; r++ {
+		for c := 0; c < l.cols; c++ {
+			fmt.Printf("%c", l.seats[Seat{r, c}])
 		}
 		fmt.Println()
 	}
@@ -118,7 +136,7 @@ func (l Layout) print(rows, cols int) {
 
 func (l Layout) occupiedSeats() int {
 	count := 0
-	for _, c := range l {
+	for _, c := range l.seats {
 		if c == '#' {
 			count++
 		}
@@ -138,7 +156,7 @@ func main() {
 	lines = lines[:len(lines)-1]
 
 	l := newLayout(lines)
-	//l.print(10, 10)
+	l.print()
 	l = l.board()
 	part1 = l.occupiedSeats()
 
