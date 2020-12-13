@@ -68,6 +68,7 @@ func (l *Layout) copy() *Layout {
 
 func (l *Layout) occupiedNeighbours(p Seat, maxDist int) int {
 	count := 0
+	dbg("Point: %v", p)
 	for r := -1; r < 2; r++ {
 		for c := -1; c < 2; c++ {
 			if c == 0 && r == 0 {
@@ -78,11 +79,15 @@ func (l *Layout) occupiedNeighbours(p Seat, maxDist int) int {
 				p2 := Seat{p.r + r*i, p.c + c*i}
 				if n, ok := l.seats[p2]; ok && n == '#' {
 					count++
+					break
+				} else if n == 'L' {
+					break
 				}
 			}
 
 		}
 	}
+	dbg("Neighbours: %v", count)
 
 	return count
 }
@@ -146,6 +151,13 @@ func (l Layout) occupiedSeats() int {
 	return count
 }
 
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
+}
 func main() {
 
 	part1, part2 := 0, 0
@@ -160,8 +172,13 @@ func main() {
 	l.print()
 	l = l.board(1)
 	part1 = l.occupiedSeats()
-
 	log.Printf("Part 1: %v\n", part1)
+
+	l = newLayout(lines, 5)
+	l.print()
+	l = l.board(max(l.rows, l.cols))
+	part2 = l.occupiedSeats()
+
 	log.Printf("Part 2: %v\n", part2)
 
 }
