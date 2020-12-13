@@ -29,16 +29,18 @@ type Seat struct {
 }
 
 type Layout struct {
-	seats map[Seat]rune
-	rows  int
-	cols  int
+	seats     map[Seat]rune
+	rows      int
+	cols      int
+	tolerance int
 }
 
-func newLayout(lines []string) *Layout {
+func newLayout(lines []string, tolerance int) *Layout {
 	l := &Layout{
-		seats: make(map[Seat]rune),
-		rows:  0,
-		cols:  0,
+		seats:     make(map[Seat]rune),
+		rows:      0,
+		cols:      0,
+		tolerance: tolerance,
 	}
 
 	for row, line := range lines {
@@ -100,7 +102,7 @@ func (l *Layout) round(maxDist int) (*Layout, bool) {
 		if c == 'L' && n == 0 {
 			cur.seats[p] = '#'
 			changed = true
-		} else if c == '#' && n >= 4 {
+		} else if c == '#' && n >= l.tolerance {
 			cur.seats[p] = 'L'
 			changed = true
 		}
@@ -157,7 +159,7 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 
-	l := newLayout(lines)
+	l := newLayout(lines, 4)
 	l.print()
 	l = l.board(1)
 	part1 = l.occupiedSeats()
