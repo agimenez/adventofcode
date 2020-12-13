@@ -67,7 +67,7 @@ func (l *Layout) copy() *Layout {
 	return c
 }
 
-func (l *Layout) occupiedNeighbours(p Seat) int {
+func (l *Layout) occupiedNeighbours(p Seat, maxDist int) int {
 	count := 0
 	for r := -1; r < 2; r++ {
 		for c := -1; c < 2; c++ {
@@ -75,9 +75,11 @@ func (l *Layout) occupiedNeighbours(p Seat) int {
 				continue
 			}
 
-			p2 := Seat{p.r + r, p.c + c}
-			if n, ok := l.seats[p2]; ok && n == '#' {
-				count++
+			for i := 1; i <= maxDist; i++ {
+				p2 := Seat{p.r + r*i, p.c + c*i}
+				if n, ok := l.seats[p2]; ok && n == '#' {
+					count++
+				}
 			}
 
 		}
@@ -86,7 +88,7 @@ func (l *Layout) occupiedNeighbours(p Seat) int {
 	return count
 }
 
-func (l *Layout) round() (*Layout, bool) {
+func (l *Layout) round(maxDist int) (*Layout, bool) {
 	cur := l.copy()
 	changed := false
 	for p, c := range l.seats {
@@ -94,7 +96,7 @@ func (l *Layout) round() (*Layout, bool) {
 			continue
 		}
 
-		n := l.occupiedNeighbours(p)
+		n := l.occupiedNeighbours(p, maxDist)
 		if c == 'L' && n == 0 {
 			cur.seats[p] = '#'
 			changed = true
@@ -107,10 +109,10 @@ func (l *Layout) round() (*Layout, bool) {
 	return cur, changed
 }
 
-func (l *Layout) board() *Layout {
+func (l *Layout) board(maxDist int) *Layout {
 	for {
 		changed := false
-		l, changed = l.round()
+		l, changed = l.round(maxDist)
 		l.print()
 
 		if !changed {
@@ -157,7 +159,7 @@ func main() {
 
 	l := newLayout(lines)
 	l.print()
-	l = l.board()
+	l = l.board(1)
 	part1 = l.occupiedSeats()
 
 	log.Printf("Part 1: %v\n", part1)
