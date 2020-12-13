@@ -56,17 +56,14 @@ func newLayout(lines []string, tolerance int) *Layout {
 }
 
 func (l *Layout) copy() *Layout {
-	c := &Layout{
-		seats: make(map[Seat]rune, len(l.seats)),
-		cols:  l.cols,
-		rows:  l.rows,
-	}
+	c := *l
+	c.seats = make(map[Seat]rune, len(l.seats))
 
 	for k, v := range l.seats {
 		c.seats[k] = v
 	}
 
-	return c
+	return &c
 }
 
 func (l *Layout) occupiedNeighbours(p Seat, maxDist int) int {
