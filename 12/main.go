@@ -42,15 +42,27 @@ type Point struct {
 	x, y int
 }
 
+func (p Point) rotate90(degrees int) Point {
+	p2 := []Point{
+		Point{p.x, p.y},
+		Point{p.y, -p.x},
+		Point{-p.x, -p.y},
+		Point{-p.y, p.x},
+	}
+
+	jumps := degrees / 90
+	return p2[mod(jumps, len(p2))]
+}
+
 type Ship struct {
-	dir  int
+	wp   Point
 	loc  Point
 	path []Point
 }
 
-func newShip() *Ship {
+func newShip(facing Point) *Ship {
 	s := &Ship{
-		dir:  East,
+		wp:   facing,
 		loc:  Point{0, 0},
 		path: []Point{{0, 0}},
 	}
@@ -63,8 +75,8 @@ func (s *Ship) manhattanDistance() int {
 }
 
 func (s *Ship) forward(units int) {
-	s.loc.x += Facing[s.dir].x * units
-	s.loc.y += Facing[s.dir].y * units
+	s.loc.x += s.wp.x * units
+	s.loc.y += s.wp.y * units
 
 	s.path = append(s.path, s.loc)
 }
@@ -74,13 +86,13 @@ func mod(a, b int) int {
 }
 
 func (s *Ship) rotate(dir rune, degrees int) {
-	sign := 1
 	if dir == 'L' {
-		sign = -1
+		degrees = -degrees
 	}
 
-	jumps := sign * (degrees / 90)
-	s.dir = mod(s.dir+jumps, len(Facing))
+	dbg("Rotate %d cur: wp = %v", degrees, s.wp)
+	s.wp = s.wp.rotate90(degrees)
+	dbg("Rotate %d aft: wp = %v", degrees, s.wp)
 
 }
 
@@ -92,8 +104,8 @@ func (s *Ship) shift(dir rune, value int) {
 		'W': West,
 	}
 
-	s.loc.x += value * Facing[dirMap[dir]].x
-	s.loc.y += value * Facing[dirMap[dir]].y
+	s.wp.x += value * Facing[dirMap[dir]].x
+	s.wp.y += value * Facing[dirMap[dir]].y
 
 	s.path = append(s.path, s.loc)
 }
@@ -120,13 +132,13 @@ func main() {
 
 	s := bufio.NewScanner(os.Stdin)
 	part1, part2 := 0, 0
-	f := newShip()
+	f := newShip(Point{10, 1})
 
 	for s.Scan() {
 		l := s.Text()
 		f.move(l)
 	}
-	part1 = f.manhattanDistance()
+	part2 = f.manhattanDistance()
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
