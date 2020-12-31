@@ -24,12 +24,12 @@ func init() {
 	flag.Parse()
 }
 
-func findEarliest(ts int, buses []int) (int, int) {
+func findEarliest(ts int, buses map[int]int) (int, int) {
 	cur := ts
 	for {
 		for i := range buses {
-			if cur%buses[i] == 0 {
-				return cur, buses[i]
+			if cur%i == 0 {
+				return cur, i
 			}
 		}
 
@@ -51,9 +51,9 @@ func main() {
 		panic("could not parse timestamp")
 	}
 
-	buses := []int{}
+	buses := map[int]int{}
 	times := strings.Split(lines[1], ",")
-	for _, l := range times {
+	for i, l := range times {
 		if l == "x" {
 			continue
 		}
@@ -62,7 +62,7 @@ func main() {
 		if err != nil {
 			panic("could not parse busID")
 		}
-		buses = append(buses, b)
+		buses[b] = i
 	}
 	t, b := findEarliest(ts, buses)
 	part1 = (t - ts) * b
