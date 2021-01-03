@@ -80,8 +80,9 @@ func main() {
 		nums = append(nums, n)
 	}
 	part1 = MemoryGame(nums, 2020)
-
 	log.Printf("Part 1: %v\n", part1)
+
+	part2 = MemoryGame(nums, 30000000)
 	log.Printf("Part 2: %v\n", part2)
 
 }
