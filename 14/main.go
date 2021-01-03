@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -66,36 +67,90 @@ func (m ValueMask) Apply(v uint64) interface{} {
 }
 
 type AddressMask struct {
-	mask     string
-	floating int
+	mask              string
+	floating          uint64
+	floatingPositions []int
+}
+
+func (m AddressMask) String() string {
+	return fmt.Sprintf("\nm  = %s\nf  = %d\nfm = %#v\n\n", m.mask, m.floating, m.floatingPositions)
 }
 
 func NewAddressMasker(mask string) AddressMask {
 	m := AddressMask{
 		mask:     mask,
-		floating: 0,
+		floating: (1 << strings.Count(mask, "X")),
+	}
+	for i, bit := range m.mask {
+		if bit == 'X' {
+			m.floatingPositions = append([]int{len(m.mask) - i - 1}, m.floatingPositions...)
+		}
 	}
 
+	dbg("AddressMasker: %v", m)
 	return m
 }
 
 func (m AddressMask) Apply(a uint64) interface{} {
-	return a
+	arr := []uint64{}
+
+	dbg("")
+	dbg("m  = %036s", m.mask)
+	dbg("vi = %036b", a)
+	// first, apply basic 0/1 transformations
+	for i, bit := range m.mask {
+		pos := len(m.mask) - i - 1
+		switch bit {
+		case '1':
+			a |= (0x01 << pos)
+		}
+	}
+	dbg("v1 = %036b", a)
+	dbg("")
+
+	//Resolve the Xs
+	for f := uint64(0); f < m.floating; f++ {
+		tmp := a
+		dbg("f  = %036b (floating #%d)", f, f)
+		dbg("n  = %036b", tmp)
+		maskSet := uint64(0)
+		maskClear := ^maskSet
+
+		for bit, pos := range m.floatingPositions {
+			fval := f & (1 << bit)
+			dbg("fv = %036b", fval)
+			if fval > 0 {
+				maskSet |= (1 << pos)
+			} else {
+				maskClear &= ^(1 << pos)
+			}
+		}
+		dbg("ms = %036b", maskSet)
+		dbg("mc = %036b", maskClear)
+		tmp |= maskSet
+		tmp &= maskClear
+		dbg("t  = %036b", tmp)
+		dbg("")
+		arr = append(arr, tmp)
+	}
+	dbg("%v", arr)
+
+	return arr
 }
 
 type Computer struct {
-	mem  map[int]uint64
+	mem  map[uint64]uint64
 	mask Masker
 }
 
 func NewComputer(m Masker) *Computer {
 	return &Computer{
-		mem:  make(map[int]uint64),
+		mem:  make(map[uint64]uint64),
 		mask: m,
 	}
 }
 
-func (c *Computer) Write(a int, v uint64) {
+func (c *Computer) Write(a uint64, v uint64) {
 	c.mem[a] = v
 	dbg("mem[%d] = %036b", a, v)
 }
@@ -128,7 +183,7 @@ func (c *Computer) RunMaskValues(lines []string) {
 			}
 
 			v64 := c.mask.Apply(uint64(val)).(uint64)
-			c.Write(addr, v64)
+			c.Write(uint64(addr), v64)
 		}
 	}
 
@@ -152,7 +207,10 @@ func (c *Computer) RunMaskAddresses(lines []string) {
 				panic("Can't parse value")
 			}
 
-			c.Write(addr, uint64(val))
+			ad := c.mask.Apply(uint64(addr)).([]uint64)
+			for i := range ad {
+				c.Write(ad[i], uint64(val))
+			}
 		}
 	}
 }
@@ -169,11 +227,12 @@ func main() {
 	c := NewComputer(NewValueMasker(""))
 	c.RunMaskValues(lines)
 	part1 = c.SumMem()
+	log.Printf("Part 1: %v\n", part1)
 
 	c = NewComputer(NewAddressMasker(""))
 	c.RunMaskAddresses(lines)
+	part2 = c.SumMem()
 
-	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
 }
