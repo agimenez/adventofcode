@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
 var (
@@ -23,13 +24,14 @@ func init() {
 }
 func main() {
 
-	s := bufio.NewScanner(os.Stdin)
 	part1, part2 := 0, 0
-	for s.Scan() {
-		l := s.Text()
-
-		dbg("Line: %v\n", l)
+	p, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		panic("could not read input")
 	}
+	lines := strings.Split(string(p), "\n")
+	lines = lines[:len(lines)-1]
+	dbg("lines: %#v", lines)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
