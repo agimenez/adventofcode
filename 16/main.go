@@ -111,6 +111,16 @@ func Sum(nums []int) int {
 	return s
 }
 
+func CopyRules(rules map[string]Validator) map[string]Validator {
+	c := make(map[string]Validator, len(rules))
+
+	for k, v := range rules {
+		c[k] = v
+	}
+
+	return c
+}
+
 func main() {
 
 	part1, part2 := 0, 0
@@ -131,17 +141,55 @@ func main() {
 	//jump newline + "your ticket"
 	l += 2
 	myTicket := NewTicket(lines[l])
-	_ = myTicket
 
 	//jump my ticket + newline + "nearby tickets"
+	validNearby := []Ticket{}
 	for _, l := range lines[l+3:] {
 		t := NewTicket(l)
 		inv := InvalidValues(rules, t)
 		part1 += Sum(inv)
 
+		if len(inv) == 0 {
+			validNearby = append(validNearby, t)
+		}
+
 	}
 
 	log.Printf("Part 1: %v\n", part1)
+
+	remaining := CopyRules(rules)
+	mapping := map[string]int{}
+	for field := 0; field < len(myTicket); field++ {
+		dbg("Field %d", field)
+	ValidatorLoop:
+		for rule, v := range remaining {
+			dbg(" -> Rule %s", rule)
+			for _, ticket := range validNearby {
+				if !v.Valid(ticket[field]) {
+					dbg(" -> NOPE")
+					continue ValidatorLoop
+				}
+			}
+			dbg(" -> VALID!")
+
+			// we could do the calculations here anyway
+			mapping[rule] = field
+			delete(remaining, rule)
+			break
+		}
+	}
+
+	// we could do the calculations inline in the previous loop, but I like to
+	// separate the different logics
+	dbg("mapping: %#v", mapping)
+	dbg("myTicket: %#v", myTicket)
+	part2 = 1
+	for field := range rules {
+		dbg("Field: %s", field)
+		if strings.HasPrefix(field, "departure") {
+			part2 *= myTicket[mapping[field]]
+		}
+	}
 
 	log.Printf("Part 2: %v\n", part2)
 
