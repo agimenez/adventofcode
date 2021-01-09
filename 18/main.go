@@ -43,6 +43,7 @@ func Mul(a, b int) int {
 
 var depth int = -1
 
+// The following is only valid for part 1, and not very flexible. See Solve2
 func Solve(tokens []string) (int, []string) {
 	acc := 0
 	rem := tokens
@@ -139,31 +140,34 @@ type OpsMap map[string]struct {
 }
 
 // Shunting-yard algorithm (https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
-func Solve2(tokens []string) (int, []string) {
+func Solve2(e string, opMap OpsMap) int {
+	e = strings.ReplaceAll(e, "(", "( ")
+	e = strings.ReplaceAll(e, ")", " )")
+	tokens := strings.Split(e, " ")
+
 	ops := Stack{}
 	res := Stack{}
-	opMap := OpsMap{
-		"+": {1, Sum},
-		"*": {2, Mul},
-	}
 	for _, tok := range tokens {
 		switch tok {
 		case "(":
 			ops = ops.Push(Token(tok))
 		case ")":
-			top := ops.Top().Str()
-			for top != "(" {
-
+			for {
 				var op, op1, op2 Stackable
+
 				op, ops = ops.Pop()
+				if op.Str() == "(" {
+					break
+				}
+
 				op1, res = res.Pop()
 				op2, res = res.Pop()
 
 				r := opMap[op.Str()].Eval(op1.Value(), op2.Value())
 				res = res.Push(Number(r))
 
-				top = ops.Top().Str()
 			}
+
 		case "+", "*":
 			if !ops.Empty() {
 				top := ops.Top().Str()
@@ -193,6 +197,9 @@ func Solve2(tokens []string) (int, []string) {
 
 	}
 
+	dbg("Ops: %v", ops)
+	dbg("Res: %v", res)
+
 	for len(ops) > 0 {
 		var op, op1, op2 Stackable
 
@@ -203,20 +210,8 @@ func Solve2(tokens []string) (int, []string) {
 		r := opMap[op.Str()].Eval(op1.Value(), op2.Value())
 		res = res.Push(Number(r))
 	}
-	dbg("Ops: %v", ops)
-	dbg("Res: %v", res)
 
-	return res[0].Value(), []string{}
-}
-
-func SolveExpression(e string, solve func([]string) (int, []string)) int {
-	e = strings.ReplaceAll(e, "(", "( ")
-	e = strings.ReplaceAll(e, ")", " )")
-	tokens := strings.Split(e, " ")
-
-	res, _ := solve(tokens)
-	fmt.Printf("'%s' = %d\n", e, res)
-	return res
+	return res[0].Value()
 }
 
 func main() {
@@ -225,9 +220,17 @@ func main() {
 	s := bufio.NewScanner(os.Stdin)
 
 	for s.Scan() {
-		//part1 += SolveExpression(s.Text(), Solve)
-		p2 := SolveExpression(s.Text(), Solve2)
-		part2 += p2
+		opMap := OpsMap{
+			"+": {1, Sum},
+			"*": {1, Mul},
+		}
+		part1 += Solve2(s.Text(), opMap)
+
+		opMap = OpsMap{
+			"+": {2, Sum},
+			"*": {1, Mul},
+		}
+		part2 += Solve2(s.Text(), opMap)
 	}
 
 	log.Printf("Part 1: %v\n", part1)
