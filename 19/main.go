@@ -137,8 +137,19 @@ func main() {
 		}
 
 	}
-
 	log.Printf("Part 1: %v\n", part1)
+
+	m.AddRule("8: 42 | 42 8")
+	m.AddRule("11: 42 31 | 42 11 31")
+	for _, l := range lines[l:] {
+		if m.Match(l) {
+			part2++
+			dbg("%v matched!", l)
+		} else {
+			dbg("%v did not match", l)
+		}
+
+	}
 
 	log.Printf("Part 2: %v\n", part2)
 
