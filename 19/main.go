@@ -24,17 +24,21 @@ func init() {
 }
 
 type Validator interface {
-	Eval(string) (bool, string)
+	Eval(string) (bool, []string)
 }
 
 type Rule struct {
+	id       string
 	set      *Matcher
 	subrules [][]string
 }
 
-func NewRule(s string, m *Matcher) Rule {
+var depth int = -1
+
+func NewRule(s string, m *Matcher, id string) Rule {
 	sets := strings.Split(s, " | ")
 	r := Rule{
+		id:       id,
 		set:      m,
 		subrules: make([][]string, len(sets)),
 	}
@@ -48,29 +52,57 @@ func NewRule(s string, m *Matcher) Rule {
 
 	return r
 }
-func (r Rule) Eval(in string) (bool, string) {
+func (r Rule) Eval(in string) (bool, []string) {
+	depth++
+	defer func() { depth-- }()
+
+	dbg("")
+	dbg("%*s[%2s] Input '%s'. Rule eval: %+v", 3*depth, " ", r.id, in, r.subrules)
 	if len(in) == 0 {
-		return false, ""
+		return false, nil
 	}
 
+	match := false
+	var groupRemaining []string
+
 	for set := range r.subrules {
-		rem := in
-		match := true
+		possibleRemaining := []string{in}
+		dbg("%*s[%2s] Subgroup: %+v", 3*depth, " ", r.id, r.subrules[set])
+
+		// For every rule, we use the previous rules' output
+		groupMatch := true
 		for _, rule := range r.subrules[set] {
-			var ok bool
-			if ok, rem = (*r.set)[rule].Eval(rem); !ok {
-				match = false
-				break
+			// Remainings to check agains the same group's next rule
+			var nextRem []string
+
+			ruleMatch := false
+			for _, str := range possibleRemaining {
+				ok, rem := (*r.set)[rule].Eval(str)
+				if !ok {
+					continue
+				}
+				dbg("%*s[%2s]     -> Subrule %s match: possible rem = '%s'", 3*depth, " ", r.id, rule, rem)
+				nextRem = append(nextRem, rem...)
+				ruleMatch = true
+			}
+
+			possibleRemaining = nextRem
+			dbg("%*s[%2s]  -> possible rem for next rule = '%v'", 3*depth, " ", r.id, possibleRemaining)
+			if !ruleMatch {
+				groupMatch = false
 			}
 
 		}
-
-		if match {
-			return true, rem
+		if groupMatch {
+			match = true
 		}
+
+		groupRemaining = append(groupRemaining, possibleRemaining...)
+
 	}
 
-	return false, in
+	dbg("%*s[%2s] RET %v '%s'", 3*depth, " ", r.id, match, groupRemaining)
+	return match, groupRemaining
 }
 
 type Literal rune
@@ -79,20 +111,32 @@ func NewLiteral(s string) Literal {
 	return Literal(s[1])
 }
 
-func (l Literal) Eval(in string) (bool, string) {
-	if len(in) > 0 && in[0] == byte(l) {
-		return true, in[1:]
+func (l Literal) Eval(in string) (bool, []string) {
+	depth++
+	defer func() { depth-- }()
+	rid := "4"
+	if string(l) == "a" {
+		rid = "3"
 	}
 
-	return false, in
+	dbg("%*s[%2s] Literal eval", 3*depth, " ", rid)
+	if len(in) > 0 && in[0] == byte(l) {
+		//dbg("%*s -> Match! rem = '%s'", 3*depth, " ", in[1:])
+		dbg("%*s[%2s] Outpt '%s'", 3*depth, " ", rid, in[1:])
+		return true, []string{in[1:]}
+	}
+
+	//dbg("%*s  -> NO Match", 3*depth, " ")
+	dbg("%*s[%2c] NOMCH '%s'", 3*depth, " ", l, in)
+	return false, nil
 }
 
-func NewValidator(s string, m *Matcher) Validator {
+func NewValidator(s string, m *Matcher, id string) Validator {
 	if s[0] == '"' {
 		return NewLiteral(s)
 	}
 
-	return NewRule(s, m)
+	return NewRule(s, m, id)
 }
 
 type Matcher map[string]Validator
@@ -100,12 +144,15 @@ type Matcher map[string]Validator
 func (m Matcher) Match(in string) bool {
 	ok, rem := m["0"].Eval(in)
 
-	return ok && len(rem) == 0
+	// The first entry in the rem slice will have the shortest string not consumed.
+	// If its length is 0, then we have a match (all input chars are consumed).
+	//log.Printf("Match '%s' returned %v %v (%v)", in, ok, rem, len(rem))
+	return ok && len(rem[0]) == 0
 }
 
 func (m *Matcher) AddRule(s string) {
 	parts := strings.Split(s, ": ")
-	(*m)[parts[0]] = NewValidator(parts[1], m)
+	(*m)[parts[0]] = NewValidator(parts[1], m, parts[0])
 }
 
 func main() {
@@ -124,16 +171,11 @@ func main() {
 		m.AddRule(lines[l])
 	}
 
-	dbg("rules:%+v", &m)
-
 	l++
 
 	for _, l := range lines[l:] {
 		if m.Match(l) {
 			part1++
-			dbg("%v matched!", l)
-		} else {
-			dbg("%v did not match", l)
 		}
 
 	}
@@ -144,9 +186,6 @@ func main() {
 	for _, l := range lines[l:] {
 		if m.Match(l) {
 			part2++
-			dbg("%v matched!", l)
-		} else {
-			dbg("%v did not match", l)
 		}
 
 	}
