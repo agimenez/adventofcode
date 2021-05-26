@@ -11,15 +11,18 @@ type Queue []int
 
 func (q Queue) Enqueue(d int) {
 	q = append(q, d)
+	utils.Dbg(2, " -> Enqueue: %d", d)
 }
 
 func (q Queue) Dequeue() int {
 	if len(q) == 0 {
+		utils.Dbg(2, " -> Dequeue: return -1")
 		return -1
 	}
 
 	d := q[0]
 	q = q[1:len(q)]
+	utils.Dbg(2, " -> Dequeue: %d", d)
 	return d
 }
 
@@ -55,25 +58,25 @@ func (n *Network) Run() {
 	for i, nic := range n.nics {
 		go func() {
 			nic.cpu.Run(nic.input, n.output)
-			nic.input <- i
+
 		}()
 
+		nic.input <- i
 		go func() {
 			for {
-				select {
-				case nic.input <- nic.packetQ.Dequeue():
-				default:
-
-				}
+				nic.input <- nic.packetQ.Dequeue()
+				utils.Dbg(1, "NIC %d, dequeued", i)
 			}
 		}()
 	}
 
 	for {
-		c := <-n.output
-		utils.Dbg(1, "Got packet for %d", c)
-		n.nics[c].input <- (<-n.output)
-		n.nics[c].input <- (<-n.output)
+		dst := <-n.output
+		x := <-n.output
+		y := <-n.output
+		utils.Dbg(1, "Got packet (%d, %d) for %d", x, y, dst)
+		n.nics[dst].packetQ.Enqueue(x)
+		n.nics[dst].packetQ.Enqueue(y)
 	}
 }
 
