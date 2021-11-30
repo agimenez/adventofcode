@@ -1,3 +1,3 @@
-module github.com/agimenez/adventofcode2020
+module github.com/agimenez/adventofcode
 
-go 1.14
+go 1.16
