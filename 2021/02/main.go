@@ -30,17 +30,17 @@ type submarine struct {
 	aim      int
 }
 
+var subOps = map[string]func(*submarine, int){
+	"forward": (*submarine).forward,
+	"up":      (*submarine).up,
+	"down":    (*submarine).down,
+}
+
 func (s *submarine) command(cmd string) {
 	parts := strings.Split(cmd, " ")
 	val, _ := strconv.Atoi(parts[1])
-	switch parts[0] {
-	case "forward":
-		s.forward(val)
-	case "up":
-		s.up(val)
-	case "down":
-		s.down(val)
-	}
+
+	subOps[parts[0]](s, val)
 }
 
 func (s *submarine) forward(val int) {
