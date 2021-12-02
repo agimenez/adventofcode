@@ -27,6 +27,7 @@ func init() {
 type submarine struct {
 	position int
 	depth    int
+	aim      int
 }
 
 func (s *submarine) command(cmd string) {
@@ -44,14 +45,15 @@ func (s *submarine) command(cmd string) {
 
 func (s *submarine) forward(val int) {
 	s.position += val
+	s.depth += s.aim * val
 }
 
 func (s *submarine) up(val int) {
-	s.depth -= val
+	s.aim -= val
 }
 
 func (s *submarine) down(val int) {
-	s.depth += val
+	s.aim += val
 }
 
 func (s *submarine) positions() (int, int) {
