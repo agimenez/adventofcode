@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +23,41 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 	flag.Parse()
 }
+
+type submarine struct {
+	position int
+	depth    int
+}
+
+func (s *submarine) command(cmd string) {
+	parts := strings.Split(cmd, " ")
+	val, _ := strconv.Atoi(parts[1])
+	switch parts[0] {
+	case "forward":
+		s.forward(val)
+	case "up":
+		s.up(val)
+	case "down":
+		s.down(val)
+	}
+}
+
+func (s *submarine) forward(val int) {
+	s.position += val
+}
+
+func (s *submarine) up(val int) {
+	s.depth -= val
+}
+
+func (s *submarine) down(val int) {
+	s.depth += val
+}
+
+func (s *submarine) positions() (int, int) {
+	return s.position, s.depth
+}
+
 func main() {
 
 	part1, part2 := 0, 0
@@ -32,6 +68,14 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	dbg("lines: %#v", lines)
+
+	s := submarine{}
+	for i := range lines {
+		s.command(lines[i])
+	}
+
+	pos, depth := s.positions()
+	part1 = pos * depth
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
