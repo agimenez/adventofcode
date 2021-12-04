@@ -80,3 +80,5 @@ In the above example, the second board is the last to win, which happens after `
 
 Figure out which board will win last. **Once it wins, what would its final score
 be?**
+
+Your puzzle answer was `18063`.

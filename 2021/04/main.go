@@ -30,11 +30,18 @@ type num struct {
 }
 
 type board struct {
-	nums map[int]num
-	rows [5]int
-	cols [5]int
+	nums    map[int]num
+	rows    [5]int
+	cols    [5]int
+	playing bool
 }
 
+func NewBoard() *board {
+	return &board{
+		nums:    make(map[int]num),
+		playing: true,
+	}
+}
 func (b *board) checkNumber(n int) bool {
 	pos, ok := b.nums[n]
 	if !ok {
@@ -78,13 +85,13 @@ func (b *bingo) addDraw(in string) {
 }
 
 func (b *bingo) addBoards(in []string) {
-	brd := &board{nums: map[int]num{}}
+	brd := NewBoard()
 	y := 0
 
 	for i := range in {
 		if in[i] == "" {
 			b.boards = append(b.boards, brd)
-			brd = &board{nums: map[int]num{}}
+			brd = NewBoard()
 			y = 0
 			continue
 		}
@@ -102,17 +109,25 @@ func (b *bingo) addBoards(in []string) {
 	b.boards = append(b.boards, brd)
 }
 
-func (b *bingo) play() (*board, int) {
+func (b *bingo) play() ([]*board, []int) {
+	boards := []*board{}
+	draws := []int{}
 	for _, draw := range b.draw {
 		for _, board := range b.boards {
+			if !board.playing {
+				continue
+			}
+
 			win := board.checkNumber(draw)
 			if win {
-				return board, draw
+				boards = append(boards, board)
+				draws = append(draws, draw)
+				board.playing = false
 			}
 		}
 	}
 
-	return &board{}, 0
+	return boards, draws
 }
 func main() {
 
@@ -129,9 +144,9 @@ func main() {
 
 	b.addBoards(lines[2:])
 	dbg("Bingo: %+v (%d)", b, len(b.boards))
-	winner, num := b.play()
-	boardScore := winner.getScore()
-	part1 = num * boardScore
+	boards, nums := b.play()
+	part1 = boards[0].getScore() * nums[0]
+	part2 = boards[len(boards)-1].getScore() * nums[len(nums)-1]
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
