@@ -5,7 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -20,9 +23,60 @@ func dbg(fmt string, v ...interface{}) {
 
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
-	flag.Parse()
 }
+
+func parsePoint(s string) Point {
+	p := Point{}
+
+	coords := strings.Split(s, ",")
+	p.X, _ = strconv.Atoi(coords[0])
+	p.Y, _ = strconv.Atoi(coords[1])
+
+	return p
+}
+
+type vents map[Point]int
+
+func (v vents) addVent(start Point, end Point) {
+	// part 1: consider only vertical lines
+	if start.X != end.X && start.Y != end.Y {
+		return
+	}
+
+	xStart := Min(start.X, end.X)
+	xEnd := Max(start.X, end.X)
+
+	yStart := Min(start.Y, end.Y)
+	yEnd := Max(start.Y, end.Y)
+
+	for x := xStart; x <= xEnd; x++ {
+		for y := yStart; y <= yEnd; y++ {
+			v[Point{x, y}]++
+		}
+	}
+}
+
+func (v vents) addLine(l string) {
+	parts := strings.Split(l, " -> ")
+	start := parsePoint(parts[0])
+	end := parsePoint(parts[1])
+
+	v.addVent(start, end)
+}
+
+func (v vents) overlapping(min int) int {
+	total := 0
+	for _, count := range v {
+		if count >= min {
+			total++
+		}
+	}
+
+	return total
+}
+
 func main() {
+	flag.Parse()
 
 	part1, part2 := 0, 0
 	p, err := ioutil.ReadAll(os.Stdin)
@@ -31,7 +85,13 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
-	dbg("lines: %#v", lines)
+	vents := vents{}
+	for _, l := range lines {
+		vents.addLine(l)
+		dbg("vents: %+v", vents)
+	}
+
+	part1 = vents.overlapping(2)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)

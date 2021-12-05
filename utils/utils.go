@@ -2,6 +2,7 @@ package utils
 
 import (
 	"flag"
+	"fmt"
 	"log"
 )
 
@@ -16,28 +17,31 @@ func Dbg(level int, fmt string, v ...interface{}) {
 }
 
 type Point struct {
-	x, y int
+	X, Y int
 }
 
 var P0 = Point{0, 0}
 
 func (p Point) Min(p2 Point) Point {
 	return Point{
-		x: Min(p.x, p2.x),
-		y: Min(p.y, p2.y),
+		X: Min(p.X, p2.X),
+		Y: Min(p.Y, p2.Y),
 	}
 }
 
 func (p Point) Max(p2 Point) Point {
 	return Point{
-		x: Max(p.x, p2.x),
-		y: Max(p.y, p2.y),
+		X: Max(p.X, p2.X),
+		Y: Max(p.Y, p2.Y),
 	}
 }
 
+func (p Point) String() string {
+	return fmt.Sprintf("(%d,%d)", p.X, p.Y)
+}
+
 func init() {
-	flag.IntVar(&Debug, "debug", 0, "debug level")
-	flag.Parse()
+	flag.IntVar(&Debug, "debug-level", 0, "debug level")
 }
 
 func Mod(a, b int) int {
