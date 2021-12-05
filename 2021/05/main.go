@@ -38,19 +38,27 @@ func parsePoint(s string) Point {
 type vents map[Point]int
 
 func (v vents) addVent(start Point, end Point) {
-	// part 1: consider only vertical lines
-	if start.X != end.X && start.Y != end.Y {
-		return
-	}
+	if start.X == end.X || start.Y == end.Y {
+		// part 1: consider only vertical lines
+		xStart := Min(start.X, end.X)
+		xEnd := Max(start.X, end.X)
 
-	xStart := Min(start.X, end.X)
-	xEnd := Max(start.X, end.X)
+		yStart := Min(start.Y, end.Y)
+		yEnd := Max(start.Y, end.Y)
 
-	yStart := Min(start.Y, end.Y)
-	yEnd := Max(start.Y, end.Y)
+		for x := xStart; x <= xEnd; x++ {
+			for y := yStart; y <= yEnd; y++ {
+				v[Point{x, y}]++
+			}
+		}
 
-	for x := xStart; x <= xEnd; x++ {
-		for y := yStart; y <= yEnd; y++ {
+	} else {
+		// part2: consider diagonal lines too
+		dx := (end.X - start.X) / Abs(end.X-start.X)
+		dy := (end.Y - start.Y) / Abs(end.Y-start.Y)
+		dbg("%s -> %s, dx: %d, dy: %d", start, end, dx, dy)
+		for x, y := start.X, start.Y; x != end.X+dx; x, y = x+dx, y+dy {
+			dbg(" -> (%d,%d)", x, y)
 			v[Point{x, y}]++
 		}
 	}
