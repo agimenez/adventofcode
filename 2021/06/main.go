@@ -76,6 +76,7 @@ func main() {
 
 	fish := NewFish(line)
 	part1 = fish.simulateDays(80)
+	part2 = fish.simulateDays(256)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
