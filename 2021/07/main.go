@@ -28,13 +28,26 @@ func init() {
 	flag.Parse()
 }
 
-func minFuel(pos []int) int {
+type costFunction func(int, int) int
+
+func linearCost(a, b int) int {
+	return Abs(a - b)
+}
+
+func triangularCost(a, b int) int {
+	dist := linearCost(a, b)
+	cost := (dist * (dist + 1)) / 2
+
+	return cost
+}
+
+func minFuel(pos []int, costFn costFunction) int {
 	minFuel := math.MaxInt32
 
 	for i := pos[0]; i < pos[len(pos)-1]; i++ {
 		fuel := 0
 		for _, cost := range pos {
-			fuel += Abs(cost - i)
+			fuel += costFn(cost, i)
 		}
 
 		minFuel = Min(minFuel, fuel)
@@ -58,7 +71,8 @@ func main() {
 	}
 	sort.Ints(pos)
 
-	part1 = minFuel(pos)
+	part1 = minFuel(pos, linearCost)
+	part2 = minFuel(pos, triangularCost)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
