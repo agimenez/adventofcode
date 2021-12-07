@@ -31,7 +31,7 @@ Each change of 1 step in horizontal position of a single crab costs 1 fuel. You 
  - Move from `7` to `2`: `5` fuel
  - Move from `1` to `2`: `1` fuel
  - Move from `2` to `2`: `0` fuel
- - Move from `14` to `2`: 12` fuel
+ - Move from `14` to `2`: `12` fuel
 
 This costs a total of **`37`** fuel. This is the cheapest possible outcome; more expensive outcomes include aligning at position `1` (`41` fuel), position `3` (`39` fuel), or position `10` (`71` fuel).
 
