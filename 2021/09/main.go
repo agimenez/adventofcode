@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	. "github.com/agimenez/adventofcode/utils"
@@ -99,6 +100,40 @@ func printPoints(in []Point) {
 		}
 	}
 }
+
+func (hm heightMap) findBasin(p Point) map[Point]bool {
+	toProcess := []Point{p}
+	basin := map[Point]bool{
+		p: true,
+	}
+
+	dbg("findBasin(%v)", p)
+
+	for len(toProcess) != 0 {
+		newToProcess := make([]Point, 0)
+		for _, p := range toProcess {
+			for _, n := range hm.pointNeighbours(p) {
+				if hm[n] == 9 {
+					continue
+				}
+
+				// Already processed
+				if basin[n] {
+					continue
+				}
+
+				basin[n] = true
+				newToProcess = append(newToProcess, n)
+			}
+		}
+
+		toProcess = newToProcess
+	}
+
+	dbg("Basin: %v", basin)
+	return basin
+}
+
 func main() {
 
 	part1, part2 := 0, 0
@@ -114,10 +149,14 @@ func main() {
 	lowPoints := hm.findLowPoints()
 	dbg("Low points: %v", lowPoints)
 	//printPoints(lowPoints)
+	basins := make([]int, 0)
 	for _, p := range lowPoints {
 		part1 += hm.riskLevel(p)
+		basins = append(basins, len(hm.findBasin(p)))
 	}
 
+	sort.Sort(sort.Reverse(sort.IntSlice(basins)))
+	part2 = basins[0] * basins[1] * basins[2]
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
