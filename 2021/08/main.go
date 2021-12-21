@@ -81,6 +81,7 @@ func segmentDifference(signal string, segments string) string {
 		}
 	}
 
+	dbg("SegmentDifference: %s", out)
 	return out
 
 }
@@ -167,8 +168,15 @@ func signalMapping(in []string) signalMap {
 func (sm signalMap) toValue(digits []string) int {
 	var s string
 	for _, d := range digits {
-		dbg("Digit: %s, number: %v", d, sm.toNumber[d])
-		s += fmt.Sprintf("%d", sm.toNumber[d])
+		dbg("Digit: %s", d)
+		for signal := range sm.toNumber {
+			dbg(" -> checking signal %s", signal)
+			if len(segmentDifference(signal, d)) == 0 && len(segmentDifference(d, signal)) == 0 {
+				dbg("Digit: %s, number: %v", d, sm.toNumber[signal])
+				s += fmt.Sprintf("%d", sm.toNumber[signal])
+				break
+			}
+		}
 	}
 	dbg("Digits: %s", s)
 	v, _ := strconv.Atoi(s)
@@ -183,10 +191,9 @@ func solvePart2(in []string) int {
 		sm := signalMapping(signals)
 		dbg("Signal mapping: %v", sm)
 		sum += sm.toValue(digits)
-
 	}
 
-	return 0
+	return sum
 }
 
 func main() {
