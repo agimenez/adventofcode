@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -61,9 +62,12 @@ func (hm heightMap) pointNeighbours(p Point) []Point {
 func (hm heightMap) findLowPoints() []Point {
 	lowPoints := []Point{}
 	for p, v := range hm {
-		pointIsLower := false
+		dbg("Checking %v (%v)", p, v)
+		pointIsLower := true
 		for _, n := range hm.pointNeighbours(p) {
-			if hm[n] < v {
+			dbg(" -> Neighbour %v: %v", n, hm[n])
+			if hm[n] <= v {
+				pointIsLower = false
 				break
 			}
 		}
@@ -77,6 +81,24 @@ func (hm heightMap) findLowPoints() []Point {
 	return lowPoints
 }
 
+func (hm heightMap) riskLevel(p Point) int {
+	return hm[p] + 1
+}
+
+func printPoints(in []Point) {
+	m := map[Point]bool{}
+	for _, p := range in {
+		m[p] = true
+	}
+
+	for r := 0; r < 100; r++ {
+		for c := 0; c < 100; c++ {
+			if v, ok := m[Point{r, c}]; ok {
+				fmt.Printf("{%v %v} lowest (%v)\n", r, c, v)
+			}
+		}
+	}
+}
 func main() {
 
 	part1, part2 := 0, 0
@@ -88,8 +110,13 @@ func main() {
 	lines = lines[:len(lines)-1]
 
 	hm := NewHeightMap(lines)
+	//dbg("Height map: %v", hm)
 	lowPoints := hm.findLowPoints()
 	dbg("Low points: %v", lowPoints)
+	//printPoints(lowPoints)
+	for _, p := range lowPoints {
+		part1 += hm.riskLevel(p)
+	}
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
