@@ -95,8 +95,8 @@ func (s *synChecker) checkLine(line string) int {
 
 func (s synChecker) completeLine(line string) int {
 	score := 0
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		ch := s.stack[i]
+	for !s.Empty() {
+		ch := s.Pop()
 		score *= 5
 		score += s.scores[ch].complete
 	}
