@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -23,14 +24,14 @@ func init() {
 	flag.Parse()
 }
 
-type charCheck struct {
-	c rune
-	v int
+type score struct {
+	corrupt  int
+	complete int
 }
 
 type synChecker struct {
 	syn    map[rune]rune
-	scores map[rune]int
+	scores map[rune]score
 	stack  []rune
 }
 
@@ -42,11 +43,11 @@ func NewSynChecker() synChecker {
 			'{': '}',
 			'<': '>',
 		},
-		scores: map[rune]int{
-			')': 3,
-			']': 57,
-			'}': 1197,
-			'>': 25137,
+		scores: map[rune]score{
+			')': {corrupt: 3, complete: 1},
+			']': {corrupt: 57, complete: 2},
+			'}': {corrupt: 1197, complete: 3},
+			'>': {corrupt: 25137, complete: 4},
 		},
 		stack: make([]rune, 0),
 	}
@@ -71,7 +72,7 @@ func (s synChecker) Top() rune {
 	return s.stack[len(s.stack)-1]
 }
 
-func (s synChecker) checkLine(line string) int {
+func (s *synChecker) checkLine(line string) int {
 	dbg("Check line %s", line)
 	for _, c := range line {
 		dbg(" -> %c", c)
@@ -82,14 +83,25 @@ func (s synChecker) checkLine(line string) int {
 			expected := s.Pop()
 			dbg(" -> Expected: %c", expected)
 			if c != expected {
-				dbg(" -> ERR returning score[%c]: %v!", c, s.scores[c])
-				return s.scores[c]
+				dbg(" -> ERR returning score[%c]: %v!", c, s.scores[c].corrupt)
+				return s.scores[c].corrupt
 			}
 		}
-		dbg("Stack: %v", s.stack)
+		dbg("Stack: %v", string(s.stack))
 	}
 
 	return 0
+}
+
+func (s synChecker) completeLine(line string) int {
+	score := 0
+	for i := len(s.stack) - 1; i >= 0; i-- {
+		ch := s.stack[i]
+		score *= 5
+		score += s.scores[ch].complete
+	}
+
+	return score
 }
 
 func main() {
@@ -102,10 +114,17 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	dbg("lines: %#v", lines)
-	checker := NewSynChecker()
+	completeScores := make([]int, 0)
 	for i := range lines {
-		part1 += checker.checkLine(lines[i])
+		checker := NewSynChecker()
+		score := checker.checkLine(lines[i])
+		part1 += score
+		if score == 0 {
+			completeScores = append(completeScores, checker.completeLine(lines[i]))
+		}
 	}
+	sort.Sort(sort.IntSlice(completeScores))
+	part2 = completeScores[len(completeScores)/2]
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
