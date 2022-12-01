@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -24,15 +25,13 @@ func init() {
 	flag.Parse()
 }
 
-func maxCals(in []string) int {
-	elfSum := 0
-	maxSum := 0
+func sumCals(in []string) []int {
+	totals := []int{}
 
+	elfSum := 0
 	for _, c := range in {
 		if c == "" {
-			if elfSum > maxSum {
-				maxSum = elfSum
-			}
+			totals = append(totals, elfSum)
 			elfSum = 0
 			continue
 		}
@@ -41,8 +40,19 @@ func maxCals(in []string) int {
 		elfSum += cals
 
 	}
+	totals = append(totals, elfSum)
 
-	return maxSum
+	return totals
+}
+
+func sumInts(in []int) int {
+
+	total := 0
+	for _, v := range in {
+		total += v
+	}
+
+	return total
 }
 
 func main() {
@@ -56,7 +66,12 @@ func main() {
 	lines = lines[:len(lines)-1]
 	dbg("lines: %#v", lines)
 
-	part1 = maxCals(lines)
+	totals := sumCals(lines)
+	dbg("totals: %#v", totals)
+	sort.Sort(sort.Reverse(sort.IntSlice(totals)))
+	dbg("totals: %#v", totals)
+	part1 = totals[0]
+	part2 = sumInts(totals[:3])
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
