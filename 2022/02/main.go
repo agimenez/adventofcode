@@ -22,6 +22,60 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 	flag.Parse()
 }
+
+var scores = map[string]int{
+	// Rock
+	"A": 1,
+	"X": 1,
+
+	// Paper
+	"B": 2,
+	"Y": 2,
+
+	// Scissors
+	"C": 3,
+	"Z": 3,
+}
+
+type pair struct {
+	a, b string
+}
+
+var playScore = map[pair]int{
+	// Draws
+	{"A", "X"}: 3,
+	{"B", "Y"}: 3,
+	{"C", "Z"}: 3,
+
+	// Wins
+	{"A", "Y"}: 6,
+	{"B", "Z"}: 6,
+	{"C", "X"}: 6,
+}
+
+func play(in []string) int {
+	//their := in[0]
+	//mine := in[1]
+	return playScore[pair{in[0], in[1]}]
+}
+func roundScore(in string) int {
+	choices := strings.Split(in, " ")
+
+	shapeScore := scores[choices[1]]
+	outcomeScore := play(choices)
+
+	return shapeScore + outcomeScore
+}
+
+func followStrategy(in []string) int {
+	total := 0
+	for _, round := range in {
+		total += roundScore(round)
+	}
+
+	return total
+}
+
 func main() {
 
 	part1, part2 := 0, 0
@@ -32,6 +86,8 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	dbg("lines: %#v", lines)
+
+	part1 = followStrategy(lines)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
