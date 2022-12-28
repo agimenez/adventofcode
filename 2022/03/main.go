@@ -22,22 +22,30 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
 
-type compartment map[rune]bool
+type Set map[rune]bool
 
-type rucksack [2]compartment
+type rucksack [2]Set
 
 func NewRuckSack(in string) rucksack {
 	r := rucksack{
-		compartment{},
-		compartment{},
+		Set{},
+		Set{},
 	}
 
-	for i, v := range in {
-		slot := i / (len(in) / 2)
-		r[slot][v] = true
-	}
+	r[0] = StrToSet(in[:len(in)/2])
+	r[1] = StrToSet(in[len(in)/2:])
 
 	return r
+}
+
+func StrToSet(in string) Set {
+	s := Set{}
+
+	for _, v := range in {
+		s[v] = true
+	}
+
+	return s
 }
 
 func (r rucksack) getDuplicate() rune {
@@ -69,6 +77,7 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
+	dbg("lines: %v", lines)
 	for _, line := range lines {
 		r := NewRuckSack(line)
 		d := r.getDuplicate()
