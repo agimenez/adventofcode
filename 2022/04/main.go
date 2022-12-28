@@ -41,11 +41,27 @@ func (r Range) Contains(r2 Range) bool {
 	return r.min <= r2.min && r.max >= r2.max
 }
 
-func fullyContains(in string) bool {
+func (r Range) Overlaps(r2 Range) bool {
+	return r.min <= r2.min && r.max >= r2.min
+}
+
+func ParseRanges(in string) (Range, Range) {
 	ranges := strings.Split(in, ",")
 	r1 := NewRange(ranges[0])
 	r2 := NewRange(ranges[1])
+
+	return r1, r2
+}
+
+func fullyContains(in string) bool {
+	r1, r2 := ParseRanges(in)
 	return r1.Contains(r2) || r2.Contains(r1)
+}
+
+func overlaps(in string) bool {
+	r1, r2 := ParseRanges(in)
+
+	return r1.Overlaps(r2) || r2.Overlaps(r1)
 }
 
 func main() {
@@ -62,6 +78,10 @@ func main() {
 	for i := range lines {
 		if fullyContains(lines[i]) {
 			part1++
+		}
+
+		if overlaps(lines[i]) {
+			part2++
 		}
 	}
 

@@ -79,3 +79,5 @@ the remaining four pairs (`5-7,7-9`, `2-8,3-7`, `6-6,4-6`, and `2-6,4-8`) do ove
 So, in this example, the number of overlapping assignment pairs is **`4`**.
 
 **In how many assignment pairs do the ranges overlap?**
+
+Your puzzle answer was `914`.
