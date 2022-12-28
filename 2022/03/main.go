@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,10 +18,9 @@ func dbg(fmt string, v ...interface{}) {
 	}
 }
 
-//func init() {
-//	flag.BoolVar(&debug, "debug", false, "enable debug")
-//	flag.Parse()
-//}
+func init() {
+	flag.BoolVar(&debug, "debug", false, "enable debug")
+}
 
 type compartment map[rune]bool
 
@@ -60,6 +60,7 @@ func priority(r rune) int {
 }
 
 func main() {
+	flag.Parse()
 
 	part1, part2 := 0, 0
 	p, err := ioutil.ReadAll(os.Stdin)
