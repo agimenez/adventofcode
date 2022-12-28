@@ -21,6 +21,11 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
+func fullyContains(in string) bool {
+	return false
+}
+
 func main() {
 	flag.Parse()
 
