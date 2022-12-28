@@ -30,3 +30,27 @@ func TestDups(t *testing.T) {
 	}
 
 }
+
+func TestPartTwo(t *testing.T) {
+	tests := []struct {
+		in   []string
+		dup  rune
+		prio int
+	}{
+		{[]string{"vJrwpWtwJgWrhcsFMMfFFhFp", "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", "PmmdzqPrVvPwwTWBwg"}, 'r', 18},
+		{[]string{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", "ttgJtRGJQctTZtZT", "CrZsJsPPZsGzwwsLwLmpwMDw"}, 'Z', 52},
+	}
+
+	for _, tt := range tests {
+		c := findCommon(tt.in)
+		if c != tt.dup {
+			t.Errorf("Common: got %v, expected %v", c, tt.dup)
+		}
+
+		prio := priority(c)
+		if prio != tt.prio {
+			t.Errorf("Prio: got %v, expected %v", prio, tt.prio)
+		}
+
+	}
+}

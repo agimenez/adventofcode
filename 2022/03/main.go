@@ -67,6 +67,22 @@ func priority(r rune) int {
 
 }
 
+func findCommon(in []string) rune {
+	sa := StrToSet(in[0])
+	sb := StrToSet(in[1])
+	sc := StrToSet(in[2])
+
+	for k := range sa {
+		_, okb := sb[k]
+		_, okc := sc[k]
+		if okb && okc {
+			return k
+		}
+	}
+
+	return 0
+}
+
 func main() {
 	flag.Parse()
 
@@ -78,10 +94,15 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	dbg("lines: %v", lines)
-	for _, line := range lines {
+	for i, line := range lines {
 		r := NewRuckSack(line)
 		d := r.getDuplicate()
 		part1 += priority(d)
+
+		if i%3 == 0 {
+			c := findCommon(lines[i : i+3])
+			part2 += priority(c)
+		}
 	}
 
 	log.Printf("Part 1: %v\n", part1)
