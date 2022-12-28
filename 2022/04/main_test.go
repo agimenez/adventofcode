@@ -5,20 +5,20 @@ import "testing"
 func TestMain(t *testing.T) {
 	tests := []struct {
 		in  string
-		out int
+		out bool
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{"2-4,6-8", false},
+		{"2-3,4-5", false},
+		{"5-7,7-9", false},
+		{"2-8,3-7", true},
+		{"6-6,4-6", true},
+		{"2-6,4-8", false},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
-		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+		c := fullyContains(tt.in)
+		if c != tt.out {
+			t.Errorf("fullyContains: got %v, expected %v", c, tt.out)
 		}
 	}
 
