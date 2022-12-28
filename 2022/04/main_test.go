@@ -18,7 +18,7 @@ func TestMain(t *testing.T) {
 	for _, tt := range tests {
 		c := fullyContains(tt.in)
 		if c != tt.out {
-			t.Errorf("fullyContains: got %v, expected %v", c, tt.out)
+			t.Errorf("fullyContains %q: got %v, expected %v", tt.in, c, tt.out)
 		}
 	}
 
