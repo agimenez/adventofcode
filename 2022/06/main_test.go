@@ -7,18 +7,17 @@ func TestMain(t *testing.T) {
 		in  string
 		out int
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{"mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7},
+		{"bvwbjplbgvbhsrlpgdmjqwftvncz", 5},
+		{"nppdvjthqldpwncqszvftbrmjlhg", 6},
+		{"nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 10},
+		{"zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 11},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
-		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+		start := detectStart(tt.in)
+		if start != tt.out {
+			t.Errorf("%v: got %v, expected %v", tt.in, start, tt.out)
 		}
 	}
 
