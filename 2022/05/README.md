@@ -156,4 +156,4 @@ Before the rearrangement process finishes, update your simulation so that the El
 know where they should stand to be ready to unload the final supplies. **After the
 rearrangement procedure completes, what crate ends up on top of each stack?**
 
-
+Your puzzle answer was `TPWCGNCCG`.

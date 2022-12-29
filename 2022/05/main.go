@@ -27,13 +27,12 @@ func init() {
 type Stack []byte
 
 func (s Stack) PushN(b []byte) Stack {
+	s = append(s, b...)
 	return s
 }
 
 func (s Stack) Push(b byte) Stack {
-	s = append(s, b)
-
-	return s
+	return s.PushN([]byte{b})
 }
 
 func (s Stack) Top() byte {
@@ -41,7 +40,10 @@ func (s Stack) Top() byte {
 }
 
 func (s Stack) PopN(count int) (Stack, []byte) {
-	return s, []byte{}
+	if len(s) < count {
+		return Stack{}, nil
+	}
+	return s[:len(s)-count], s[len(s)-count:]
 }
 
 func (s Stack) Pop() (Stack, byte) {
@@ -78,6 +80,14 @@ func (c Crane) MoveCrates(count, from, to int) Crane {
 		c[from] = s
 		c[to] = c[to].Push(crate)
 	}
+
+	return c
+}
+
+func (c Crane) MoveCrates9k1(count, from, to int) Crane {
+	s, crates := c[from].PopN(count)
+	c[from] = s
+	c[to] = c[to].PushN(crates)
 
 	return c
 }
@@ -122,7 +132,8 @@ func main() {
 			var count, src, dst int
 			fmt.Sscanf(line, "move %d from %d to %d", &count, &src, &dst)
 			crane = crane.MoveCrates(count, src-1, dst-1)
-			dbg("Crane: %q", crane)
+			crane9k1 = crane9k1.MoveCrates9k1(count, src-1, dst-1)
+			dbg("Crane9k1: %q", crane9k1)
 		}
 	}
 	part1 = crane.TopCrates()
