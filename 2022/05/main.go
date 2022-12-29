@@ -21,6 +21,33 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
+type Stack []byte
+
+func (s Stack) Push(b byte) Stack {
+	s = append(s, b)
+
+	return s
+}
+
+func (s Stack) Top() byte {
+	return s[len(s)-1]
+}
+
+func (s Stack) Pop() (Stack, byte) {
+	if len(s) == 0 {
+		return Stack{}, 0
+	}
+
+	return s[:len(s)-1], s[len(s)-1]
+}
+
+func (s Stack) Insert(b byte) Stack {
+	s = append([]byte{b}, s...)
+
+	return s
+}
+
 func main() {
 	flag.Parse()
 
