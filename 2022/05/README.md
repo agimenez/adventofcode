@@ -83,3 +83,5 @@ example, the top crates are C in stack 1, M in stack 2, and Z in stack 3, so you
 should combine these together and give the Elves the message **`CMZ`**.
 
 **After the rearrangement procedure completes, what crate ends up on top of each stack?**
+
+Your puzzle answer was `VPCDMSLWJ`.
