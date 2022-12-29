@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 )
 
 var (
@@ -22,7 +21,18 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
 
-func detectStart(s string) int {
+func detectStart(s string, wSize int) int {
+	for i := range s {
+		set := make(map[byte]bool, wSize)
+		for j := i; j < i+wSize; j++ {
+			set[s[j]] = true
+		}
+
+		if len(set) == wSize {
+			return i + wSize
+		}
+	}
+
 	return 0
 }
 
@@ -34,9 +44,7 @@ func main() {
 	if err != nil {
 		panic("could not read input")
 	}
-	lines := strings.Split(string(p), "\n")
-	lines = lines[:len(lines)-1]
-	dbg("lines: %#v", lines)
+	part1 = detectStart(string(p), 4)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)

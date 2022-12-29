@@ -4,8 +4,8 @@ import "testing"
 
 func TestMain(t *testing.T) {
 	tests := []struct {
-		in  string
-		out int
+		in   string
+		out4 int
 	}{
 		{"mjqjpqmgbljsphdztnvjfqwrcgsmlb", 7},
 		{"bvwbjplbgvbhsrlpgdmjqwftvncz", 5},
@@ -15,9 +15,9 @@ func TestMain(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		start := detectStart(tt.in)
-		if start != tt.out {
-			t.Errorf("%v: got %v, expected %v", tt.in, start, tt.out)
+		start := detectStart(tt.in, 4)
+		if start != tt.out4 {
+			t.Errorf("%v: got %v, expected %v", tt.in, start, tt.out4)
 		}
 	}
 
