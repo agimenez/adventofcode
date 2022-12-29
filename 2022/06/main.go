@@ -45,6 +45,7 @@ func main() {
 		panic("could not read input")
 	}
 	part1 = detectStart(string(p), 4)
+	part2 = detectStart(string(p), 14)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
