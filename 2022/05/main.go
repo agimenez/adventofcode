@@ -26,6 +26,10 @@ func init() {
 
 type Stack []byte
 
+func (s Stack) PushN(b []byte) Stack {
+	return s
+}
+
 func (s Stack) Push(b byte) Stack {
 	s = append(s, b)
 
@@ -34,6 +38,10 @@ func (s Stack) Push(b byte) Stack {
 
 func (s Stack) Top() byte {
 	return s[len(s)-1]
+}
+
+func (s Stack) PopN(count int) (Stack, []byte) {
+	return s, []byte{}
 }
 
 func (s Stack) Pop() (Stack, byte) {
@@ -96,6 +104,7 @@ func main() {
 	dbg("lines: %#v", lines)
 
 	crane := Crane{}
+	crane9k1 := Crane{}
 	dbg("crane: %#v", crane)
 	for _, line := range lines {
 		dbg("line: %v", line)
@@ -103,6 +112,7 @@ func main() {
 			for i := 1; i < len(line); i += 4 {
 				if line[i] != ' ' {
 					crane = crane.InsertCrate(i/4, line[i])
+					crane9k1 = crane9k1.InsertCrate(i/4, line[i])
 				}
 			}
 			dbg("Crane: %q", crane)
@@ -116,6 +126,7 @@ func main() {
 		}
 	}
 	part1 = crane.TopCrates()
+	part2 = crane9k1.TopCrates()
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
