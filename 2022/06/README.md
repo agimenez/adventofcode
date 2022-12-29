@@ -76,3 +76,6 @@ examples:
 
 **How many characters need to be processed before the first start-of-message marker is
 detected?**
+
+Your puzzle answer was `2625`.
+
