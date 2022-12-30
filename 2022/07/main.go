@@ -29,11 +29,19 @@ type node struct {
 	size     int
 	children []*node
 	parent   *node
+	isDir    bool
 }
 
 func printTree(n *node, level int) {
 	padding := strings.Repeat(" ", level)
-	fmt.Printf("%s - %s (%d)\n", padding, n.name, n.size)
+	var t string
+	if n.isDir {
+		t = "dir"
+	} else {
+		t = "file"
+	}
+
+	fmt.Printf("%s - %s (%s, size=%d)\n", padding, n.name, t, n.size)
 	for _, child := range n.children {
 		printTree(child, level+3)
 	}
@@ -46,6 +54,16 @@ func updateParentsSizes(n node) {
 	for parent != nil {
 		parent.size += n.size
 		parent = parent.parent
+	}
+}
+
+type Callback func(n *node)
+
+func Find(n *node, f Callback) {
+	f(n)
+
+	for _, c := range n.children {
+		Find(c, f)
 	}
 }
 
@@ -71,7 +89,7 @@ func main() {
 					cur = cur.parent
 				} else {
 					// New directory, create node
-					n := node{name: parts[2]}
+					n := node{name: parts[2], isDir: true}
 					n.parent = cur
 					cur.children = append(cur.children, &n)
 					cur = &n
@@ -89,6 +107,7 @@ func main() {
 				name:   parts[1],
 				size:   size,
 				parent: cur,
+				isDir:  false,
 			}
 			cur.children = append(cur.children, &n)
 			updateParentsSizes(n)
@@ -97,6 +116,13 @@ func main() {
 		//printTree(&root, 0)
 
 	}
+
+	Find(&root, func(n *node) {
+		if n.isDir && n.size <= 100000 {
+			part1 += n.size
+		}
+
+	})
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
