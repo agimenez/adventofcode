@@ -124,6 +124,16 @@ func main() {
 
 	})
 
+	unused := 70000000 - root.size
+	required := 30000000 - unused
+	part2 = root.size
+	printTree(&root, 0)
+	Find(&root, func(n *node) {
+		if n.isDir && n.size >= required && n.size < part2 {
+			part2 = n.size
+		}
+	})
+
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
