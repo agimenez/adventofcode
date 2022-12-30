@@ -7,7 +7,8 @@ test -z ${AOC_SESSION} && {
 
 dir=$1
 year=${dir%%/*}
-day=$(printf "%d" ${dir##*/})
+day=${dir##*/}
+day=${day#0}
 
 mkdir -p ${dir}
 cp main.go main_test.go ${dir}
