@@ -47,3 +47,4 @@ total of *`21`* trees are visible in this arrangement.
 
 Consider your map; *how many trees are visible from outside the grid?*
 
+Your puzzle answer was `1805`.
