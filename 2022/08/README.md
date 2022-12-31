@@ -105,3 +105,5 @@ house.
 
 Consider each tree on your map. **What is the highest scenic score possible for any
 tree?**
+
+Your puzzle answer was `444528`.
