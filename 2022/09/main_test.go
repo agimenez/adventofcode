@@ -1,24 +1,25 @@
 package main
 
-import "testing"
+import (
+	"testing"
 
-func TestMain(t *testing.T) {
+	. "github.com/agimenez/adventofcode/utils"
+)
+
+func TestMove(t *testing.T) {
 	tests := []struct {
-		in  string
-		out int
+		in    string
+		start Point
+		out   Point
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{"R 4", Point{0, 0}, Point{3, 0}},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
-		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+		rope := NewRope(tt.start)
+		tail := rope.MoveHead(tt.in)
+		if rope.Tail() != tt.out {
+			t.Errorf("Move %q: got %v, expected %v", tt.in, tt.out)
 		}
 	}
 

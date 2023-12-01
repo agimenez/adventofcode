@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -21,6 +23,14 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
+type Rope struct {
+}
+
+func NewRope(s Point) Rope {
+	return Rope{}
+}
+
 func main() {
 	flag.Parse()
 
