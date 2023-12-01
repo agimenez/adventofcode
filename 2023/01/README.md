@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 1*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 2*
 
-#   {:year [2023](/2023)}
+#  {'year':[2023](/2023)}
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,8 +18,9 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 1*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Railway](https://railway.app/?ref=aoc&referralCode=XM1dNy) \- Instant
-deployments, effortless scale.
+[Ansys](https://developer.ansys.com/) \- Make this holiday season
+unforgettable with Ansys. Join the Ansys developer community, search jobs, and
+SHINE in your favorite language.
 
 ## \--- Day 1: Trebuchet?! ---
 
@@ -72,8 +73,6 @@ calibration values?*
 
 Your puzzle answer was `54304`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 Your calculation isn't quite right. It looks like some of the digits are
@@ -100,11 +99,16 @@ In this example, the calibration values are `29`, `83`, `13`, `24`, `42`,
 
 *What is the sum of all of the calibration values?*
 
-Answer:
+Your puzzle answer was `54418`.
 
-Although it hasn't changed, you can still [get your puzzle input](1/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](1/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Trebuchet%3F%21%22+%2D+Day+1+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F1&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Trebuchet%3F%21%22+%2D+Day+1+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F1&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
