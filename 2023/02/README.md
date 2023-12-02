@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 3*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 4*
 
-#   0.0.0.0:[2023](/2023)
+#        λy.[2023](/2023)
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,8 +18,10 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 3*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[GitButler](https://gitbutler.com/aoc) \- Code across multiple branches at the
-same time (from the co-founder of GitHub)
+[Boot.dev](https://www.boot.dev?promo=ADVENTOFCODE) \- Ready to become a
+backend developer? If you like AoC, you might be like us. We think smartest
+way to learn to code is to ensure you're never bored. Try the most
+captivating, addictive way to learn to code on Boot.dev.
 
 ## \--- Day 2: Cube Conundrum ---
 
@@ -79,8 +81,6 @@ IDs of those games?*
 
 Your puzzle answer was `2369`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The Elf says they've stopped producing snow because they aren't getting any
@@ -117,11 +117,16 @@ up these five powers produces the sum `*2286*`.
 For each game, find the minimum set of cubes that must have been present.
 *What is the sum of the power of these sets?*
 
-Answer:
+Your puzzle answer was `66363`.
 
-Although it hasn't changed, you can still [get your puzzle input](2/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](2/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Cube+Conundrum%22+%2D+Day+2+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F2&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Cube+Conundrum%22+%2D+Day+2+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F2&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
