@@ -44,6 +44,12 @@ func main() {
 		dbg(l)
 		subsets := strings.Split(strings.Split(l, ": ")[1], "; ")
 		valid := true
+		minCubes := map[string]int{
+			"red":   0,
+			"green": 0,
+			"blue":  0,
+		}
+
 		for _, s := range subsets {
 			dbg("Subset: %q", s)
 			cubes := strings.Split(s, ", ")
@@ -56,6 +62,10 @@ func main() {
 				if n > config[color] {
 					valid = false
 				}
+
+				if n > minCubes[color] {
+					minCubes[color] = n
+				}
 			}
 		}
 
@@ -63,6 +73,12 @@ func main() {
 			part1 += game + 1
 		}
 
+		mult := 1
+		for _, v := range minCubes {
+			mult *= v
+		}
+
+		part2 += mult
 	}
 
 	log.Printf("Part 1: %v\n", part1)
