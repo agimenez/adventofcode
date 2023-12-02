@@ -5,7 +5,14 @@ test -z ${AOC_SESSION} && {
 	exit 1
 }
 
-dir=$1
+year=$(date +%Y)
+day=$(date +%d)
+dir="${year}/${day}"
+
+if [[ -n "$1" ]]; then
+	dir=$1
+fi
+
 year=${dir%%/*}
 day=${dir##*/}
 day=${day#0}
