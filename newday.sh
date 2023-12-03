@@ -18,7 +18,8 @@ day=${dir##*/}
 day=${day#0}
 
 mkdir -p ${dir}
-cp main.go main_test.go ${dir}
+test -f ${dir}/main.go || cp main.go ${dir}
+test -f ${dir}/main_test.go || cp main_test.go ${dir}
 cd ${dir}
 
 curl https://adventofcode.com/${year}/day/${day}/input \
