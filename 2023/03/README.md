@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 5*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 6*
 
-#   0.0.0.0:[2023](/2023)
+#    sub y{[2023](/2023)}
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,9 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 5*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[American Express](https://www.americanexpress.com/en-us/careers/career-
-areas/technology/) \- Work with the latest tech and back the engineering
-community through open source. Find your place in tech on #TeamAmex.
+[Cerbos](https://bit.ly/3MPonyQ) \- Easily implement and manage fine-grained
+access control in your app
 
 ## \--- Day 3: Gear Ratios ---
 
@@ -75,8 +74,6 @@ of the part numbers in the engine schematic?*
 
 Your puzzle answer was `517021`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The engineer finds the missing part and installs it in the engine! As the
@@ -125,11 +122,16 @@ the gear ratios produces `*467835*`.
 
 *What is the sum of all of the gear ratios in your engine schematic?*
 
-Answer:
+Your puzzle answer was `81296995`.
 
-Although it hasn't changed, you can still [get your puzzle input](3/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](3/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Gear+Ratios%22+%2D+Day+3+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F3&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Gear+Ratios%22+%2D+Day+3+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F3&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
