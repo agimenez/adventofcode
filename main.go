@@ -31,7 +31,7 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
-	dbg("lines: %#v", lines)
+	//dbg("lines: %#v", lines)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
