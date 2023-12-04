@@ -60,16 +60,11 @@ func getCardScore(card string) (int, int) {
 		//dbg("  -> Playing %v", n)
 		if _, ok := winners[n]; ok {
 			wins++
-			if points == 0 {
-				points = 1
-			} else {
-				points *= 2
-			}
 			//dbg("  -> WINNER! -> %v", wins)
 		}
 	}
 
-	return points, wins
+	return (1 << uint(wins-1)), wins
 }
 func main() {
 	flag.Parse()
