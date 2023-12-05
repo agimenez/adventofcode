@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 8*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 9*
 
-#  {'year':[2023](/2023)}
+#         //[2023](/2023)
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,10 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 8*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Boot.dev](https://www.boot.dev?promo=ADVENTOFCODE) \- Ready to become a
-backend developer? If you like AoC, you might be like us. We think smartest
-way to learn to code is to ensure you're never bored. Try the most
-captivating, addictive way to learn to code on Boot.dev.
+[Zuehlke](https://www.zuehlke.com/en/careers) \- Empower ideas and join our
+global team of passionate developers.
 
 ## \--- Day 5: If You Give A Seed A Fertilizer ---
 
@@ -180,11 +178,47 @@ So, the lowest location number in this example is `*35*`.
 
 *What is the lowest location number that corresponds to any of the initial seed numbers?*
 
-To begin, [get your puzzle input](5/input).
+Your puzzle answer was `318728750`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+Everyone will starve if you only plant such a small number of seeds. Re-
+reading the almanac, it looks like the `seeds:` line actually describes
+*ranges of seed numbers*.
+
+The values on the initial `seeds:` line come in pairs. Within each pair, the
+first value is the *start* of the range and the second value is the *length*
+of the range. So, in the first line of the example above:
+
+[code]
+
+    seeds: 79 14 55 13
+[/code]
+
+This line describes two ranges of seed numbers to be planted in the garden.
+The first range starts with seed number `79` and contains `14` values: `79`,
+`80`, ..., `91`, `92`. The second range starts with seed number `55` and
+contains `13` values: `55`, `56`, ..., `66`, `67`.
+
+Now, rather than considering four seed numbers, you need to consider a total
+of *27* seed numbers.
+
+In the above example, the lowest location number can be obtained from seed
+number `82`, which corresponds to soil `84`, fertilizer `84`, water `84`,
+light `77`, temperature `45`, humidity `46`, and *location`46`*. So, the
+lowest location number is `*46*`.
+
+Consider all of the initial seed numbers listed in the ranges on the first
+line of the almanac. *What is the lowest location number that corresponds to
+any of the initial seed numbers?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](5/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22If+You+Give+A+Seed+A+Fertilizer%22+%2D+Day+5+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F5&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22If+You+Give+A+Seed+A+Fertilizer%22+%2D+Day+5+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F5&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
