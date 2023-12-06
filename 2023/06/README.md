@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 9*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 11*
 
-#   0.0.0.0:[2023](/2023)
+#        y([2023](/2023))
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,9 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 9*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Axis](https://engineeringat.axis.com/) \- All we want for Christmas is your
-application, pls! ----------------- <embedded, cloud, Machine learning,
-fullstack> our cameras require it all
+[BAREWAYS](https://bareways.com/jobs/) \- Unique maps & navigation for Santa,
+elves & all mankind. We hire!
 
 ## \--- Day 6: Wait For It ---
 
@@ -101,11 +100,48 @@ values together, you get `*288*` (`4` * `8` * `9`).
 Determine the number of ways you could beat the record in each race. *What do
 you get if you multiply these numbers together?*
 
-To begin, [get your puzzle input](6/input).
+Your puzzle answer was `781200`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+As the race is about to start, you realize the piece of paper with race times
+and record distances you got earlier actually just has very bad
+[kerning](https://en.wikipedia.org/wiki/Kerning). There's really *only one
+race* \- ignore the spaces between the numbers on each line.
+
+So, the example from before:
+
+[code]
+
+    Time:      7  15   30
+    Distance:  9  40  200
+    
+[/code]
+
+...now instead means this:
+
+[code]
+
+    Time:      71530
+    Distance:  940200
+    
+[/code]
+
+Now, you have to figure out how many ways there are to win this single race.
+In this example, the race lasts for *`71530` milliseconds* and the record
+distance you need to beat is *`940200` millimeters*. You could hold the button
+anywhere from `14` to `71516` milliseconds and beat the record, a total of
+`*71503*` ways!
+
+*How many ways can you beat the record in this one much longer race?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](6/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22Wait+For+It%22+%2D+Day+6+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F6&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Wait+For+It%22+%2D+Day+6+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F6&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
