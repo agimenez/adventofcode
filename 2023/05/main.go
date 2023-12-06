@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
@@ -147,8 +148,9 @@ func solve2(a almanac) int {
 	minLoc := math.MaxInt
 
 	for i := 0; i < len(a.seeds); i += 2 {
-		dbg("Seeds %d -> %d", a.seeds[i], a.seeds[i]+a.seeds[i+1]-1)
-		for seed := a.seeds[i]; seed < a.seeds[i]+a.seeds[i+1]; seed++ {
+		dbg("Seeds %d/%d -> %d", a.seeds[i], len(a.seeds)/2, a.seeds[i]+a.seeds[i+1]-1)
+		log.Printf("Seeds %d/%d -> %d\n", a.seeds[i], len(a.seeds)/2, a.seeds[i]+a.seeds[i+1]-1)
+		for seed, n, dots := a.seeds[i], 1, 0; seed < a.seeds[i]+a.seeds[i+1]; seed++ {
 			dbg("Seed %d", seed)
 			loc, _ := a.traceLocation("seed", seed)
 			dbg("Found: %d", loc)
@@ -156,6 +158,15 @@ func solve2(a almanac) int {
 			if loc < minLoc {
 				minLoc = loc
 			}
+			if n%10000 == 0 {
+				fmt.Print(".")
+				if dots == 100 {
+					fmt.Printf(" (%d)\n", n)
+					dots = 0
+				}
+				dots++
+			}
+			n++
 		}
 	}
 
