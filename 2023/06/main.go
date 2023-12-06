@@ -54,6 +54,27 @@ func newCompetition(s []string) competition {
 	return c
 }
 
+func newCompetitionBig(s []string) competition {
+	c := make(competition, 1)
+
+	races := strings.Fields(strings.Split(s[0], ":")[1])
+	val := ""
+	for _, r := range races {
+		val += r
+	}
+	c[0].time = atoi(val)
+
+	// Distance
+	races = strings.Fields(strings.Split(s[1], ":")[1])
+	val = ""
+	for _, r := range races {
+		val += r
+	}
+	c[0].distance = atoi(val)
+
+	return c
+}
+
 func (c competition) race(r int) []int {
 	race := c[r]
 	wins := []int{}
@@ -86,6 +107,10 @@ func main() {
 		ways := comp.race(i)
 		part1 *= len(ways)
 	}
+
+	comp2 := newCompetitionBig(lines)
+	dbg("%v", comp2)
+	part2 = len(comp2.race(0))
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
