@@ -143,6 +143,24 @@ func solve1(a almanac) int {
 	return minLoc
 }
 
+func solve2(a almanac) int {
+	minLoc := math.MaxInt
+
+	for i := 0; i < len(a.seeds); i += 2 {
+		dbg("Seeds %d -> %d", a.seeds[i], a.seeds[i]+a.seeds[i+1]-1)
+		for seed := a.seeds[i]; seed < a.seeds[i]+a.seeds[i+1]; seed++ {
+			dbg("Seed %d", seed)
+			loc, _ := a.traceLocation("seed", seed)
+			dbg("Found: %d", loc)
+
+			if loc < minLoc {
+				minLoc = loc
+			}
+		}
+	}
+
+	return minLoc
+}
 func main() {
 	flag.Parse()
 
@@ -155,7 +173,7 @@ func main() {
 	lines = lines[:len(lines)-1]
 	a := parseAlmanac(lines)
 	part1 = solve1(a)
-	log.Printf("Almanac: %v", a)
+	part2 = solve2(a)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
