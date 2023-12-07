@@ -36,13 +36,18 @@ const (
 )
 
 type hand struct {
-	cards    [5]uint
+	cards    [5]rune
+	joker    rune
 	bid      int
 	handType int
 }
 
-func cardToValue(c rune) uint {
-	switch c {
+func (h hand) cardValue(i int) uint {
+	if h.cards[i] == h.joker {
+		return 1
+	}
+
+	switch h.cards[i] {
 	case 'A':
 		return 14
 	case 'K':
@@ -55,17 +60,19 @@ func cardToValue(c rune) uint {
 		return 10
 	}
 
-	return (uint(c - '0'))
+	return (uint(h.cards[i] - '0'))
 }
 
 func getHandType(h hand) int {
-	reps := map[uint]int{}
+	reps := map[rune]int{}
 
 	maxCount := 0
+	//maxCard := 0
 	for _, c := range h.cards {
 		reps[c]++
 		if reps[c] > maxCount {
 			maxCount = reps[c]
+			//		maxCard = c
 		}
 	}
 
@@ -111,15 +118,16 @@ func getHandType(h hand) int {
 	return highCard
 }
 
-func parseHand(s string) hand {
+func parseHand(s string, joker rune) hand {
 	h := hand{}
 	fields := strings.Fields(s)
 	h.bid, _ = strconv.Atoi(fields[1])
 	for i, c := range fields[0] {
-		h.cards[i] = cardToValue(c)
+		h.cards[i] = c
 	}
 
 	h.handType = getHandType(h)
+	h.joker = joker
 	dbg("Hand: %s, type: %v", s, h.handType)
 
 	return h
@@ -131,7 +139,17 @@ func cmpHands(a, b hand) int {
 		return ret
 	}
 
-	return slices.Compare(a.cards[:], b.cards[:])
+	for i := 0; i < len(a.cards); i++ {
+		if a.cardValue(i) < b.cardValue(i) {
+			return -1
+		}
+
+		if a.cardValue(i) > b.cardValue(i) {
+			return 1
+		}
+	}
+
+	return 0
 
 }
 
@@ -148,7 +166,7 @@ func main() {
 	//dbg("lines: %#v", lines)
 	hands := []hand{}
 	for _, l := range lines {
-		h := parseHand(l)
+		h := parseHand(l, '0')
 		hands = append(hands, h)
 	}
 	slices.SortFunc(hands, cmpHands)
