@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 14\*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 15*
 
-#   {year=>[2023](/2023)}
+#    0x0000|[2023](/2023)
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,10 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 14\*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[JPMorgan Chase](https://www.jpmorgan.com/) \- With over 57,000 technologists
-globally and an annual tech spend of $15 billion, JPMorgan Chase is dedicated
-to improving the design, analytics, coding and testing that goes into creating
-high quality software products.
+[Panthera Investment](https://pantherainvestment.com/) \- We solve Financial
+Markets. Do you want to join?
 
 ## \--- Day 8: Haunted Wasteland ---
 
@@ -84,11 +82,68 @@ that takes `*6*` steps to reach `ZZZ`:
 Starting at `AAA`, follow the left/right instructions. *How many steps are
 required to reach`ZZZ`?*
 
-To begin, [get your puzzle input](8/input).
+Your puzzle answer was `16271`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+The sandstorm is upon you and you aren't any closer to escaping the wasteland.
+You had the camel follow the instructions, but you've barely left your
+starting position. It's going to take *significantly more steps* to escape!
+
+What if the map isn't for people - what if the map is for *ghosts*? Are ghosts
+even bound by the laws of spacetime? Only one way to find out.
+
+After examining the maps a bit longer, your attention is drawn to a curious
+fact: the number of nodes with names ending in `A` is equal to the number
+ending in `Z`! If you were a ghost, you'd probably just *start at every node
+that ends with`A`* and follow all of the paths at the same time until they all
+simultaneously end up at nodes that end with `Z`.
+
+For example:
+
+[code]
+
+    LR
+    
+    11A = (11B, XXX)
+    11B = (XXX, 11Z)
+    11Z = (11B, XXX)
+    22A = (22B, XXX)
+    22B = (22C, 22C)
+    22C = (22Z, 22Z)
+    22Z = (22B, 22B)
+    XXX = (XXX, XXX)
+    
+[/code]
+
+Here, there are two starting nodes, `11A` and `22A` (because they both end
+with `A`). As you follow each left/right instruction, use that instruction to
+*simultaneously* navigate away from both nodes you're currently on. Repeat
+this process until *all* of the nodes you're currently on end with `Z`. (If
+only some of the nodes you're on end with `Z`, they act like any other node
+and you continue as normal.) In this example, you would proceed as follows:
+
+  * Step 0: You are at `11A` and `22A`.
+  * Step 1: You choose all of the *left* paths, leading you to `11B` and `22B`.
+  * Step 2: You choose all of the *right* paths, leading you to `*11Z*` and `22C`.
+  * Step 3: You choose all of the *left* paths, leading you to `11B` and `*22Z*`.
+  * Step 4: You choose all of the *right* paths, leading you to `*11Z*` and `22B`.
+  * Step 5: You choose all of the *left* paths, leading you to `11B` and `22C`.
+  * Step 6: You choose all of the *right* paths, leading you to `*11Z*` and `*22Z*`.
+
+So, in this example, you end up entirely on nodes that end in `Z` after `*6*`
+steps.
+
+Simultaneously start on every node that ends with `A`. *How many steps does it
+take before you're only on nodes that end with`Z`?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](8/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22Haunted+Wasteland%22+%2D+Day+8+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F8&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Haunted+Wasteland%22+%2D+Day+8+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F8&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
