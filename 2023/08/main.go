@@ -92,6 +92,17 @@ func main() {
 	path := network.findNode("AAA", instructions, func(s string) bool { return s == "ZZZ" })
 	part1 = len(path)
 
+	loops := []int{}
+	for k := range network {
+		if k[2] != 'A' {
+			continue
+		}
+
+		path := network.findNode(k, instructions, func(s string) bool { return s[2] == 'Z' })
+		loops = append(loops, len(path))
+	}
+	part2 = sliceLCM(loops)
+
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
