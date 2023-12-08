@@ -25,11 +25,11 @@ func init() {
 
 type network map[string]map[rune]string
 
-func (n network) findNode(e string, ins []rune) []string {
+func (n network) findNode(start string, ins []rune, match func(string) bool) []string {
 	path := []string{}
-	next := "AAA"
+	next := start
 
-	for i := 0; next != "ZZZ"; i = (i + 1) % len(ins) {
+	for i := 0; !match(next); i = (i + 1) % len(ins) {
 		dbg("Trying  %c (%d)", ins[i], i)
 
 		path = append(path, next)
@@ -56,6 +56,26 @@ func parseMap(s []string) ([]rune, network) {
 
 	return ins, net
 }
+
+func gcd(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return gcd(b, a%b)
+}
+
+func lcm(a, b int) int {
+	return a * b / gcd(a, b)
+}
+
+func sliceLCM(numbers []int) int {
+	result := numbers[0]
+	for i := 1; i < len(numbers); i++ {
+		result = lcm(result, numbers[i])
+	}
+	return result
+}
+
 func main() {
 	flag.Parse()
 
@@ -69,7 +89,7 @@ func main() {
 	//dbg("lines: %#v", lines)
 	instructions, network := parseMap(lines)
 	dbg("ins: %s\nnetwork: %v", string(instructions), network)
-	path := network.findNode("ZZZ", instructions)
+	path := network.findNode("AAA", instructions, func(s string) bool { return s == "ZZZ" })
 	part1 = len(path)
 
 	log.Printf("Part 1: %v\n", part1)
