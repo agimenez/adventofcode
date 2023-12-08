@@ -36,10 +36,9 @@ const (
 )
 
 type hand struct {
-	cards    [5]rune
-	joker    rune
-	bid      int
-	handType int
+	cards [5]rune
+	joker rune
+	bid   int
 }
 
 func (h hand) cardValue(i int) uint {
@@ -63,22 +62,28 @@ func (h hand) cardValue(i int) uint {
 	return (uint(h.cards[i] - '0'))
 }
 
-func getHandType(h hand) int {
+func (h hand) getHandType() int {
 	reps := map[rune]int{}
 
 	maxCount := 0
-	//maxCard := 0
+	var maxCard rune
 	for _, c := range h.cards {
 		reps[c]++
-		if reps[c] > maxCount {
+		if c != h.joker && reps[c] > maxCount {
 			maxCount = reps[c]
-			//		maxCard = c
+			maxCard = c
 		}
+	}
+
+	if maxCard != h.joker {
+		reps[maxCard] += reps[h.joker]
+		reps[h.joker] = 0
 	}
 
 	threeSeen := false
 	pairSeen := false
 	for _, count := range reps {
+		dbg(" -> Count: %v", count)
 		if count == 5 {
 			return fiveKind
 		}
@@ -126,26 +131,22 @@ func parseHand(s string, joker rune) hand {
 		h.cards[i] = c
 	}
 
-	h.handType = getHandType(h)
 	h.joker = joker
-	dbg("Hand: %s, type: %v", s, h.handType)
+	dbg("Hand: %s", s)
 
 	return h
 }
 
 func cmpHands(a, b hand) int {
-	ret := cmp.Compare(a.handType, b.handType)
+	ret := cmp.Compare(a.getHandType(), b.getHandType())
 	if ret != 0 {
 		return ret
 	}
 
 	for i := 0; i < len(a.cards); i++ {
-		if a.cardValue(i) < b.cardValue(i) {
-			return -1
-		}
-
-		if a.cardValue(i) > b.cardValue(i) {
-			return 1
+		ret = cmp.Compare(a.cardValue(i), b.cardValue(i))
+		if ret != 0 {
+			return ret
 		}
 	}
 
@@ -173,6 +174,17 @@ func main() {
 	for rank, hand := range hands {
 		dbg("rank %d, hand %v", rank, hand)
 		part1 += (rank + 1) * hand.bid
+	}
+
+	hands = []hand{}
+	for _, l := range lines {
+		h := parseHand(l, 'J')
+		hands = append(hands, h)
+	}
+	slices.SortFunc(hands, cmpHands)
+	for rank, hand := range hands {
+		dbg("rank %d, hand %s", rank, string(hand.cards[:]))
+		part2 += (rank + 1) * hand.bid
 	}
 
 	log.Printf("Part 1: %v\n", part1)

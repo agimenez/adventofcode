@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 13*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 14*
 
-#    sub y{[2023](/2023)}
+#        y([2023](/2023))
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,8 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 13*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Konfuzio AI](https://konfuzio.com/en/adventofcode/) \- Dad-Joke-Theorem: How
-challenging can jokes be?
+[Hetzner](https://www.hetzner.com/cloud?mtm_campaign=adventofcode23&mtm_source=adventofcode&mtm_medium=sponsoring_link)
+\- Create your server in seconds & bring your coding vision to life!
 
 ## \--- Day 7: Camel Cards ---
 
@@ -121,8 +121,6 @@ Find the rank of every hand in your set. *What are the total winnings?*
 
 Your puzzle answer was `249726565`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 To make things a little more interesting, the Elf introduces one additional
@@ -162,11 +160,16 @@ With the new joker rule, the total winnings in this example are `*5905*`.
 Using the new joker rule, find the rank of every hand in your set. *What are
 the new total winnings?*
 
-Answer:
+Your puzzle answer was `251135960`.
 
-Although it hasn't changed, you can still [get your puzzle input](7/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](7/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Camel+Cards%22+%2D+Day+7+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F7&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Camel+Cards%22+%2D+Day+7+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F7&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
