@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 17*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 18*
 
-#    $year=[2023](/2023);
+#   {year=>[2023](/2023)}
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,8 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 17*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Spotify](https://engineering.atspotify.com/) \- Follow our engineering blog
-to see how our developers solve complex tech problems, at scale, every day.
+[Konfuzio AI](https://konfuzio.com/en/adventofcode/) \- Dad-Joke-Theorem: How
+challenging can jokes be?
 
 ## \--- Day 9: Mirage Maintenance ---
 
@@ -166,8 +166,6 @@ Analyze your OASIS report and extrapolate the next value for each history.
 
 Your puzzle answer was `1641934234`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 Of course, it would be nice to have *even more history* included in your
@@ -202,11 +200,16 @@ three new values together produces `*2*`.
 Analyze your OASIS report again, this time extrapolating the *previous* value
 for each history. *What is the sum of these extrapolated values?*
 
-Answer:
+Your puzzle answer was `975`.
 
-Although it hasn't changed, you can still [get your puzzle input](9/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](9/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Mirage+Maintenance%22+%2D+Day+9+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Mirage+Maintenance%22+%2D+Day+9+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
