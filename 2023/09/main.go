@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -80,12 +81,36 @@ func predictNextValues(seqs [][]int) [][]int {
 	return seqs
 }
 
+func predictPreviousValues(seqs [][]int) [][]int {
+	dbg("PREDICT")
+	for i := len(seqs) - 2; i >= 0; i-- {
+		dbg("  SEQ: %v", seqs[i])
+
+		nextV := seqs[i][0] - seqs[i+1][0]
+		seqs[i] = slices.Insert(seqs[i], 0, nextV)
+		dbg("   -> %v", seqs[i])
+	}
+
+	return seqs
+}
+
 func solve1(s string) []int {
 	seq := parseSeq(s)
 
 	seqs := allSequences(seq, 0)
 	dbg("ALLSEQS: %v", seqs)
 	seqs = predictNextValues(seqs)
+	dbg("PREDICTEDSEQS: %v", seqs)
+
+	return seqs[0]
+}
+
+func solve2(s string) []int {
+	seq := parseSeq(s)
+
+	seqs := allSequences(seq, 0)
+	dbg("ALLSEQS: %v", seqs)
+	seqs = predictPreviousValues(seqs)
 	dbg("PREDICTEDSEQS: %v", seqs)
 
 	return seqs[0]
@@ -105,6 +130,8 @@ func main() {
 	for _, l := range lines {
 		sequence := solve1(l)
 		part1 += sequence[len(sequence)-1]
+		sequence = solve2(l)
+		part2 += sequence[0]
 	}
 
 	log.Printf("Part 1: %v\n", part1)
