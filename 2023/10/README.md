@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 18*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 19*
 
-#   0.0.0.0:[2023](/2023)
+#       /*[2023](/2023)*/
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,8 +18,10 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 18*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[CostPerform](https://www.costperform.com) \- Cracking codes + solving puzzles
-== fun == CostPerform
+[DEPT](https://www.deptagency.com/?utm_source=media-
+partner&utm_medium=referral&utm_campaign=gl-advent-of-code) \- Code whisperers
+doubling as marketing mavens. We’re the missing link between tech wonders and
+brand bling, bringing pixel-perfect dreams to life.
 
 ## \--- Day 10: Pipe Maze ---
 
@@ -193,11 +195,155 @@ Find the single giant loop starting at `S`. *How many steps along the loop
 does it take to get from the starting position to the point farthest from the
 starting position?*
 
-To begin, [get your puzzle input](10/input).
+Your puzzle answer was `6951`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+You quickly reach the farthest point of the loop, but the animal never
+emerges. Maybe its nest is *within the area enclosed by the loop*?
+
+To determine whether it's even worth taking the time to search for such a
+nest, you should calculate how many tiles are contained within the loop. For
+example:
+
+[code]
+
+    ...........
+    .S-------7.
+    .|F-----7|.
+    .||.....||.
+    .||.....||.
+    .|L-7.F-J|.
+    .|..|.|..|.
+    .L--J.L--J.
+    ...........
+    
+[/code]
+
+The above loop encloses merely *four tiles* \- the two pairs of `.` in the
+southwest and southeast (marked `I` below). The middle `.` tiles (marked `O`
+below) are *not* in the loop. Here is the same loop again with those regions
+marked:
+
+[code]
+
+    ...........
+    .S-------7.
+    .|F-----7|.
+    .|| *OOOOO* ||.
+    .|| *OOOOO* ||.
+    .|L-7 *O* F-J|.
+    .| *II* | *O* | *II* |.
+    .L--J *O* L--J.
+    ..... *O*.....
+    
+[/code]
+
+In fact, there doesn't even need to be a full tile path to the outside for
+tiles to count as outside the loop - squeezing between pipes is also allowed!
+Here, `I` is still within the loop and `O` is still outside the loop:
+
+[code]
+
+    ..........
+    .S------7.
+    .|F----7|.
+    .|| *OOOO* ||.
+    .|| *OOOO* ||.
+    .|L-7F-J|.
+    .| *II* || *II* |.
+    .L--JL--J.
+    ..........
+    
+[/code]
+
+In both of the above examples, `*4*` tiles are enclosed by the loop.
+
+Here's a larger example:
+
+[code]
+
+    .F----7F7F7F7F-7....
+    .|F--7||||||||FJ....
+    .||.FJ||||||||L7....
+    FJL7L7LJLJ||LJ.L-7..
+    L--J.L7...LJS7F-7L7.
+    ....F-J..F7FJ|L7L7L7
+    ....L7.F7||L7|.L7L7|
+    .....|FJLJ|FJ|F7|.LJ
+    ....FJL-7.||.||||...
+    ....L---J.LJ.LJLJ...
+    
+[/code]
+
+The above sketch has many random bits of ground, some of which are in the loop
+(`I`) and some of which are outside it (`O`):
+
+[code]
+
+    *O* F----7F7F7F7F-7 *OOOO*
+    *O* |F--7||||||||FJ *OOOO*
+    *O* || *O* FJ||||||||L7 *OOOO*
+    FJL7L7LJLJ||LJ *I* L-7 *OO*
+    L--J *O* L7 *III* LJS7F-7L7 *O*
+    *OOOO* F-J *II* F7FJ|L7L7L7
+    *OOOO* L7 *I* F7||L7| *I* L7L7|
+    *OOOOO* |FJLJ|FJ|F7| *O* LJ
+    *OOOO* FJL-7 *O* || *O* |||| *OOO*
+    *OOOO* L---J *O* LJ *O* LJLJ *OOO*
+    
+[/code]
+
+In this larger example, `*8*` tiles are enclosed by the loop.
+
+Any tile that isn't part of the main loop can count as being enclosed by the
+loop. Here's another example with many bits of junk pipe lying around that
+aren't connected to the main loop at all:
+
+[code]
+
+    FF7FSF7F7F7F7F7F---7
+    L|LJ||||||||||||F--J
+    FL-7LJLJ||||||LJL-77
+    F--JF--7||LJLJ7F7FJ-
+    L---JF-JLJ.||-FJLJJ7
+    |F|F-JF---7F7-L7L|7|
+    |FFJF7L7F-JF7|JL---7
+    7-L-JL7||F7|L7F-7F7|
+    L.L7LFJ|||||FJL7||LJ
+    L7JLJL-JLJLJL--JLJ.L
+    
+[/code]
+
+Here are just the tiles that are *enclosed by the loop* marked with `I`:
+
+[code]
+
+    FF7FSF7F7F7F7F7F---7
+    L|LJ||||||||||||F--J
+    FL-7LJLJ||||||LJL-77
+    F--JF--7||LJLJ *I* F7FJ-
+    L---JF-JLJ *IIII* FJLJJ7
+    |F|F-JF---7 *III* L7L|7|
+    |FFJF7L7F-JF7 *II* L---7
+    7-L-JL7||F7|L7F-7F7|
+    L.L7LFJ|||||FJL7||LJ
+    L7JLJL-JLJLJL--JLJ.L
+    
+[/code]
+
+In this last example, `*10*` tiles are enclosed by the loop.
+
+Figure out whether you have time to search for the nest by calculating the
+area within the loop. *How many tiles are enclosed by the loop?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](10/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22Pipe+Maze%22+%2D+Day+10+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F10&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Pipe+Maze%22+%2D+Day+10+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F10&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
