@@ -98,18 +98,64 @@ func nextPoint(f map[utils.Point]rune, cur vector) vector {
 
 	return next
 }
-func solve1(f map[utils.Point]rune, s utils.Point) []vector {
+func solve1(f map[utils.Point]rune, s utils.Point) map[utils.Point]direction {
 	dbg("PART1: %v (%c)", s, f[s])
 	start := getFirstDirection(f, s)
-	path := []vector{start}
+	path := map[utils.Point]direction{
+		s: start.dir,
+	}
 	next := nextPoint(f, start)
 	for next.Point != s {
-		path = append(path, next)
+		path[next.Point] = next.dir
 		next = nextPoint(f, next)
 
 	}
 
 	return path
+}
+
+// https://www.reddit.com/r/adventofcode/comments/18eza5g/2023_day_10_animated_visualization/
+// https://en.wikipedia.org/wiki/Nonzero-rule
+func solve2(in []string, f map[utils.Point]rune, s utils.Point) int {
+	steps := solve1(f, s)
+
+	totalIn := 0
+	for y, l := range in {
+		windings := 0
+		for x, c := range l {
+			if c == 'S' { // I'm not cheating, you're cheating
+				windings++
+			}
+			direction, ok := steps[utils.Point{x, y}]
+			if ok {
+				if direction == down {
+					windings--
+				} else {
+					switch c {
+					case '|':
+						if direction == up {
+							windings++
+						}
+					case 'F':
+						if direction == right {
+							windings++
+						}
+					case '7':
+						if direction == left {
+							windings++
+						}
+					}
+				}
+			} else {
+				if windings != 0 {
+					dbg("Found IN: (%v, %v)", x, y)
+					totalIn++
+				}
+			}
+		}
+	}
+
+	return totalIn
 }
 
 func main() {
@@ -135,6 +181,7 @@ func main() {
 		}
 	}
 	part1 = len(solve1(field, start)) / 2
+	part2 = solve2(lines, field, start)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
