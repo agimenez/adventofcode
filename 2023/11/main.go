@@ -55,8 +55,8 @@ func expand(in []string, factor int) []utils.Point {
 
 	expandedGalaxies := []utils.Point{}
 	for _, g := range galaxies {
-		g.X += shiftX[g.X] + factor
-		g.Y += shiftY[g.Y] + factor
+		g.X += shiftX[g.X]
+		g.Y += shiftY[g.Y]
 
 		expandedGalaxies = append(expandedGalaxies, g)
 	}
