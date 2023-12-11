@@ -56,6 +56,10 @@ func (p Point) Right() Point {
 	return Point{p.X + 1, p.Y}
 }
 
+func (p Point) ManhattanDistance(p2 Point) int {
+	return Abs(p.X-p2.X) + Abs(p.Y-p2.Y)
+}
+
 func init() {
 	flag.IntVar(&Debug, "debug-level", 0, "debug level")
 }

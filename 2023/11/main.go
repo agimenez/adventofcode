@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -21,6 +23,74 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
+func expand(in []string) []utils.Point {
+	galaxies := []utils.Point{}
+	shiftY := map[int]int{}
+	colHasGalaxy := map[int]bool{}
+	shift := 0
+	for y, l := range in {
+		shiftY[y] = shift
+		for x, c := range l {
+			if c == '#' {
+				colHasGalaxy[x] = true
+				galaxies = append(galaxies, utils.Point{x, y})
+			}
+		}
+		if strings.Index(l, "#") == -1 {
+			shift++
+		}
+	}
+
+	shiftX := map[int]int{}
+	shift = 0
+	for x, _ := range in[0] {
+		shiftX[x] = shift
+		if !colHasGalaxy[x] {
+			shift++
+		}
+	}
+	dbg("shiftY: %v", shiftY)
+	dbg("shiftX: %v", shiftX)
+
+	expandedGalaxies := []utils.Point{}
+	for _, g := range galaxies {
+		g.X += shiftX[g.X]
+		g.Y += shiftY[g.Y]
+
+		expandedGalaxies = append(expandedGalaxies, g)
+	}
+
+	dbg("galaxies: %v", galaxies)
+	dbg("expanded: %v", expandedGalaxies)
+
+	return expandedGalaxies
+}
+
+func distancePairs(g []utils.Point) []int {
+	d := []int{}
+	for i := 0; i < len(g); i++ {
+		for j := i + 1; j < len(g); j++ {
+			dbg("Distance %d %v -> %d %v = %d", i, g[i], j, g[j], g[i].ManhattanDistance(g[j]))
+			d = append(d, g[i].ManhattanDistance(g[j]))
+		}
+	}
+
+	return d
+}
+
+func solve1(in []string) int {
+	var res int
+	galaxies := expand(in)
+	distances := distancePairs(galaxies)
+
+	for _, d := range distances {
+		res += d
+	}
+
+	return res
+}
+
 func main() {
 	flag.Parse()
 
@@ -32,6 +102,7 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
+	part1 = solve1(lines)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
