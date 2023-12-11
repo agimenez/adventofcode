@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 20*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 21*
 
-#    <y>[2023](/2023)</y>
+#       /*[2023](/2023)*/
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,9 +18,10 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 20*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Monta](https://monta.com/) \- Monta is the ultimate platform powering the
-entire EV charging ecosystem. From drivers, to businesses, to industry
-partners, we offer software solutions that cover all EV charging needs.
+[Kotlin by JetBrains](https://kotlinlang.org/) \- Jingle bells, Kotlin pals,
+coding all the way! Solve puzzles, catch our daily livestreams for expert
+guidance, embrace the joy of Kotlin, and engage with a fantastic community.
+Happy holidays and happy coding!
 
 ## \--- Day 11: Cosmic Expansion ---
 
@@ -162,11 +163,35 @@ between all 36 pairs of galaxies is `*374*`.
 Expand the universe, then find the length of the shortest path between every
 pair of galaxies. *What is the sum of these lengths?*
 
-To begin, [get your puzzle input](11/input).
+Your puzzle answer was `9947476`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+The galaxies are much *older* (and thus much *farther apart* ) than the
+researcher initially estimated.
+
+Now, instead of the expansion you did before, make each empty row or column
+*one million times* larger. That is, each empty row should be replaced with
+`1000000` empty rows, and each empty column should be replaced with `1000000`
+empty columns.
+
+(In the example above, if each empty row or column were merely `10` times
+larger, the sum of the shortest paths between every pair of galaxies would be
+`*1030*`. If each empty row or column were merely `100` times larger, the sum
+of the shortest paths between every pair of galaxies would be `*8410*`.
+However, your universe will need to expand far beyond these values.)
+
+Starting with the same initial image, expand the universe according to these
+new rules, then find the length of the shortest path between every pair of
+galaxies. *What is the sum of these lengths?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](11/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22Cosmic+Expansion%22+%2D+Day+11+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Cosmic+Expansion%22+%2D+Day+11+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
