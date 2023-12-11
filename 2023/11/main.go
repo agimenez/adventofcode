@@ -24,7 +24,7 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
 
-func expand(in []string) []utils.Point {
+func expand(in []string, factor int) []utils.Point {
 	galaxies := []utils.Point{}
 	shiftY := map[int]int{}
 	colHasGalaxy := map[int]bool{}
@@ -38,7 +38,7 @@ func expand(in []string) []utils.Point {
 			}
 		}
 		if strings.Index(l, "#") == -1 {
-			shift++
+			shift += factor
 		}
 	}
 
@@ -47,7 +47,7 @@ func expand(in []string) []utils.Point {
 	for x, _ := range in[0] {
 		shiftX[x] = shift
 		if !colHasGalaxy[x] {
-			shift++
+			shift += factor
 		}
 	}
 	dbg("shiftY: %v", shiftY)
@@ -55,8 +55,8 @@ func expand(in []string) []utils.Point {
 
 	expandedGalaxies := []utils.Point{}
 	for _, g := range galaxies {
-		g.X += shiftX[g.X]
-		g.Y += shiftY[g.Y]
+		g.X += shiftX[g.X] + factor
+		g.Y += shiftY[g.Y] + factor
 
 		expandedGalaxies = append(expandedGalaxies, g)
 	}
@@ -79,9 +79,9 @@ func distancePairs(g []utils.Point) []int {
 	return d
 }
 
-func solve1(in []string) int {
+func solve1(in []string, factor int) int {
 	var res int
-	galaxies := expand(in)
+	galaxies := expand(in, factor)
 	distances := distancePairs(galaxies)
 
 	for _, d := range distances {
@@ -102,7 +102,8 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
-	part1 = solve1(lines)
+	part1 = solve1(lines, 1)
+	part2 = solve1(lines, 999_999)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)

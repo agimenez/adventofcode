@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 21*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 22*
 
-#       /*[2023](/2023)*/
+#    0xffff&[2023](/2023)
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,10 +18,10 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 21*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Kotlin by JetBrains](https://kotlinlang.org/) \- Jingle bells, Kotlin pals,
-coding all the way! Solve puzzles, catch our daily livestreams for expert
-guidance, embrace the joy of Kotlin, and engage with a fantastic community.
-Happy holidays and happy coding!
+[DEPT](https://www.deptagency.com/?utm_source=media-
+partner&utm_medium=referral&utm_campaign=gl-advent-of-code) \- Code whisperers
+doubling as marketing mavens. We’re the missing link between tech wonders and
+brand bling, bringing pixel-perfect dreams to life.
 
 ## \--- Day 11: Cosmic Expansion ---
 
@@ -165,8 +165,6 @@ pair of galaxies. *What is the sum of these lengths?*
 
 Your puzzle answer was `9947476`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The galaxies are much *older* (and thus much *farther apart* ) than the
@@ -187,11 +185,16 @@ Starting with the same initial image, expand the universe according to these
 new rules, then find the length of the shortest path between every pair of
 galaxies. *What is the sum of these lengths?*
 
-Answer:
+Your puzzle answer was `519939907614`.
 
-Although it hasn't changed, you can still [get your puzzle input](11/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](11/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Cosmic+Expansion%22+%2D+Day+11+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Cosmic+Expansion%22+%2D+Day+11+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
