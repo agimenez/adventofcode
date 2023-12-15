@@ -21,6 +21,19 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
+func hash(s string) int {
+	current := 0
+	for _, c := range s {
+		current += int(c)
+		current *= 17
+		current %= 256
+	}
+	dbg("hash(%s) = %d", s, current)
+
+	return current
+}
+
 func main() {
 	flag.Parse()
 
@@ -29,9 +42,10 @@ func main() {
 	if err != nil {
 		panic("could not read input")
 	}
-	lines := strings.Split(string(p), "\n")
-	lines = lines[:len(lines)-1]
-	//dbg("lines: %#v", lines)
+	seqs := strings.Split(string(p)[:len(p)-1], ",")
+	for _, s := range seqs {
+		part1 += hash(s)
+	}
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
