@@ -2,23 +2,28 @@ package main
 
 import "testing"
 
-func TestMain(t *testing.T) {
+func TestHash(t *testing.T) {
 	tests := []struct {
 		in  string
 		out int
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{"HASH", 52},
+		{"rn=1", 30},
+		{"cm-", 253},
+		{"qp=3", 97},
+		{"qp-", 14},
+		{"pc=4", 180},
+		{"ot=9", 9},
+		{"ab=5", 197},
+		{"pc-", 48},
+		{"pc=6", 214},
+		{"ot=7", 231},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
-		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+		h := hash(tt.in)
+		if h != tt.out {
+			t.Errorf("Test: got %v, expected %v", h, tt.out)
 		}
 	}
 
