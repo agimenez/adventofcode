@@ -36,15 +36,39 @@ func mirrorLine(s string) bool {
 	return true
 }
 
-func mirrorCol(s []string, startRow int, col int) bool {
-	for i := startRow; i < len(s); i++ {
+func printCol(s []string, row int, col int) {
+	if !debug {
+		return
+	}
+	dbg("Printing row=%d, col=%d", row, col)
+	for i := row; i < len(s); i++ {
+		log.Printf("%c", s[i][col])
+
 	}
 }
+
+func mirrorCol(s []string, startRow int, col int) bool {
+	dbg(" -> mirrorCol")
+	printCol(s, startRow, col)
+	for i := startRow; i <= len(s)/2; i++ {
+		dbg("    -> (%d) %c == (%d) %c", i, s[i][col], len(s)-i-1, s[len(s)-i-1][col])
+		if s[i][col] != s[len(s)-i-1][col] {
+			dbg("    -> NAH!")
+			return false
+		}
+	}
+
+	dbg("    -> YUP!")
+
+	return true
+}
+
 func solve1(in []string) int {
 	res := 0
 
+	dbg("Solving for pattern:\n%s", strings.Join(in, "\n"))
 	// First, check vertical reflection
-	for col := 0; col < len(in[0]); col++ {
+	for col := 0; col < len(in[0])-1; col++ {
 		dbg("Checking column %d", col)
 		mirror := true
 		for _, row := range in {
@@ -55,8 +79,8 @@ func solve1(in []string) int {
 		}
 
 		if mirror {
-			res += (len(in[0])-col)/2 + 1
-			break
+			dbg("Found mirror in column %d, returning %d", col, (len(in[0])-col)/2+1)
+			return (len(in[0])-col)/2 + 1
 		}
 	}
 
@@ -64,7 +88,7 @@ func solve1(in []string) int {
 	for row := 0; row < len(in); row++ {
 		dbg("Checking row %d", row)
 		mirror := true
-		for col := 0; col < len(in[0]); c++ {
+		for col := 0; col < len(in[0]); col++ {
 			mirror = mirror && mirrorCol(in, row, col)
 			if !mirror {
 				break
@@ -72,7 +96,8 @@ func solve1(in []string) int {
 		}
 
 		if mirror {
-			res += 100 * ((len(in)-row)/2 + 1)
+			dbg("Found mirror in row %d", row)
+			return 100 * (row + 1)
 			break
 		}
 	}
@@ -102,6 +127,7 @@ func main() {
 		pattern = append(pattern, l)
 
 	}
+	part1 += solve1(pattern)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
