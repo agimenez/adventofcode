@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 23*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 24*
 
-#    var y=[2023](/2023);
+#    $year=[2023](/2023);
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,9 +18,8 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 23*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Monta](https://monta.com/) \- Monta is the ultimate platform powering the
-entire EV charging ecosystem. From drivers, to businesses, to industry
-partners, we offer software solutions that cover all EV charging needs.
+[Union](https://union.build) \- Bridging IBC <> ETH with Zero-Knowledge
+crypto, live on our testnet!
 
 ## \--- Day 15: Lens Library ---
 
@@ -128,8 +127,6 @@ the sum of the results?* (The initialization sequence is one long line; be
 careful when copy-pasting it.)
 
 Your puzzle answer was `507291`.
-
-The first half of this puzzle is complete! It provides one gold star: *
 
 ## \--- Part Two ---
 
@@ -262,11 +259,16 @@ With the help of an over-enthusiastic reindeer in a hard hat, follow the
 initialization sequence. *What is the focusing power of the resulting lens
 configuration?*
 
-Answer:
+Your puzzle answer was `296921`.
 
-Although it hasn't changed, you can still [get your puzzle input](15/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
+
+At this point, you should [return to your Advent calendar](/2023) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](15/input).
 
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Lens+Library%22+%2D+Day+15+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F15&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Lens+Library%22+%2D+Day+15+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F15&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
