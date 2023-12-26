@@ -42,17 +42,21 @@ func printCol(s []string, row int, col int) {
 	}
 	dbg("Printing row=%d, col=%d", row, col)
 	for i := row; i < len(s); i++ {
-		log.Printf("%c", s[i][col])
+		log.Printf(" (%d) %c", i, s[i][col])
 
 	}
 }
 
 func mirrorCol(s []string, startRow int, col int) bool {
-	dbg(" -> mirrorCol")
+	dbg(" -> mirrorCol (row %d, col %d)", startRow, col)
 	printCol(s, startRow, col)
-	for i := startRow; i <= len(s)/2; i++ {
-		dbg("    -> (%d) %c == (%d) %c", i, s[i][col], len(s)-i-1, s[len(s)-i-1][col])
-		if s[i][col] != s[len(s)-i-1][col] {
+	for i := 0; i < len(s)/2; i++ {
+		idx := i + startRow
+		if idx >= len(s) {
+			return false
+		}
+		dbg("Row %d -> %c ==  %c (row %d)", i, s[idx][col], s[len(s)-1-i][col], len(s)-1-i)
+		if s[idx][col] != s[len(s)-1-i][col] {
 			dbg("    -> NAH!")
 			return false
 		}
@@ -83,12 +87,13 @@ func solve1(in []string) int {
 			return (len(in[0])-col)/2 + 1
 		}
 	}
+	dbg("NO VERTICAL REFLECTION FOUND!!!. Checking horizontal")
 
 	// Check horizontal reflection
-	for row := 0; row < len(in); row++ {
+	for row := 0; row < len(in)-1; row++ {
 		dbg("Checking row %d", row)
 		mirror := true
-		for col := 0; col < len(in[0]); col++ {
+		for col := 0; col < len(in[0])-1; col++ {
 			mirror = mirror && mirrorCol(in, row, col)
 			if !mirror {
 				break
@@ -96,8 +101,8 @@ func solve1(in []string) int {
 		}
 
 		if mirror {
-			dbg("Found mirror in row %d", row)
-			return 100 * (row + 1)
+			dbg("Found mirror in row %d, returning 100*%d", row, (len(in)-row)/2+1)
+			return 100 * ((len(in)-row)/2 + 1)
 			break
 		}
 	}
