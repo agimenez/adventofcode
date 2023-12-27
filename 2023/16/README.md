@@ -6,9 +6,9 @@
   * [[Settings]](/2023/settings)
   * [[Log Out]](/2023/auth/logout)
 
-agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 24*
+agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 25*
 
-#   {year=>[2023](/2023)}
+#        λy.[2023](/2023)
 
   * [[Calendar]](/2023)
   * [[AoC++]](/2023/support)
@@ -18,9 +18,9 @@ agimenez [(AoC++)](/2023/support "Advent of Code Supporter") 24*
 
 Our [sponsors](/2023/sponsors) help make Advent of Code possible:
 
-[Smarty](https://www.smarty.com/advent-of-code) \- Join our private
-leaderboard and solve our puzzles for BIG PRIZES!!! ----------------- Address
-Validation and Autocomplete, and more!
+[Monta](https://monta.com/) \- Monta is the ultimate platform powering the
+entire EV charging ecosystem. From drivers, to businesses, to industry
+partners, we offer software solutions that cover all EV charging needs.
 
 ## \--- Day 16: The Floor Will Be Lava ---
 
@@ -118,11 +118,68 @@ contraption, you need to start by analyzing the current situation. With the
 beam starting in the top-left heading right, *how many tiles end up being
 energized?*
 
-To begin, [get your puzzle input](16/input).
+Your puzzle answer was `7046`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+As you try to work out what might be wrong, the reindeer tugs on your shirt
+and leads you to a nearby control panel. There, a collection of buttons lets
+you align the contraption so that the beam enters from *any edge tile* and
+heading away from that edge. (You can choose either of two directions for the
+beam if it starts on a corner; for instance, if the beam starts in the bottom-
+right corner, it can start heading either left or upward.)
+
+So, the beam could start on any tile in the top row (heading downward), any
+tile in the bottom row (heading upward), any tile in the leftmost column
+(heading right), or any tile in the rightmost column (heading left). To
+produce lava, you need to find the configuration that *energizes as many tiles
+as possible*.
+
+In the above example, this can be achieved by starting the beam in the fourth
+tile from the left in the top row:
+
+[code]
+
+    .|<2<\....
+    |v-v\^....
+    .v.v.|->>>
+    .v.v.v^.|.
+    .v.v.v^...
+    .v.v.v^..\
+    .v.v/2\\..
+    <-2-/vv|..
+    .|<<<2-|.\
+    .v//.|.v..
+    
+[/code]
+
+Using this configuration, `*51*` tiles are energized:
+
+[code]
+
+    .#####....
+    .#.#.#....
+    .#.#.#####
+    .#.#.##...
+    .#.#.##...
+    .#.#.##...
+    .#.#####..
+    ########..
+    .#######..
+    .#...#.#..
+    
+[/code]
+
+Find the initial beam configuration that energizes the largest number of
+tiles; *how many tiles are energized in that configuration?*
 
 Answer:
 
+Although it hasn't changed, you can still [get your puzzle input](16/input).
+
 You can also [Shareon
-[Twitter](https://twitter.com/intent/tweet?text=%22The+Floor+Will+Be+Lava%22+%2D+Day+16+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F16&related=ericwastl&hashtags=AdventOfCode)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22The+Floor+Will+Be+Lava%22+%2D+Day+16+%2D+Advent+of+Code+2023&url=https%3A%2F%2Fadventofcode%2Ecom%2F2023%2Fday%2F16&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void\(0\);)] this puzzle.
 
