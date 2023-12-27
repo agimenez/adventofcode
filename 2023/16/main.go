@@ -50,7 +50,11 @@ func (b beam) String() string {
 	return b.p.String() + fmt.Sprintf(" (%s)", dir2str[b.dir])
 }
 
-type contraption map[Point]rune
+type contraption struct {
+	grid map[Point]rune
+	cols int
+	rows int
+}
 
 func (c contraption) moveBeam(b beam) beam {
 	switch b.dir {
@@ -69,10 +73,14 @@ func (c contraption) moveBeam(b beam) beam {
 }
 
 func (c contraption) print(b beam, energized map[Point]bool) {
+	if true || !debug {
+		return
+	}
+
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 10; x++ {
 			p := Point{x, y}
-			if c, ok := c[p]; ok {
+			if c, ok := c.grid[p]; ok {
 				if energized[p] {
 					c = '#'
 				}
@@ -98,18 +106,18 @@ func (c contraption) print(b beam, energized map[Point]bool) {
 
 }
 
-func (c contraption) energize() map[Point]bool {
+func (c contraption) energize(start beam) map[Point]bool {
 	energized := map[Point]bool{}
-	beams := []beam{{Point{0, 0}, Right}}
+	beams := []beam{start}
 	seenBeams := map[beam]bool{}
 	for len(beams) > 0 {
 		b := beams[0]
-		dbg("Processing beam: %+v", b)
+		//dbg("Processing beam: %+v", b)
 		beams = beams[1:]
 		var tile rune
 		var ok bool
-		if tile, ok = c[b.p]; !ok {
-			dbg("  -> Beam outside contraption: continuing")
+		if tile, ok = c.grid[b.p]; !ok {
+			//dbg("  -> Beam outside contraption: continuing")
 			continue
 		}
 
@@ -119,7 +127,7 @@ func (c contraption) energize() map[Point]bool {
 
 		energized[b.p] = true
 		seenBeams[b] = true
-		dbg(" -> Tile %c", tile)
+		//dbg(" -> Tile %c", tile)
 		c.print(b, energized)
 		switch tile {
 		case '.':
@@ -186,6 +194,37 @@ func (c contraption) energize() map[Point]bool {
 
 }
 
+func solve2(c contraption) int {
+	res := 0
+
+	configs := []struct {
+		dir        direction
+		fromX, toX int
+		fromY, toY int
+	}{
+		{Down, 0, c.cols, 0, 0},
+		{Right, 0, 0, 0, c.rows},
+		{Up, 0, c.cols, c.rows, c.rows},
+		{Left, c.cols, c.cols, 0, c.rows},
+	}
+
+	for _, cfg := range configs {
+		for x := cfg.fromX; x <= cfg.toX; x++ {
+			for y := cfg.fromY; y <= cfg.toY; y++ {
+				b := beam{Point{x, y}, cfg.dir}
+
+				e := c.energize(b)
+				dbg("Testing %s: %d energized", b, len(e))
+				if len(e) > res {
+					res = len(e)
+				}
+			}
+		}
+	}
+
+	return res
+}
+
 func main() {
 	flag.Parse()
 
@@ -197,14 +236,22 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
-	grid := contraption{}
+	grid := contraption{grid: make(map[Point]rune)}
 	for y, l := range lines {
 		for x, c := range l {
-			grid[Point{x, y}] = c
+			grid.grid[Point{x, y}] = c
+			if x > grid.cols {
+				grid.cols = x
+			}
+		}
+
+		if y > grid.rows {
+			grid.rows = y
 		}
 	}
 
-	part1 = len(grid.energize())
+	part1 = len(grid.energize(beam{Point{0, 0}, Right}))
+	part2 = solve2(grid)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
