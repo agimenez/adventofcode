@@ -43,6 +43,23 @@ func (p polygon) AddDigInstruction(s string) polygon {
 
 }
 
+var n2dir = map[byte]string{
+	'0': "R",
+	'1': "D",
+	'2': "L",
+	'3': "U",
+}
+
+func (p polygon) AddPatchedInstruction(s string) polygon {
+	hex := strings.Trim(strings.Fields(s)[2], "(#)")
+	dirN := hex[len(hex)-1]
+	lenS := hex[:len(hex)-1]
+	lenN, _ := strconv.ParseUint(lenS, 16, 32)
+	dbg("Dir: %s, len: %v (%v)", n2dir[dirN], lenS, lenN)
+
+	return p.AddVertex(n2dir[dirN], int(lenN))
+}
+
 func (p polygon) AddVertex(dir string, length int) polygon {
 	last := p[len(p)-1]
 	var sum Point
@@ -111,14 +128,17 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
-	polygon := polygon{{0, 0}}
+	p1 := polygon{P0}
+	p2 := polygon{P0}
 	for _, l := range lines {
-		polygon = polygon.AddDigInstruction(l)
 		dbg("Add %s", l)
-		polygon.print()
+		p1 = p1.AddDigInstruction(l)
+		p2 = p2.AddPatchedInstruction(l)
+		//polygon.print()
 	}
 
-	part1 = polygon.Area()
+	part1 = p1.Area()
+	part2 = p2.Area()
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
