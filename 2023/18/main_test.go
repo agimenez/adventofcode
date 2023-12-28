@@ -3,23 +3,11 @@ package main
 import "testing"
 
 func TestMain(t *testing.T) {
-	tests := []struct {
-		in  string
-		out int
-	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
-	}
+	p := polygon{
+		{0, 0}, {2, 0}, {2, 2}, {0, 2}, {0, 0}}
 
-	for _, tt := range tests {
-		l := len(tt.in)
-		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
-		}
+	if p.Area() != 4 {
+		t.Errorf("2x2 polygon failed, got %v, expected 4", p.Area())
 	}
 
 }
