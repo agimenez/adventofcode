@@ -98,3 +98,22 @@ func Abs(a int) int {
 
 	return a
 }
+
+func GCD(a, b int) int {
+	if b == 0 {
+		return a
+	}
+	return GCD(b, a%b)
+}
+
+func LCM(a, b int) int {
+	return a * b / GCD(a, b)
+}
+
+func SliceLCM(numbers []int) int {
+	result := numbers[0]
+	for i := 1; i < len(numbers); i++ {
+		result = LCM(result, numbers[i])
+	}
+	return result
+}
