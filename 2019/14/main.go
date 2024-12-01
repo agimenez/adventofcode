@@ -51,7 +51,7 @@ func getReactions(in io.Reader) factory {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		dbg(1, "Line: %v", line)
+		dbg(2, "Line: %v", line)
 		parts := strings.Split(line, " => ")
 
 		product := strings.Fields(parts[1])
@@ -69,8 +69,8 @@ func getReactions(in io.Reader) factory {
 
 		f[product[1]] = r
 
-		dbg(1, "Parts: %#v\n", parts)
-		dbg(1, "factory: %v\n", f)
+		dbg(2, "Parts: %#v\n", parts)
+		dbg(2, "factory: %v\n", f)
 
 	}
 
@@ -85,10 +85,10 @@ func abs(x int) int {
 	return x
 }
 
-func (f factory) getORE(target string, mult int) int {
-	spare := map[string]int{}
-	need := map[string]int{
-		"FUEL": 1,
+func (f factory) getORE(target string, mult int64) int64 {
+	spare := map[string]int64{}
+	need := map[string]int64{
+		"FUEL": mult,
 	}
 
 	for {
@@ -96,35 +96,63 @@ func (f factory) getORE(target string, mult int) int {
 			return need["ORE"]
 		}
 
-		dbg(1, "=== NEW LOOP ===")
+		dbg(2, "=== NEW LOOP ===")
 		for prod, q := range need {
-			dbg(1, "Need %d %s", q, prod)
+			dbg(2, "Need %d %s", q, prod)
 			if prod == "ORE" {
 				continue
 			}
 
 			r := f[prod]
-			qtyNeeded := int(math.Ceil(float64(q-spare[prod]) / float64(r.mult)))
-			dbg(1, " -> Spare: %d, output: %d -> Need %d", spare[prod], r.mult, qtyNeeded)
+			qtyNeeded := int64(math.Ceil(float64(q-spare[prod]) / float64(r.mult)))
+			dbg(2, " -> Spare: %d, output: %d -> Need %d", spare[prod], r.mult, qtyNeeded)
 			for _, c := range r.input {
-				need[c.name] += qtyNeeded * c.mult
-				dbg(1, " -> Added need: %d %s", qtyNeeded*c.mult, c.name)
+				need[c.name] += qtyNeeded * int64(c.mult)
+				dbg(2, " -> Added need: %d %s", qtyNeeded*int64(c.mult), c.name)
 			}
 
-			spare[prod] += (r.mult * qtyNeeded) - q
+			spare[prod] += (int64(r.mult) * qtyNeeded) - q
 			delete(need, prod)
-			dbg(1, "Pending needs: %v", need)
+			dbg(2, "Pending needs: %v", need)
 		}
-		dbg(1, "Pending need: %v", need)
+		dbg(2, "Pending need: %v", need)
 
 	}
 
+}
+
+func tryFuels(f factory, maxOre int64, orePerFuel int64) int64 {
+	triedFuels := map[int64]bool{}
+	tryFuel := float64(maxOre / orePerFuel)
+	loops := 0
+	for {
+		dbg(1, "Trying with %f fuel", tryFuel)
+		ore := f.getORE("FUEL", int64(tryFuel))
+		dbg(1, " -> Got %v ore", ore)
+		if _, ok := triedFuels[ore]; !ok {
+			triedFuels[ore] = true
+		} else if ore <= maxOre {
+			//	return int64(tryFuel)
+		}
+
+		test := float64(maxOre / ore)
+		dbg(1, " -> Ratio: %f", test)
+		tryFuel *= test
+
+		if loops > 2 {
+			return int64(tryFuel)
+		}
+		loops++
+	}
 }
 
 func main() {
 	reactions := getReactions(os.Stdin)
 	part1 := reactions.getORE("FUEL", 1)
 
-	fmt.Printf("Reaction chains: %v\n", reactions)
+	//part2 := tryFuels(reactions, 1e12, part1)
+	part2 := tryFuels(reactions, 1000000000000, part1)
+
 	fmt.Printf("Part 1: %v\n", part1)
+	fmt.Printf("Part 2: %v\n", part2)
 }
