@@ -38,6 +38,7 @@ func main() {
 	//dbg("lines: %#v", lines)
 	leftSlice := sort.IntSlice{}
 	rightSlice := sort.IntSlice{}
+	rightCounts := map[int]int{}
 	for _, l := range lines {
 		parts := strings.Fields(l)
 		left, _ := strconv.Atoi(parts[0])
@@ -45,11 +46,13 @@ func main() {
 		leftSlice = append(leftSlice, left)
 		rightSlice = append(rightSlice, right)
 		//log.Printf("  -> left: %v, right: %v", left, right)
+		rightCounts[right]++
 	}
 	leftSlice.Sort()
 	rightSlice.Sort()
 	for i := range leftSlice {
 		part1 += utils.Abs(leftSlice[i] - rightSlice[i])
+		part2 += leftSlice[i] * rightCounts[leftSlice[i]]
 	}
 
 	log.Printf("Part 1: %v\n", part1)
