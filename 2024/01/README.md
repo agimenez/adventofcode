@@ -78,8 +78,6 @@ distance between your lists?*
 
 Your puzzle answer was `2000468`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 Your analysis only confirmed what everyone feared: the two lists of location
@@ -126,6 +124,6 @@ is `*31*` (`9 + 4 + 0 + 0 + 9 + 9`).
 Once again consider your left and right lists. *What is their similarity
 score?*
 
-Answer:
+Your puzzle answer was `18567089`.
 
-Although it hasn't changed, you can still [get your puzzle input](1/input).
+Both parts of this puzzle are complete! They provide two gold stars: **
