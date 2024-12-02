@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -35,14 +36,30 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	for i := range lines {
-		if isSafe(lines[i]) {
+		ints := line2digits(lines[i])
+		if isSafe(ints) {
 			part1++
+			part2++
+		} else if isSafeTolerant(ints) {
+			part2++
 		}
 	}
 	//dbg("lines: %#v", lines)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
+
+}
+
+func line2digits(s string) []int {
+	ints := make([]int, 0, len(s))
+
+	for _, v := range strings.Fields(s) {
+		n, _ := strconv.Atoi(v)
+		ints = append(ints, n)
+	}
+
+	return ints
 
 }
 
@@ -59,26 +76,45 @@ func getDirection(n, n1 int) int {
 	return 0
 }
 
-func isSafe(s string) bool {
+func isSafe(report []int) bool {
+	dbg("   * Checking safety of %v", report)
 	// -1
 	direction := 0
-	digits := strings.Fields(s)
-	for i := 0; i < len(digits)-1; i++ {
-		n, _ := strconv.Atoi(digits[i])
-		n1, _ := strconv.Atoi(digits[i+1])
+	for i := 0; i < len(report)-1; i++ {
+		n := report[i]
+		n1 := report[i+1]
 		dir := getDirection(n, n1)
 		if direction == 0 {
 			direction = dir
 		}
 
-		if direction != dir {
-			return false
-		}
-
 		diff := utils.Abs(n - n1)
-		if diff < 1 || diff > 3 {
+		if direction != dir || diff < 1 || diff > 3 {
 			return false
 		}
 	}
 	return true
+}
+
+func isSafeTolerant(report []int) bool {
+	dbg("Trying report: %v", report)
+	dbg(" - %v ", report[1:])
+	if isSafe(report[1:]) {
+		return true
+	}
+
+	for i := 1; i < len(report)-1; i++ {
+		candidate := slices.Concat(report[:i], report[i+1:])
+		dbg(" - %v ", candidate)
+		if isSafe(candidate) {
+			return true
+		}
+	}
+
+	dbg(" - %v ", report[:len(report)-1])
+	if isSafe(report[:len(report)-1]) {
+		return true
+	}
+
+	return false
 }

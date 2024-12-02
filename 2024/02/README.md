@@ -55,8 +55,6 @@ Analyze the unusual data from the engineers. *How many reports are safe?*
 
 Your puzzle answer was `472`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The engineers are surprised by the low number of safe reports until they
@@ -83,4 +81,4 @@ Thanks to the Problem Dampener, `*4*` reports are actually *safe*!
 Update your analysis by handling situations where the Problem Dampener can
 remove a single level from unsafe reports. *How many reports are now safe?*
 
-Answer:
+Your puzzle answer was `520`.
