@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -78,7 +77,7 @@ func getDirection(n, n1 int) int {
 
 func isSafe(report []int) bool {
 	dbg("   * Checking safety of %v", report)
-	// -1
+	// -1 descending, 0 init, +1 ascending
 	direction := 0
 	for i := 0; i < len(report)-1; i++ {
 		n := report[i]
@@ -97,23 +96,18 @@ func isSafe(report []int) bool {
 }
 
 func isSafeTolerant(report []int) bool {
-	dbg("Trying report: %v", report)
-	dbg(" - %v ", report[1:])
-	if isSafe(report[1:]) {
-		return true
-	}
+	for removed := range report {
+		var candidate []int
+		for i, v := range report {
+			if i == removed {
+				continue
+			}
 
-	for i := 1; i < len(report)-1; i++ {
-		candidate := slices.Concat(report[:i], report[i+1:])
-		dbg(" - %v ", candidate)
+			candidate = append(candidate, v)
+		}
 		if isSafe(candidate) {
 			return true
 		}
-	}
-
-	dbg(" - %v ", report[:len(report)-1])
-	if isSafe(report[:len(report)-1]) {
-		return true
 	}
 
 	return false
