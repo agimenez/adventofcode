@@ -5,7 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"strings"
+
+	"github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -21,6 +24,7 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
 func main() {
 	flag.Parse()
 
@@ -31,9 +35,25 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
-	//dbg("lines: %#v", lines)
+	for _, l := range lines {
+		part1 += getMuls(l)
+	}
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
+}
+
+var pattern = regexp.MustCompile(`mul\((\d+),(\d+)\)`)
+
+func getMuls(s string) int {
+	total := 0
+	matches := pattern.FindAllStringSubmatch(s, -1)
+	dbg("%v", matches)
+	for _, match := range matches {
+		dbg(" - %+v", match)
+		total += utils.ToInt(match[1]) * utils.ToInt(match[2])
+	}
+
+	return total
 }
