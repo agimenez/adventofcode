@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"strconv"
 )
 
 var (
@@ -116,4 +117,10 @@ func SliceLCM(numbers []int) int {
 		result = LCM(result, numbers[i])
 	}
 	return result
+}
+
+func ToInt(s string) int {
+	v, _ := strconv.Atoi(s)
+
+	return v
 }
