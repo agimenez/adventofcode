@@ -63,6 +63,51 @@ replaced with `.`:
 Take a look at the little Elf's word search. *How many times does`XMAS`
 appear?*
 
-To begin, [get your puzzle input](4/input).
+Your puzzle answer was `2560`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+The Elf looks quizzically at you. Did you misunderstand the assignment?
+
+Looking for the instructions, you flip over the word search to find that this
+isn't actually an `*XMAS*` puzzle; it's an `*X-MAS*` puzzle in which you're
+supposed to find two `MAS` in the shape of an `X`. One way to achieve that is
+like this:
+
+[code]
+
+    M.S
+    .A.
+    M.S
+    
+[/code]
+
+Irrelevant characters have again been replaced with `.` in the above diagram.
+Within the `X`, each `MAS` can be written forwards or backwards.
+
+Here's the same example from before, but this time all of the `X-MAS`es have
+been kept instead:
+
+[code]
+
+    .M.S......
+    ..A..MSMS.
+    .M.S.MAA..
+    ..A.ASMSM.
+    .M.S.M....
+    ..........
+    S.S.S.S.S.
+    .A.A.A.A..
+    M.M.M.M.M.
+    ..........
+    
+[/code]
+
+In this example, an `X-MAS` appears `*9*` times.
+
+Flip the word search from the instructions back over to the word search side
+and try again. *How many times does an`X-MAS` appear?*
 
 Answer:
