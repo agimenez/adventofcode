@@ -68,6 +68,14 @@ func (p Point) ManhattanDistance(p2 Point) int {
 	return Abs(p.X-p2.X) + Abs(p.Y-p2.Y)
 }
 
+func GetChInPoint(s []string, p Point) (byte, bool) {
+	if p.Y > len(s)-1 || p.Y < 0 || p.X < 0 || p.X > len(s[0])-1 {
+		return ' ', false
+	}
+
+	return s[p.Y][p.X], true
+}
+
 func init() {
 	flag.IntVar(&Debug, "debug-level", 0, "debug level")
 }
