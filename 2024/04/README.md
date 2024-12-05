@@ -65,8 +65,6 @@ appear?*
 
 Your puzzle answer was `2560`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The Elf looks quizzically at you. Did you misunderstand the assignment?
@@ -110,4 +108,4 @@ In this example, an `X-MAS` appears `*9*` times.
 Flip the word search from the instructions back over to the word search side
 and try again. *How many times does an`X-MAS` appear?*
 
-Answer:
+Your puzzle answer was `1910`.
