@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -131,4 +132,14 @@ func ToInt(s string) int {
 	v, _ := strconv.Atoi(s)
 
 	return v
+}
+
+func CSVToIntSlice(s string, sep string) []int {
+	res := []int{}
+	for _, p := range strings.Split(s, sep) {
+		n, _ := strconv.Atoi(p)
+		res = append(res, n)
+	}
+
+	return res
 }
