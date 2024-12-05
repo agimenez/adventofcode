@@ -71,6 +71,11 @@ func main() {
 			if slices.IsSortedFunc(pages, cmp) {
 				dbg("%v is SORTED, returning %d", l, pages[len(pages)/2])
 				part1 += pages[len(pages)/2]
+			} else {
+				dbg("Pages UNSORTED: %v", pages)
+				slices.SortFunc(pages, cmp)
+				dbg("Pages   SORTED: %v", pages)
+				part2 += pages[len(pages)/2]
 			}
 
 		}
