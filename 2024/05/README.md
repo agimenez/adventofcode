@@ -121,8 +121,6 @@ you add up the middle page number from those correctly-ordered updates?*
 
 Your puzzle answer was `5208`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 While the Elves get to work printing the correctly-ordered updates, you have a
@@ -143,4 +141,4 @@ together produces `*123*`.
 Find the updates which are not in the correct order. *What do you get if you
 add up the middle page numbers after correctly ordering just those updates?*
 
-Answer:
+Your puzzle answer was `6732`.
