@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
