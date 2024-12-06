@@ -42,8 +42,16 @@ func main() {
 			start = Point{idx, y}
 		}
 	}
-	visited := walkMap(lines, start, Point{0, 0}.Up())
+	visited := walkMap(lines, start, Point{0, 0}.Up(), nil)
 	part1 = len(visited)
+	for v := range visited {
+		res := walkMap(lines, start, Point{0, 0}.Up(), &v)
+
+		// We have a cycle
+		if res == nil {
+			part2++
+		}
+	}
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
@@ -68,10 +76,22 @@ func printMap(m []string, cur, dir Point) {
 	}
 }
 
-func walkMap(m []string, start, dir Point) map[Point]bool {
+type movement struct {
+	pos Point
+	dir Point
+}
+
+func walkMap(m []string, start, dir Point, injected *Point) map[Point]bool {
+
 	visited := map[Point]bool{}
+	cycle := map[movement]bool{}
 	for {
 		visited[start] = true
+		cur := movement{start, dir}
+		if cycle[cur] {
+			return nil
+		}
+		cycle[cur] = true
 		next := start.Sum(dir)
 		dbg("* Point: %v, dir: %v, next: %v", start, dir, next)
 		c, inside := GetChInPoint(m, next)
@@ -79,8 +99,8 @@ func walkMap(m []string, start, dir Point) map[Point]bool {
 			break
 		}
 
-		if c == '#' {
-			dir = dir.Rotate90()
+		if c == '#' || (injected != nil && *injected == next) {
+			dir = dir.Rotate90CW()
 			continue
 		} else {
 
