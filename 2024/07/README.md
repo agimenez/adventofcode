@@ -56,8 +56,6 @@ calibration result?*
 
 Your puzzle answer was `20281182715321`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The engineers seem concerned; the total calibration result you gave them is
@@ -84,4 +82,4 @@ produces the new *total calibration result* of `*11387*`.
 Using your new knowledge of elephant hiding spots, determine which equations
 could possibly be true. *What is their total calibration result?*
 
-Answer:
+Your puzzle answer was `159490400628354`.
