@@ -65,6 +65,17 @@ func (p Point) Sum(p2 Point) Point {
 	}
 }
 
+func (p Point) Neg() Point {
+	return Point{
+		X: -p.X,
+		Y: -p.Y,
+	}
+}
+
+func (p Point) Sub(p2 Point) Point {
+	return p.Sum(p2.Neg())
+}
+
 func (p Point) ManhattanDistance(p2 Point) int {
 	return Abs(p.X-p2.X) + Abs(p.Y-p2.Y)
 }
