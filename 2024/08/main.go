@@ -44,17 +44,19 @@ func main() {
 		}
 	}
 	dbg("antennas: %v", antennas)
-	antinodes := getAntinodes(lines, antennas)
+	antinodes, tFreqAntinodes := getAntinodes(lines, antennas)
 	dbg("antinodes: %v", antinodes)
 	part1 = len(antinodes)
+	part2 = len(tFreqAntinodes)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
 }
 
-func getAntinodes(m []string, a map[rune][]Point) map[Point]bool {
+func getAntinodes(m []string, a map[rune][]Point) (map[Point]bool, map[Point]bool) {
 	antinodes := map[Point]bool{}
+	tfreq := map[Point]bool{}
 	for freq, antennas := range a {
 		dbg("Checking freq %c", freq)
 		for _, antenna := range antennas {
@@ -73,9 +75,20 @@ func getAntinodes(m []string, a map[rune][]Point) map[Point]bool {
 				if _, ok := GetChInPoint(m, a2); ok {
 					antinodes[a2] = true
 				}
+
+				// t-frequency, we test points in the direction until out of grid
+				dbg(" Checking T-FREQ from %v, dir %v", antenna, dir)
+				for cur := antenna; ; cur = cur.Sum(dir) {
+					dbg("  -> cur = %v dir = %v)", cur, dir)
+					if _, ok := GetChInPoint(m, cur); !ok {
+						break
+					}
+
+					tfreq[cur] = true
+				}
 			}
 		}
 	}
 
-	return antinodes
+	return antinodes, tfreq
 }
