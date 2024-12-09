@@ -98,8 +98,6 @@ puzzle; it is a single, very long line.)
 
 Your puzzle answer was `6283170117911`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 Upon completion, two things immediately become clear. First, the disk
@@ -137,4 +135,4 @@ example's checksum would be `*2858*`.
 Start over, now compacting the amphipod's hard drive using this new method
 instead. *What is the resulting filesystem checksum?*
 
-Answer:
+Your puzzle answer was `6307653242596`.
