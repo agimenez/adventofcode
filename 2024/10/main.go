@@ -34,21 +34,22 @@ func main() {
 	}
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
-	part1 = countScores(lines)
+	part1 = countScores(lines, true)
+	part2 = countScores(lines, false)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
 }
 
-func countScores(s []string) int {
+func countScores(s []string, onlyFirst bool) int {
 	count := 0
 	m := parse(s)
 	dbg("Parsed: %v", m)
 	starts := findTrailHeads(m)
 	dbg("Starts: %v", starts)
 	for _, s := range starts {
-		count += scoreTrailHead(m, s)
+		count += scoreTrailHead(m, s, onlyFirst)
 	}
 
 	return count
@@ -81,7 +82,7 @@ func findTrailHeads(m map[Point]int) []Point {
 	return h
 }
 
-func scoreTrailHead(m map[Point]int, start Point) int {
+func scoreTrailHead(m map[Point]int, start Point, onlyFirst bool) int {
 	paths := 0
 	queue := []Point{start}
 
@@ -93,7 +94,7 @@ func scoreTrailHead(m map[Point]int, start Point) int {
 		dbg("Cur: %v", cur)
 
 		// Do not add to queue if already processed
-		if visited[cur] {
+		if _, ok := visited[cur]; ok && onlyFirst {
 			continue
 		}
 		visited[cur] = true
