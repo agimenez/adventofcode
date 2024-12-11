@@ -33,7 +33,7 @@ func TestMain(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := countTrailHeads(tt.in)
+		l := countScores(tt.in)
 		if l != tt.out {
 			t.Errorf("Test: got %v, expected %v", l, tt.out)
 		}
