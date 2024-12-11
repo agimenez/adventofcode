@@ -74,8 +74,6 @@ have after blinking 25 times?*
 
 Your puzzle answer was `217812`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The Historians sure are taking a long time. To be fair, the infinite corridors
@@ -83,4 +81,4 @@ The Historians sure are taking a long time. To be fair, the infinite corridors
 
 *How many stones would you have after blinking a total of 75 times?*
 
-Answer:
+Your puzzle answer was `259112729857522`.

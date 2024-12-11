@@ -36,40 +36,76 @@ func main() {
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
 	part1 = solve1(lines[0], 25)
+	part2 = solve1(lines[0], 75)
 
 	log.Printf("Part 1: %v\n", part1)
 	log.Printf("Part 2: %v\n", part2)
 
 }
 
-func solve1(s string, count int) int {
-	stones := strings.Fields(s)
+func solve1(s string, blinks int) int {
+	stones := getStones(s)
 	dbg("Initial stones: %v", stones)
-	for i := 0; i < count; i++ {
+	for i := 0; i < blinks; i++ {
 		stones = blink(stones)
 		dbg("New stones (%d): %v", i+1, stones)
 	}
-	return len(stones)
+	return count(stones)
 }
 
-func blink(stones []string) []string {
-	res := []string{}
+func count(s map[string]int) int {
+	count := 0
+	for _, v := range s {
+		count += v
+	}
 
-	for _, s := range stones {
-		val := ToInt(s)
-		if s == "0" {
-			res = append(res, "1")
-		} else if len(s)%2 == 0 {
-			first := ToInt(s[:len(s)/2])
-			second := ToInt(s[len(s)/2:])
-			res = append(res, fmt.Sprintf("%d", first))
-			res = append(res, fmt.Sprintf("%d", second))
+	return count
+}
+
+func getStones(s string) map[string]int {
+	m := map[string]int{}
+	for _, v := range strings.Fields(s) {
+		m[v]++
+	}
+
+	return m
+}
+
+func blink(stones map[string]int) map[string]int {
+	l := []string{}
+	currentStones := map[string]int{}
+	for k, v := range stones {
+		if v == 0 {
+			continue
+		}
+		currentStones[k] = v
+
+		l = append(l, k)
+	}
+
+	dbg("blink: %v", l)
+	for _, v := range l {
+		counts := currentStones[v]
+		val := ToInt(v)
+		dbg(" -> Stone %v, counts %v", v, counts)
+		if v == "0" {
+			stones["0"] -= counts
+			stones["1"] += counts
+		} else if len(v)%2 == 0 {
+			first := ToInt(v[:len(v)/2])
+			second := ToInt(v[len(v)/2:])
+			stones[v] -= counts
+
+			stones[fmt.Sprintf("%d", first)] += counts
+			stones[fmt.Sprintf("%d", second)] += counts
 
 		} else {
 			val *= 2024
-			res = append(res, fmt.Sprintf("%d", val))
+			stones[fmt.Sprintf("%d", val)] += counts
+			stones[v] -= counts
 		}
 	}
+	dbg("return: %v", stones)
 
-	return res
+	return stones
 }
