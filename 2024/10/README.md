@@ -115,8 +115,6 @@ The reindeer gleefully carries over a protractor and adds it to the pile.
 
 Your puzzle answer was `461`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 The reindeer spends a few minutes reviewing your hiking trail map before
@@ -206,4 +204,4 @@ You're not sure how, but the reindeer seems to have crafted some tiny flags
 out of toothpicks and bits of paper and is using them to mark trailheads on
 your topographic map. *What is the sum of the ratings of all trailheads?*
 
-Answer:
+Your puzzle answer was `875`.
