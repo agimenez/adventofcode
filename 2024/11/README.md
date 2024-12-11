@@ -72,6 +72,15 @@ blinking 25 times, you would have `*55312*` stones!
 Consider the arrangement of stones in front of you. *How many stones will you
 have after blinking 25 times?*
 
-To begin, [get your puzzle input](11/input).
+Your puzzle answer was `217812`.
+
+The first half of this puzzle is complete! It provides one gold star: *
+
+## \--- Part Two ---
+
+The Historians sure are taking a long time. To be fair, the infinite corridors
+*are* very large.
+
+*How many stones would you have after blinking a total of 75 times?*
 
 Answer:
