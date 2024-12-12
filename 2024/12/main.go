@@ -42,12 +42,12 @@ func main() {
 
 	now = time.Now()
 	m := lines2map(lines)
-	part1 = solve1(m)
+	part1, part2 = solve1(m)
 	dur[0] = time.Since(now)
 
-	now = time.Now()
-	part2 = solve2(m)
-	dur[1] = time.Since(now)
+	//now = time.Now()
+	//part2 = solve2(m)
+	//dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
 	log.Printf("Part 2 (%v): %v\n", dur[1], part2)
@@ -71,8 +71,9 @@ type region struct {
 	perim int
 }
 
-func solve1(m map[Point]string) int {
+func solve1(m map[Point]string) (int, int) {
 	res := 0
+	res2 := 0
 
 	getAllAdjacentFilter := func(p Point) bool {
 		if _, ok := m[p]; ok {
@@ -100,6 +101,7 @@ func solve1(m map[Point]string) int {
 		plot := getPlot(m, cur, plant)
 		area := len(plot)
 		perimeter := 0
+		sides := 0
 		// Calculate the perimeter by checking neighbours (including off map) that
 		// are a different type of plant
 		for _, p := range plot {
@@ -116,19 +118,72 @@ func solve1(m map[Point]string) int {
 				return false
 
 			})
-			dbg("Plot %v (plant %v) neigh: %v", plant, p, neigh)
+			//dbg("Plot %v (plant %v) neigh: %v", plant, p, neigh)
 			perimeter += len(neigh)
+
+			// My brain is not braining. Just got this from https://github.com/David-Rushton/AdventOfCode-Solutions/blob/main/2024/cmd/day12/main.go
+			// == External corners
+			// Top left
+			if m[p.Up()] != plant && m[p.Left()] != plant {
+				dbg("Plant %v %v ext top left corner!", plant, p)
+				sides++
+			}
+
+			// Top right
+			if m[p.Up()] != plant && m[p.Right()] != plant {
+				dbg("Plant %v %v ext top right corner!", plant, p)
+				sides++
+			}
+
+			// Bottom left
+			if m[p.Down()] != plant && m[p.Left()] != plant {
+				dbg("Plant %v %v ext bottom left corner!", plant, p)
+				sides++
+			}
+
+			// Bottom right
+			if m[p.Down()] != plant && m[p.Right()] != plant {
+				dbg("Plant %v %v ext bottom right corner!", plant, p)
+				sides++
+			}
+
+			// == Internal corners
+			// Top left
+			if m[p.Up().Left()] != plant && m[p.Up()] == plant && m[p.Left()] == plant {
+				dbg("Plant %v %v ext top left corner!", plant, p)
+				sides++
+			}
+
+			// Top right
+			if m[p.Up().Right()] != plant && m[p.Up()] == plant && m[p.Right()] == plant {
+				dbg("Plant %v %v ext top right corner!", plant, p)
+				sides++
+			}
+
+			// Bottom left
+			if m[p.Down().Left()] != plant && m[p.Down()] == plant && m[p.Left()] == plant {
+				dbg("Plant %v %v ext bottom left corner!", plant, p)
+				sides++
+			}
+
+			// Bottom right
+			if m[p.Down().Right()] != plant && m[p.Down()] == plant && m[p.Right()] == plant {
+				dbg("Plant %v %v ext bottom right corner!", plant, p)
+				sides++
+			}
+
 		}
 
-		dbg("Plant %v (%v) plot: %v", plant, cur, plot)
-		dbg("Plant %v (%v) neig: %v", plant, cur, perimeter)
+		dbg("== Plot %v plot: %v", plant, plot)
+		dbg("== Plot %v peri: %v, sides: %v", plant, perimeter, sides)
 		res += area * perimeter
+		res2 += area * sides
 
 		adj := getAdjacent(m, cur, getAllAdjacentFilter)
 		queue = append(queue, adj...)
 	}
 
-	return res
+	return res, res2
 }
 
 func getPlot(m map[Point]string, start Point, plant string) []Point {
