@@ -137,8 +137,6 @@ So, it has a total price of `*1930*`.
 
 Your puzzle answer was `1461806`.
 
-The first half of this puzzle is complete! It provides one gold star: *
-
 ## \--- Part Two ---
 
 Fortunately, the Elves are trying to order so much fence that they qualify for
@@ -226,4 +224,4 @@ Adding these together produces its new total price of `*1206*`.
 
 *What is the new total price of fencing all regions on your map?*
 
-Answer:
+Your puzzle answer was `887932`.
