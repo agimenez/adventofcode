@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ func dbg(fmt string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
 func main() {
 	flag.Parse()
 
@@ -35,30 +37,63 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
+	buttons := map[string]Point{}
+	var prize Point
 
-	var now time.Time
+	buttonsRegex := regexp.MustCompile(`Button ([AB]): X\+(\d+), Y\+(\d+)`)
+	prizeRegex := regexp.MustCompile(`Prize: X=(\d+), Y=(\d+)`)
+
+	for _, l := range lines {
+		if l == "" {
+			continue
+		}
+
+		res := buttonsRegex.FindStringSubmatch(l)
+		if res != nil {
+			buttons[res[1]] = Point{
+				X: ToInt(res[2]),
+				Y: ToInt(res[3]),
+			}
+
+			continue
+		}
+
+		res = prizeRegex.FindStringSubmatch(l)
+		if res != nil {
+			prize.X = ToInt(res[1])
+			prize.Y = ToInt(res[2])
+
+			part1 += solve1(prize, buttons)
+		}
+
+	}
+
 	var dur [2]time.Duration
-
-	now = time.Now()
-	part1 = solve1(lines)
-	dur[0] = time.Since(now)
-
-	now = time.Now()
-	part2 = solve1(lines)
-	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
 	log.Printf("Part 2 (%v): %v\n", dur[1], part2)
 
 }
 
-func solve1(s []string) int {
+func solve1(prize Point, buttons map[string]Point) int {
 	res := 0
+	dbg("Solve: %v, %v", prize, buttons)
+	a := buttons["A"]
+	b := buttons["B"]
+
+	det := (a.X*b.Y - a.Y*b.X)
+
+	na := (prize.X*b.Y - prize.Y*b.X) / det
+	nb := (prize.Y*a.X - a.Y*prize.X) / det
+
+	if na*a.X+nb*b.X == prize.X && na*a.Y+nb*b.Y == prize.Y {
+		res = 3*na + nb
+	}
 
 	return res
 }
 
-func solve2(s []string) int {
+func solve2(s string) int {
 	res := 0
 
 	return res
