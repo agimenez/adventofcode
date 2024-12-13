@@ -64,6 +64,10 @@ func main() {
 			prize.Y = ToInt(res[2])
 
 			part1 += solve1(prize, buttons)
+
+			prize.X += 10000000000000
+			prize.Y += 10000000000000
+			part2 += solve1(prize, buttons)
 		}
 
 	}
