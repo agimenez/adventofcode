@@ -64,11 +64,15 @@ func main() {
 	now = time.Now()
 	g = g.simulate(100)
 	part1 = g.safetyFactor()
-
 	dur[0] = time.Since(now)
 
+	// simulate changes the robots state
+	g.robots = []robot{}
+	for _, l := range lines {
+		g = g.addRobot(l)
+	}
 	now = time.Now()
-	part2 = solve1(lines)
+	part2 = g.simulateUntilTree()
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -85,6 +89,50 @@ func (g grid) simulate(secs int) grid {
 	dbg("== GRID: %v", g)
 
 	return g
+}
+
+func (g grid) simulateUntilTree() int {
+	for i := 1; ; i++ {
+		g = g.step()
+
+		f := g.frequencies()
+		for pos := range f {
+			dirs := []Point{
+				pos.Up(),
+				pos.Up().Right(),
+				pos.Right(),
+				pos.Right().Down(),
+				pos.Down(),
+				pos.Down().Left(),
+				pos.Left(),
+				pos.Left().Up(),
+			}
+
+			hits := 0
+			for _, d := range dirs {
+				if _, ok := f[d]; !ok {
+					break
+				}
+				hits++
+			}
+
+			if hits == len(dirs) {
+				g.printNumbers(P0, Point{g.wide, g.tall})
+				return i
+			}
+		}
+
+	}
+
+}
+
+func (g grid) frequencies() map[Point]int {
+	m := map[Point]int{}
+	for _, r := range g.robots {
+		m[r.pos]++
+	}
+
+	return m
 }
 
 func (g grid) step() grid {
@@ -184,7 +232,7 @@ func (g grid) printNumbers(start, end Point) {
 			}
 
 			if count > 0 {
-				fmt.Printf("%d", count)
+				fmt.Print("#")
 			} else {
 				fmt.Print(".")
 			}
