@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -39,7 +39,7 @@ func main() {
 	flag.Parse()
 
 	part1, part2 := 0, 0
-	p, err := ioutil.ReadAll(os.Stdin)
+	p, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		panic("could not read input")
 	}
