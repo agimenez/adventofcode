@@ -102,6 +102,7 @@ func parseGrid(s []string) grid {
 
 func (g grid) run() grid {
 	for _, instr := range g.moves {
+		dbg("Instruction: %c\n", instr)
 		switch instr {
 		case '<':
 			g = g.move(P0.Left())
@@ -112,7 +113,6 @@ func (g grid) run() grid {
 		case 'v':
 			g = g.move(P0.Down())
 		}
-		dbg("Instruction: %c\n", instr)
 		g.print()
 	}
 
@@ -133,18 +133,113 @@ func (g grid) move(dir Point) grid {
 		return g
 	}
 
-	// There is at least a box
-	lastBox := g.findLastBox(dir)
-	nextAfterLast := lastBox.Sum(dir)
-	// All against a wall, do nothing
-	if g.m[nextAfterLast] == '#' {
+	if dir == P0.Left() || dir == P0.Right() {
+		g = g.moveHorizontal(dir)
 		return g
 	}
 
-	// There is empty space after the stack of boxes
-	g.m[nextAfterLast] = 'O'
-	delete(g.m, next)
-	g.r = next
+	if dir == P0.Up() || dir == P0.Down() {
+		g = g.moveVertical(dir)
+		return g
+	}
+
+	return g
+}
+
+func (g grid) moveHorizontal(dir Point) grid {
+	cur := g.r
+	moves := []Point{}
+	g.print()
+	for {
+		next := cur.Sum(dir)
+		if g.m[next] == '#' {
+			return g
+		}
+
+		moves = append(moves, next)
+		//dbg("moves: %v", moves)
+		if _, ok := g.m[next]; !ok {
+			//dbg(" Found empty space!")
+			for i := len(moves) - 1; i > 0; i-- {
+				g.m[moves[i]] = g.m[moves[i-1]]
+			}
+			delete(g.m, moves[0])
+			g.r = g.r.Sum(dir)
+
+			return g
+		}
+		// g.print()
+		cur = next
+	}
+}
+
+func (g grid) moveVertical(dir Point) grid {
+	cur := g.r
+	moves := []Point{}
+	g.print()
+
+	// At the new Y level, leftmost and rightmost position with a box
+	leftX := cur.X
+	rightX := cur.X
+	for {
+		next := cur.Sum(dir)
+
+		leftmost := Point{leftX, next.Y}
+		rightmost := Point{rightX, next.Y}
+
+		if g.m[leftmost] == ']' {
+			leftX--
+		}
+		if g.m[rightmost] == '[' {
+			rightX++
+		}
+
+		// Once in the next level, the number of boxes can be less than the previous level, so adjust this level's leftmost/rightmost
+		// 0: []..
+		// 1: [][]
+		// 2: .[].
+		// 3: .@..
+		// After pushing level 2, in level 3 leftmost previous == 0, rightmost == 3
+		// So, coming from level 3, level 1 needs to be leftmost == 0, rightmost == *1*
+		for ; g.m[Point{leftX, next.Y}] == 0; leftX++ {
+		}
+		for ; g.m[Point{rightX, next.Y}] == 0; rightX-- {
+		}
+
+		dbg("leftmost: %v, rightmost: %v", leftX, rightX)
+
+		// Scan all the boxes within the found limits above
+		allEmpty := true
+		for x := leftX; x <= rightX; x++ {
+			nextBox := Point{x, next.Y}
+			ch := g.m[nextBox]
+
+			// Can't move
+			if ch == '#' {
+				return g
+			}
+
+			if ch == 'O' || ch == '[' || ch == ']' {
+				moves = append(moves, nextBox)
+				allEmpty = false
+			}
+		}
+		dbg("Moves: %v", moves)
+
+		if allEmpty {
+			for i := len(moves) - 1; i >= 0; i-- {
+				box := moves[i]
+				g.m[box.Sum(dir)] = g.m[box]
+				delete(g.m, box)
+			}
+
+			g.r = g.r.Sum(dir)
+			return g
+		}
+
+		cur = next
+		// g.print()
+	}
 
 	return g
 }
@@ -153,7 +248,8 @@ func (g grid) findLastBox(dir Point) Point {
 	cur := g.r
 	for {
 		next := cur.Sum(dir)
-		if g.m[next] != 'O' {
+		v := g.m[next]
+		if v != 'O' && v != '[' && v != ']' {
 			return cur
 		}
 
@@ -188,7 +284,7 @@ func (g grid) print() {
 func (g grid) GPSCoordinates() []Point {
 	coords := []Point{}
 	for coord, box := range g.m {
-		if box == 'O' {
+		if box == 'O' || box == '[' {
 			coords = append(coords, coord)
 		}
 	}
@@ -199,6 +295,7 @@ func (g grid) GPSCoordinates() []Point {
 func solve1(s []string) int {
 	res := 0
 	g := parseGrid(s)
+	g.print()
 	g = g.run()
 
 	coords := g.GPSCoordinates()
@@ -211,6 +308,53 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+	ag := augmentGrid(s)
+	g := parseGrid(ag)
+	// g.print()
+	g.run()
+	// g.print()
+
+	coords := g.GPSCoordinates()
+	for _, c := range coords {
+		res += 100*c.Y + c.X
+	}
+
+	return res
+}
+
+func augmentGrid(s []string) []string {
+	res := []string{}
+
+	inGrid := true
+	for _, l := range s {
+		if l == "" {
+			inGrid = false
+			res = append(res, "")
+			continue
+		}
+
+		if !inGrid {
+			res = append(res, l)
+			continue
+		}
+
+		var row strings.Builder
+		for _, c := range l {
+			switch c {
+			case '#':
+				row.WriteString("##")
+			case 'O':
+				row.WriteString("[]")
+			case '@':
+				row.WriteString("@.")
+			case '.':
+				row.WriteString("..")
+			}
+		}
+
+		dbg("row: %v\n", row.String())
+		res = append(res, row.String())
+	}
 
 	return res
 }
