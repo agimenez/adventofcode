@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"os"
@@ -74,6 +77,7 @@ func main() {
 	now = time.Now()
 	part2 = g.simulateUntilTree()
 	dur[1] = time.Since(now)
+	g.takeShanpshot()
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
 	log.Printf("Part 2 (%v): %v\n", dur[1], part2)
@@ -239,6 +243,64 @@ func (g grid) printNumbers(start, end Point) {
 		}
 		fmt.Println()
 	}
+}
+
+func (g grid) takeShanpshot() {
+	// Dimensions
+	cellSize := 20 // Each grid cell is 20x20 pixels
+	gridHeight := g.tall
+	gridWidth := g.wide
+
+	// Create a new blank image
+	imgWidth := gridWidth * cellSize
+	imgHeight := gridHeight * cellSize
+	img := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
+
+	// Define colors
+	emptyColor := color.White                 // For "."
+	filledColor := color.RGBA{0, 100, 0, 255} // Green
+
+	// Draw the grid
+	robots := g.frequencies()
+	for y := 0; y < g.tall; y++ {
+		for x := 0; x < g.wide; x++ {
+			// Choose the color based on grid value
+			var cellColor color.Color
+			cellColor = emptyColor
+			if _, ok := robots[Point{x, y}]; ok {
+				cellColor = filledColor
+			}
+
+			// Draw each cell
+			for py := 0; py < cellSize; py++ {
+				for px := 0; px < cellSize; px++ {
+					// Calculate the pixel position
+					imgX := x*cellSize + px
+					imgY := y*cellSize + py
+
+					// Apply border color to edges
+					if px == 0 || px == cellSize-1 || py == 0 || py == cellSize-1 {
+						img.Set(imgX, imgY, cellColor)
+					} else {
+						img.Set(imgX, imgY, cellColor)
+					}
+				}
+			}
+		}
+	}
+
+	// Save the image to a file
+	outputFile, err := os.Create("grid.png")
+	if err != nil {
+		panic(err)
+	}
+	defer outputFile.Close()
+
+	if err := png.Encode(outputFile, img); err != nil {
+		panic(err)
+	}
+
+	println("Grid visualization saved as grid.png")
 }
 
 func solve2(s []string) int {
