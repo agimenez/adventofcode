@@ -103,7 +103,7 @@ func findLowestScore(s []string, start, end Point) (int, map[int]map[Point]bool)
 		queue = queue[1:]
 
 		dbg("cur: %v, len: %v", cur, len(queue))
-		printMap(s, cur.node, nil)
+		printMap(s, cur.node, cur.path)
 
 		if cur.cost > lowestCost {
 			dbg("Abandoning higher cost path: %+v", cur)
@@ -191,7 +191,7 @@ func findNodes(s []string, start, end rune) (Point, Point) {
 	return startPoint, endPoint
 }
 
-func printMap(m []string, dn directedNode, path map[directedNode]directedNode) {
+func printMap(m []string, dn directedNode, path []Point) {
 	if !debug {
 		return
 	}
@@ -208,14 +208,21 @@ func printMap(m []string, dn directedNode, path map[directedNode]directedNode) {
 		ch = '^'
 	}
 
+	points := map[Point]bool{}
+	for _, p := range path {
+		points[p] = true
+	}
+
 	for y, l := range m {
 		for x, c := range l {
 			p := Point{x, y}
-			if dn.pos == p {
-				fmt.Printf("%c", ch)
-			} else {
-				fmt.Printf("%c", c)
+			if _, ok := points[p]; ok {
+				c = '*'
 			}
+			if dn.pos == p {
+				c = ch
+			}
+			fmt.Printf("%c", c)
 		}
 		fmt.Println()
 	}
