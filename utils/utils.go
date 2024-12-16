@@ -84,6 +84,10 @@ func (p Point) Rotate90CW() Point {
 	return Point{-p.Y, p.X}
 }
 
+func (p Point) Rotate90CCW() Point {
+	return Point{p.Y, -p.X}
+}
+
 func GetChInPoint(s []string, p Point) (byte, bool) {
 	if p.Y > len(s)-1 || p.Y < 0 || p.X < 0 || p.X > len(s[0])-1 {
 		return ' ', false
