@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -43,11 +44,11 @@ func main() {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 = solve1(lines)
+	part1, part2 = solve1(lines)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 = solve2(lines)
+	//part2 = solve2(lines)
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -55,37 +56,22 @@ func main() {
 
 }
 
-func solve1(s []string) int {
+func solve1(s []string) (int, int) {
 	res := math.MaxInt
+	res2 := 0
 	start, end := findNodes(s, 'S', 'E')
 
 	dbg("Start: %v, End: %v", start, end)
-	dist, prev := findLowestScore(s, start, end)
-	minScoreNode := directedNode{}
-	for n, v := range dist {
-		dbg("dist[%v]: %v", n.pos, v)
-		if n.pos == end {
-			if v < res {
-				dbg(" - new min score for %v: %v", n, v)
-				res = v
-				minScoreNode = n
-			}
-		}
+	res, paths := findLowestScore(s, start, end)
+	res2 = len(paths[res])
 
-	}
-
-	dbg("PATH")
-	dbg("%v, %+v", prev[minScoreNode], prev)
-	// for cur := prev[minScoreNode]; cur.pos != start; cur = prev[cur] {
-	// 	dbg(" - %v", cur.pos)
-	// }
-
-	return res
+	return res, res2
 }
 
 type step struct {
 	node directedNode
 	cost int
+	path []Point
 }
 
 type directedNode struct {
@@ -93,13 +79,19 @@ type directedNode struct {
 	dir Point
 }
 
-func findLowestScore(s []string, start, end Point) (map[directedNode]int, map[directedNode]directedNode) {
+func findLowestScore(s []string, start, end Point) (int, map[int]map[Point]bool) {
+	initialNode := directedNode{pos: start, dir: P0.Right()}
 	queue := []step{
-		{node: directedNode{pos: start, dir: P0.Right()}, cost: 0},
-	}
+		{
+			node: initialNode,
+			cost: 0,
+			path: []Point{start},
+		}}
 
 	distances := map[directedNode]int{}
-	previous := map[directedNode]directedNode{}
+
+	lowestCost := math.MaxInt
+	bestPaths := map[int]map[Point]bool{}
 
 	for len(queue) > 0 {
 		// Poor man's priority queue
@@ -110,16 +102,29 @@ func findLowestScore(s []string, start, end Point) (map[directedNode]int, map[di
 		cur := queue[0]
 		queue = queue[1:]
 
+		dbg("cur: %v, len: %v", cur, len(queue))
 		printMap(s, cur.node, nil)
-		if _, ok := distances[cur.node]; ok {
-			dbg("Node %+v already visited", cur.node)
+
+		if cur.cost > lowestCost {
+			dbg("Abandoning higher cost path: %+v", cur)
 			continue
 		}
-		distances[cur.node] = cur.cost
 
-		dbg("cur: %v, len: %v", cur, len(queue))
 		if cur.node.pos == end {
 			dbg("FOUND at %+v", cur)
+			if cur.cost <= lowestCost {
+				if _, ok := bestPaths[cur.cost]; !ok {
+					bestPaths[cur.cost] = map[Point]bool{}
+				}
+
+				for _, point := range cur.path {
+					bestPaths[cur.cost][point] = true
+				}
+				lowestCost = cur.cost
+				dbg("Lowest cost path: %v", cur.path)
+
+				continue
+			}
 		}
 
 		// 3 options here: keep same direction, and 2* 90º rotations
@@ -136,27 +141,35 @@ func findLowestScore(s []string, start, end Point) (map[directedNode]int, map[di
 			}
 
 			if ch, ok := GetChInPoint(s, nextNode.pos); ok && ch != '#' {
-				nextCost := 1
+				nextCost := cur.cost + 1
 				if neighDir != cur.node.dir {
 					nextCost += 1000
 				}
-				alt := cur.cost + nextCost
+
+				if prevCost, ok := distances[nextNode]; ok {
+					if prevCost < nextCost {
+						continue
+					}
+				}
+				distances[nextNode] = nextCost
+
+				newPath := slices.Clone(cur.path)
+				newPath = append(newPath, nextNode.pos)
+
 				queue = append(queue,
 					step{
 						node: nextNode,
-						cost: alt,
+						cost: nextCost,
+						path: newPath,
 					},
 				)
-				dbg("Adding previous[%v] -> %v", nextNode, cur.node)
-
-				previous[nextNode] = cur.node
 
 			}
 		}
 
 	}
 
-	return distances, previous
+	return lowestCost, bestPaths
 }
 
 func findNodes(s []string, start, end rune) (Point, Point) {
