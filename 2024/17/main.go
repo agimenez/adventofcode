@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 
@@ -39,14 +40,12 @@ func main() {
 	lines := strings.Split(string(p), "\n")
 	lines = lines[:len(lines)-1]
 	//dbg("lines: %#v", lines)
-	mc := parseProgram(lines)
-	dbg("MC: %+v", mc)
 
 	var now time.Time
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 = solve1(mc)
+	part1 = solve1(lines)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
@@ -69,8 +68,22 @@ func (m minicode) flush() string {
 	return strings.Join(m.buf, ",")
 }
 
-func (m minicode) run() minicode {
+func (m minicode) load(s []string) minicode {
+	tmp := []int{}
 
+	for _, op := range s {
+		tmp = append(tmp, ToInt(op))
+	}
+
+	m.mem = tmp
+
+	return m
+}
+
+func (m minicode) run(d bool) minicode {
+
+	origDebug := debug
+	debug = d
 	for {
 		dbg("%v", m)
 		// halt
@@ -121,16 +134,17 @@ func (m minicode) run() minicode {
 
 		// bdv: B <- A / 2^combo op
 		case 6:
-			m.r["B"] = int(float64(m.r["A"]) / math.Pow(2., float64(comboOperand)))
+			m.r["B"] = m.r["A"] >> comboOperand
 			m.ip += 2
 
 		// cdv: B <- A / 2^combo op
 		case 7:
-			m.r["C"] = int(float64(m.r["A"]) / math.Pow(2., float64(comboOperand)))
+			m.r["C"] = m.r["A"] >> comboOperand
 			m.ip += 2
 		}
 
 	}
+	debug = origDebug
 
 	return m
 }
@@ -157,7 +171,7 @@ func (m minicode) comboOperand(idx int) int {
 	return ret
 }
 
-func parseProgram(s []string) minicode {
+func parseProgram(s []string) (minicode, []string) {
 	mc := minicode{
 		ip: 0,
 		r: map[string]int{
@@ -168,6 +182,7 @@ func parseProgram(s []string) minicode {
 		mem: []int{},
 		buf: []string{},
 	}
+	var prog []string
 
 	reReg := regexp.MustCompile(`Register ([A-C]): (\d+)`)
 
@@ -183,20 +198,21 @@ func parseProgram(s []string) minicode {
 
 			continue
 		} else { //program
-			prog := strings.Fields(l)
-			ops := strings.Split(prog[1], ",")
+			parts := strings.Fields(l)
 
-			for _, op := range ops {
-				mc.mem = append(mc.mem, ToInt(op))
-			}
+			prog = strings.Split(parts[1], ",")
+
 		}
 	}
 
-	return mc
+	return mc, prog
 }
 
-func solve1(mc minicode) string {
-	mc = mc.run()
+func solve1(s []string) string {
+	mc, program := parseProgram(s)
+	dbg("MC: %+v", mc)
+	mc = mc.load(program)
+	mc = mc.run(false)
 	dbg("MC: %v", mc)
 	out := mc.flush()
 
@@ -205,6 +221,36 @@ func solve1(mc minicode) string {
 
 func solve2(s []string) int {
 	res := 0
+	mc, program := parseProgram(s)
+
+	a := 0
+	for proglen := len(program) - 1; proglen >= 0; proglen-- {
+		a <<= 3
+		dbg("ori: %v", program)
+		dbg("A: %v, n: %v", a, proglen)
+
+		m := mc
+		m.r["A"] = a
+		m = m.load(program)
+		m = m.run(false)
+		out := m.buf
+		dbg("run: %q", out)
+		dbg("lst: %q", program[proglen:])
+
+		for !slices.Equal(out, program[proglen:]) {
+			a++
+			dbg(" -> A == %v", a)
+			m := mc
+			m.r["A"] = a
+			m = m.load(program)
+			m = m.run(false)
+			out = m.buf
+			dbg(" -> run: %v", out)
+			dbg(" -> lst: %v", program[proglen:])
+		}
+
+	}
+	res = a
 
 	return res
 }
