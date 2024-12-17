@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -100,8 +99,7 @@ func (m minicode) run(d bool) minicode {
 
 		// adv: A <- A / 2^combo op
 		case 0:
-			dbg("adv: A <- %v (%v / %v)", int(float64(m.r["A"])/math.Pow(2., float64(comboOperand))), float64(m.r["A"]), math.Pow(2., float64(comboOperand)))
-			m.r["A"] = int(float64(m.r["A"]) / math.Pow(2., float64(comboOperand)))
+			m.r["A"] = m.r["A"] >> comboOperand
 			m.ip += 2
 		// bxl: B <- XOR B, literal op
 		case 1:
@@ -213,6 +211,7 @@ func solve1(s []string) string {
 	dbg("MC: %+v", mc)
 	mc = mc.load(program)
 	mc = mc.run(false)
+
 	dbg("MC: %v", mc)
 	out := mc.flush()
 
