@@ -51,7 +51,7 @@ func main() {
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
-	log.Printf("Part 2 (%v): %v\n", dur[1], part2)
+	log.Printf("Part 2 (%v): %v\n", dur[1], lines[part2])
 
 }
 
@@ -72,14 +72,21 @@ func solve1(s []string) (int, int) {
 			continue
 		}
 		score := findLowestScore(grid, start, end)
+		debug = true
+		debug = false
 		if step == 1024 {
 			dbg("%v: Score: %v", step, score)
 			res = score
 		}
+
+		if score == -1 {
+			dbg("%v: Score: %v", step, score)
+			res2 = step
 			break
 		}
 
 	}
+	// res = findLowestScore(grid, start, end)
 
 	//res, paths := findLowestScore(s, start, end)
 	//res2 = len(paths[res])
