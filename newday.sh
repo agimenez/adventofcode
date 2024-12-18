@@ -27,8 +27,12 @@ curl https://adventofcode.com/${year}/day/${day}/input \
 	--silent --cookie "session=${AOC_SESSION}" \
 	--output input.txt
 
-curl https://adventofcode.com/${year}/day/${day} \
-	--silent --cookie "session=${AOC_SESSION}" \
-	| html2markdown --mark-code --asterisk-emphasis > README.md
+cat <<EOF > README.md
+## $year - Day ${day}
+
+\`\`\`
+curl https://adventofcode.com/${year}/day/${day}
+\`\`\`
+EOF
 
 touch test.txt
