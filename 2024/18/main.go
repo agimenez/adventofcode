@@ -7,7 +7,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -59,117 +58,126 @@ func main() {
 func solve1(s []string) (int, int) {
 	res := math.MaxInt
 	res2 := 0
-	start, end := findNodes(s, 'S', 'E')
+	start, end := Point{0, 0}, Point{70, 70}
 
-	dbg("Start: %v, End: %v", start, end)
-	res, paths := findLowestScore(s, start, end)
-	res2 = len(paths[res])
+	grid := newGrid(70, 70)
+
+	for step, coords := range s {
+		printGrid(grid, nil)
+		coords := strings.Split(coords, ",")
+		x := ToInt(coords[0])
+		y := ToInt(coords[1])
+		grid[y][x] = '#'
+		if step < 1024 {
+			continue
+		}
+		score := findLowestScore(grid, start, end)
+		if step == 1024 {
+			dbg("%v: Score: %v", step, score)
+			res = score
+		}
+			break
+		}
+
+	}
+
+	//res, paths := findLowestScore(s, start, end)
+	//res2 = len(paths[res])
 
 	return res, res2
 }
 
-type step struct {
-	node directedNode
+func printGrid(s [][]rune, d map[Point]int) {
+	if !debug {
+		return
+	}
+	for y, l := range s {
+		for x, c := range l {
+			p := Point{x, y}
+			if _, ok := d[p]; ok {
+				fmt.Print("O")
+			} else {
+				fmt.Printf("%c", c)
+			}
+		}
+		println()
+	}
+	println()
+}
+
+func newGrid(w, h int) [][]rune {
+	h++
+	w++
+	s := make([][]rune, h)
+	for y := 0; y < h; y++ {
+		s[y] = append(s[y], []rune(strings.Repeat(".", w))...)
+	}
+	dbg("Grid: %v", s)
+
+	return s
+}
+
+type path struct {
+	node Point
 	cost int
-	path []Point
 }
 
-type directedNode struct {
-	pos Point
-	dir Point
-}
-
-func findLowestScore(s []string, start, end Point) (int, map[int]map[Point]bool) {
-	initialNode := directedNode{pos: start, dir: P0.Right()}
-	queue := []step{
-		{
-			node: initialNode,
-			cost: 0,
-			path: []Point{start},
-		}}
-
-	distances := map[directedNode]int{}
-
-	lowestCost := math.MaxInt
-	bestPaths := map[int]map[Point]bool{}
+func findLowestScore(g [][]rune, start, end Point) int {
+	queue := []path{{node: start, cost: start.ManhattanDistance(end)}}
+	distances := map[Point]int{
+		start: 0,
+	}
 
 	for len(queue) > 0 {
 		// Poor man's priority queue
 		sort.Slice(queue, func(i, j int) bool {
 			return queue[i].cost < queue[j].cost
 		})
+		dbg("Q: %v", queue)
 
 		cur := queue[0]
 		queue = queue[1:]
 
-		dbg("cur: %v, len: %v", cur, len(queue))
-		printMap(s, cur.node, cur.path)
-
-		if cur.cost > lowestCost {
-			dbg("Abandoning higher cost path: %+v", cur)
-			continue
+		dbg("CUR: %v", cur)
+		if cur.node == end {
+			return distances[cur.node]
 		}
 
-		if cur.node.pos == end {
-			dbg("FOUND at %+v", cur)
-			if cur.cost <= lowestCost {
-				if _, ok := bestPaths[cur.cost]; !ok {
-					bestPaths[cur.cost] = map[Point]bool{}
-				}
+		directions := []Point{
+			P0.Right(),
+			P0.Down(),
+			P0.Left(),
+			P0.Up(),
+		}
 
-				for _, point := range cur.path {
-					bestPaths[cur.cost][point] = true
-				}
-				lowestCost = cur.cost
-				dbg("Lowest cost path: %v", cur.path)
-
+		for _, dir := range directions {
+			next := cur.node.Sum(dir)
+			dbg(" -> %v", next)
+			if next.X < 0 || next.X >= len(g) || next.Y < 0 || next.Y >= len(g[0]) {
 				continue
 			}
-		}
 
-		// 3 options here: keep same direction, and 2* 90º rotations
-		directions := []Point{
-			cur.node.dir,
-			cur.node.dir.Rotate90CCW(),
-			cur.node.dir.Rotate90CW(),
-		}
-
-		for _, neighDir := range directions {
-			nextNode := directedNode{
-				pos: cur.node.pos.Sum(neighDir),
-				dir: neighDir,
+			if ch := g[next.X][next.Y]; ch == '#' {
+				continue
 			}
 
-			if ch, ok := GetChInPoint(s, nextNode.pos); ok && ch != '#' {
-				nextCost := cur.cost + 1
-				if neighDir != cur.node.dir {
-					nextCost += 1000
-				}
-
-				if prevCost, ok := distances[nextNode]; ok {
-					if prevCost < nextCost {
-						continue
-					}
-				}
-				distances[nextNode] = nextCost
-
-				newPath := slices.Clone(cur.path)
-				newPath = append(newPath, nextNode.pos)
-
-				queue = append(queue,
-					step{
-						node: nextNode,
-						cost: nextCost,
-						path: newPath,
-					},
-				)
-
+			nextDist := distances[cur.node] + 1
+			if _, ok := distances[next]; !ok {
+				distances[next] = nextDist
+				queue = append(queue, path{
+					node: next,
+					cost: nextDist + next.ManhattanDistance(end),
+				})
 			}
 		}
+		dbg("DIST: %v", distances)
+		// debug = true
+		printGrid(g, distances)
+		// debug = false
 
 	}
 
-	return lowestCost, bestPaths
+	return -1
 }
 
 func findNodes(s []string, start, end rune) (Point, Point) {
@@ -191,44 +199,6 @@ func findNodes(s []string, start, end rune) (Point, Point) {
 	return startPoint, endPoint
 }
 
-func printMap(m []string, dn directedNode, path []Point) {
-	if !debug {
-		return
-	}
-
-	var ch rune
-	switch dn.dir {
-	case P0.Right():
-		ch = '>'
-	case P0.Down():
-		ch = 'v'
-	case P0.Left():
-		ch = '<'
-	case P0.Up():
-		ch = '^'
-	}
-
-	points := map[Point]bool{}
-	for _, p := range path {
-		points[p] = true
-	}
-
-	for y, l := range m {
-		for x, c := range l {
-			p := Point{x, y}
-			if _, ok := points[p]; ok {
-				c = '*'
-			}
-			if dn.pos == p {
-				c = ch
-			}
-			fmt.Printf("%c", c)
-		}
-		fmt.Println()
-	}
-
-	// fmt.Println()
-}
 func solve2(s []string) int {
 	res := 0
 
