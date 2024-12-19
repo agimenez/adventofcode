@@ -7,8 +7,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -55,7 +53,58 @@ func main() {
 func solve1(s []string) int {
 	res := 0
 
+	patterns := []string{}
+	inPatterns := true
+	cache := map[string]int{}
+
+	for _, l := range s {
+		if l == "" {
+			inPatterns = false
+			continue
+		}
+
+		if inPatterns {
+			patterns = strings.Split(l, ", ")
+			continue
+		}
+
+		dbg("== Line: %q", l)
+		match := matchLine(l, patterns, cache)
+		dbg("== %q matches: %v", l, match)
+		if match > 0 {
+			res++
+		}
+	}
+
 	return res
+}
+
+func matchLine(l string, patterns []string, cache map[string]int) int {
+	if len(l) == 0 {
+		return 1
+	}
+
+	if v, ok := cache[l]; ok {
+		return v
+	}
+
+	matches := 0
+	dbg(" -> STR: %q", l)
+	for _, p := range patterns {
+		plen := len(p)
+		if plen > len(l) {
+			continue
+		}
+		dbg("   -> CMP %q, %q", p, l[:plen])
+
+		if p == l[:plen] {
+			dbg("   -> NEXT %q|%q", l[:plen], l[plen:])
+			matches += matchLine(l[plen:], patterns, cache)
+		}
+	}
+	cache[l] = matches
+
+	return matches
 }
 
 func solve2(s []string) int {
