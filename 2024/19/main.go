@@ -38,11 +38,11 @@ func main() {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 = solve1(lines)
+	part1, part2 = solve1(lines)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 = solve2(lines)
+	// part2 = solve2(lines)
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -50,7 +50,7 @@ func main() {
 
 }
 
-func solve1(s []string) int {
+func solve1(s []string) (int, int) {
 	res := 0
 
 	patterns := []string{}
@@ -75,8 +75,13 @@ func solve1(s []string) int {
 			res++
 		}
 	}
+	dbg("Cache: %v", cache)
+	total := 0
+	for _, l := range s {
+		total += cache[l]
+	}
 
-	return res
+	return res, total
 }
 
 func matchLine(l string, patterns []string, cache map[string]int) int {
