@@ -74,11 +74,11 @@ func main() {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 = solve1(g)
+	part1 = solve1(g, 2)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 = solve2(lines)
+	part2 = solve1(g, 20)
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -113,13 +113,17 @@ func NewGrid(lines []string) grid {
 
 }
 
-func solve1(g grid) int {
+func solve1(g grid, cheatTime int) int {
 	res := 0
 
 	dist := bfs(g, g.start, g.end)
-	savings := g.getCheatSavings(dist, 2)
+	savings := g.getCheatSavings(dist, cheatTime)
 
+	fmt.Printf("== CheatTime: %v\n", cheatTime)
 	for savings, cheats := range savings {
+		if savings >= 50 {
+			fmt.Printf("There are %v cheats that save %v picoseconds\n", cheats, savings)
+		}
 		if savings >= 100 {
 			res += cheats
 		}
@@ -141,12 +145,13 @@ func (g grid) getCheatSavings(distances map[Point]int, ps int) map[int]int {
 			for dx := -ps; dx <= ps; dx++ {
 				dif := Point{dx, dy}
 				candidate := p.Sum(dif)
-				if p == candidate || p.ManhattanDistance(candidate) > ps {
+				dist := p.ManhattanDistance(candidate)
+				if p == candidate || dist > ps {
 					continue
 				}
 
 				if candidateCost, exists := distances[candidate]; exists {
-					savings := candidateCost - cost - ps
+					savings := candidateCost - cost - dist
 					if savings > 0 {
 						dbg(" -> %v cost: %v (shortcut -> %v)", candidate, candidateCost, savings)
 						cheats[savings]++
