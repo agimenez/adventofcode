@@ -88,6 +88,26 @@ func (p Point) Rotate90CCW() Point {
 	return Point{p.Y, -p.X}
 }
 
+func (p Point) Adjacent(diagonals bool) []Point {
+	dirs := []Point{
+		p.Up(),
+		p.Right(),
+		p.Down(),
+		p.Left(),
+	}
+
+	if diagonals {
+		dirs = append(dirs, []Point{
+			p.Up().Right(),
+			p.Down().Right(),
+			p.Down().Left(),
+			p.Left().Up(),
+		}...)
+	}
+
+	return dirs
+}
+
 func GetChInPoint(s []string, p Point) (byte, bool) {
 	if p.Y > len(s)-1 || p.Y < 0 || p.X < 0 || p.X > len(s[0])-1 {
 		return ' ', false

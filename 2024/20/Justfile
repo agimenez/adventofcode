@@ -2,7 +2,7 @@
 default:
 	go run main.go -debug < test.txt
 
-test:
+t:
 	go run main.go < test.txt
 
 a:
