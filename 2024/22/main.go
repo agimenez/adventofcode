@@ -92,5 +92,43 @@ func mix(secret int, value int) int {
 func solve2(s []string) int {
 	res := 0
 
+	prices := map[[4]int]int{}
+	for _, l := range s {
+		secret := ToInt(l)
+		loops := 2000
+		window := [4]int{10, 10, 10, 10}
+		seen := map[[4]int]bool{}
+		for loops > 0 {
+			prevPrice := secret % 10
+			curSecret := nextSecret(secret)
+			curPrice := curSecret % 10
+			diff := curPrice - prevPrice
+			dbg("%10d: %d (%d)", secret, prevPrice, diff)
+
+			window[0] = window[1]
+			window[1] = window[2]
+			window[2] = window[3]
+			window[3] = diff
+
+			if !seen[window] {
+				seen[window] = true
+				prices[window] += curPrice
+			}
+
+			secret = curSecret
+			loops--
+		}
+	}
+
+	maxPrice := 0
+	for window, price := range prices {
+		if price > maxPrice {
+			dbg("Found max %v (> %v) at window %v", price, maxPrice, window)
+			maxPrice = price
+		}
+	}
+
+	res = maxPrice
+
 	return res
 }
