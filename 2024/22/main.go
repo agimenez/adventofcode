@@ -55,7 +55,38 @@ func main() {
 func solve1(s []string) int {
 	res := 0
 
+	for _, l := range s {
+		secret := evolve(ToInt(l), 2000)
+		res += secret
+		dbg("%v -> %v", l, secret)
+	}
+
 	return res
+}
+
+func evolve(secret int, loops int) int {
+	for loops > 0 {
+		secret = nextSecret(secret)
+		loops--
+	}
+
+	return secret
+}
+
+func nextSecret(secret int) int {
+	secret = prune(mix(secret, secret*64))
+	secret = prune(mix(secret, secret/32))
+	secret = prune(mix(secret, secret*2048))
+
+	return secret
+}
+
+func prune(secret int) int {
+	return secret % (1 << 24)
+}
+
+func mix(secret int, value int) int {
+	return secret ^ value
 }
 
 func solve2(s []string) int {
