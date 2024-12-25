@@ -83,7 +83,7 @@ func main() {
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 = solve2(lines)
+	part2 = solve2(circuit)
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -187,8 +187,83 @@ func solve1(c circuit) int {
 	return res
 }
 
-func solve2(s []string) int {
+func (g gate) inputsXY() bool {
+	return (g.in0[0] == 'x' && g.in1[0] == 'y' || g.in0[0] == 'y' && g.in1[0] == 'x')
+}
+
+func (g gate) inputsXY00() bool {
+	return g.in0 == "x00" && g.in1 == "y00" || g.in0 == "y00" && g.in1 == "x00"
+}
+
+// Oh boi, this was too much for me.
+// Just try to implement https://www.reddit.com/r/adventofcode/comments/1hla5ql/2024_day_24_part_2_a_guide_on_the_idea_behind_the/?utm_name=web3xcss
+func solve2(c circuit) int {
 	res := 0
+	swap := []string{}
+	debug = true
+	for name, gate := range c.gates {
+		// If the output of a gate is z, then the operation has to be XOR unless it is the last bit.
+		if gate.out[0] == 'z' && gate.out != "z45" && gate.op != "XOR" {
+			dbg(" -> %v: %+v BAD Z NON-XOR!", name, gate)
+			swap = append(swap, name)
+			continue
+		}
+
+		// If the output of a gate is not z and the inputs are not x, y then it has to be AND / OR, but not XOR.
+		if gate.out[0] != 'z' && gate.op == "XOR" && !gate.inputsXY() {
+			if gate.op == "XOR" {
+				dbg(" -> %v: %+v BAD NON-Z XOR!", name, gate)
+				swap = append(swap, name)
+				continue
+			}
+		}
+
+		// If you have a XOR gate with inputs x, y, there must be
+		// another XOR gate with this gate as an input. Search through
+		// all gates for an XOR-gate with this gate as an input; if it
+		// does not exist, your (original) XOR gate is faulty.
+		// These don't apply for the gates with input x00, y00
+		if gate.op == "XOR" && gate.inputsXY() && !gate.inputsXY00() {
+			found := false
+			for _, g := range c.gates {
+				if g.op == "XOR" && (g.in0 == name || g.in1 == name) {
+					found = true
+					break
+				}
+
+			}
+			if !found {
+				dbg(" -> %v: %+v BAD XOR", name, gate)
+				swap = append(swap, name)
+			}
+
+			continue
+		}
+
+		// If you have an AND-gate, there must be an OR-gate with this
+		// gate as an input. If that gate doesn't exist, the original
+		// AND gate is faulty.
+		// These don't apply for the gates with input x00, y00
+		if gate.op == "AND" && gate.inputsXY() && !gate.inputsXY00() {
+			found := false
+			for _, g := range c.gates {
+				if g.op == "OR" && (g.in0 == name || g.in1 == name) {
+					found = true
+					break
+				}
+
+			}
+			if !found {
+				dbg(" -> %v: %+v BAD AND", name, gate)
+				swap = append(swap, name)
+			}
+
+			continue
+		}
+
+	}
+	slices.Sort(swap)
+	dbg("Swaps: %v", strings.Join(swap, ","))
 
 	return res
 }
