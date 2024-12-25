@@ -6,6 +6,7 @@ import (
 	"log"
 	"maps"
 	"os"
+	"slices"
 	"strings"
 	"time"
 	//. "github.com/agimenez/adventofcode/utils"
@@ -31,7 +32,7 @@ type graph map[string]map[string]bool
 func main() {
 	flag.Parse()
 
-	part1, part2 := 0, 0
+	part1 := 0
 	p, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		panic("could not read input")
@@ -52,7 +53,7 @@ func main() {
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 = solve2(lines)
+	part2 := solve2(g)
 	dur[1] = time.Since(now)
 
 	log.Printf("Part 1 (%v): %v\n", dur[0], part1)
@@ -94,14 +95,14 @@ func (g graph) vertices() map[string]bool {
 // R (Current Clique): A set representing the current clique being constructed.
 // P (Potential Candidates): A set of vertices that can be added to R to form a larger clique.
 // X (Excluded Vertices): A set of vertices that have already been processed and should not be reconsidered for the current clique.
-func (g graph) BronKerbosch(R, P, X map[string]bool) []map[string]bool {
+func (g graph) BronKerbosch(R, P, X map[string]bool, setsize int) []map[string]bool {
 	clique := []map[string]bool{}
 
 	// This is supposed to be as follows:
 	// if len(P) == 0 && len(X) == 0 {
 	// However, that finds maxima cliques (not groups of 3, which could be part of a bigger one),
 	// so we just return when we have a clique of size=3
-	if len(R) == 3 {
+	if (setsize > 0 && len(R) == setsize) || (len(P) == 0 && len(X) == 0) {
 		clique = append(clique, R)
 		return clique
 	}
@@ -124,7 +125,7 @@ func (g graph) BronKerbosch(R, P, X map[string]bool) []map[string]bool {
 				newX[n] = true
 			}
 		}
-		clique = append(clique, g.BronKerbosch(newR, newP, newX)...)
+		clique = append(clique, g.BronKerbosch(newR, newP, newX, setsize)...)
 		delete(P, v)
 		X[v] = true
 	}
@@ -136,7 +137,7 @@ func solve1(g graph) int {
 	R := map[string]bool{}
 	P := g.vertices()
 	X := map[string]bool{}
-	cliques := g.BronKerbosch(R, P, X)
+	cliques := g.BronKerbosch(R, P, X, 3)
 
 	for _, c := range cliques {
 		dbg("Clique: %v", c)
@@ -157,8 +158,26 @@ func solve1(g graph) int {
 	return res
 }
 
-func solve2(s []string) int {
-	res := 0
+func solve2(g graph) string {
+	R := map[string]bool{}
+	P := g.vertices()
+	X := map[string]bool{}
+	cliques := g.BronKerbosch(R, P, X, -1)
 
-	return res
+	var maximumClique map[string]bool
+	for _, c := range cliques {
+		dbg("Clique: %v", c)
+		if len(c) > len(maximumClique) {
+			maximumClique = c
+			dbg(" -> NEWMAX!")
+		}
+	}
+
+	parts := []string{}
+	for n := range maximumClique {
+		parts = append(parts, n)
+	}
+	slices.Sort(parts)
+
+	return strings.Join(parts, ",")
 }
