@@ -1,14 +1,16 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"flag"
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-
-	. "github.com/agimenez/adventofcode/utils"
+	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -41,6 +43,23 @@ func main() {
 
 }
 
+func hackHash(secret string) int {
+	i := 0
+	for {
+		dbg("Trying %d", i)
+		padding := strconv.Itoa(i)
+		hash := md5.Sum([]byte(secret + padding))
+		str := hex.EncodeToString(hash[:])
+		if strings.HasPrefix(str, "00000") {
+			break
+		}
+		i++
+	}
+
+	return i
+
+}
+
 func solve(lines []string) (int, int, time.Duration, time.Duration) {
 	var now time.Time
 	var dur [2]time.Duration
@@ -58,7 +77,7 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 }
 
 func solve1(s []string) int {
-	res := 0
+	res := hackHash(s[0])
 
 	return res
 }
