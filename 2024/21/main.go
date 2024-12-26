@@ -205,6 +205,10 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	for _, code := range s {
+		res += getScore(code, 26)
+	}
+
 	return res
 }
 
