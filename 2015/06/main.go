@@ -57,21 +57,21 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-type grid map[Point]bool
+type grid map[Point]int
 
 func (g grid) toggleLights(start Point, end Point) {
 	for y := start.Y; y <= end.Y; y++ {
 		for x := start.X; x <= end.X; x++ {
 			p := Point{y, x}
-			g[p] = !g[p]
+			g[p] = 1 - g[p]
 		}
 	}
 }
 
 func (g grid) turnLights(s string, start Point, end Point) {
-	val := false
+	val := 0
 	if s == "on" {
-		val = true
+		val = 1
 	}
 
 	for y := start.Y; y <= end.Y; y++ {
@@ -121,7 +121,7 @@ func solve1(s []string) int {
 	}
 
 	for _, on := range g {
-		if on {
+		if on == 1 {
 			res++
 		}
 	}
@@ -129,8 +129,67 @@ func solve1(s []string) int {
 	return res
 }
 
+func adjustBrightness(grid []int, start, end Point, diff int) {
+	for y := start.Y; y <= end.Y; y++ {
+		for x := start.X; x <= end.X; x++ {
+			grid[y*1000+x] += diff
+			if grid[y*1000+x] < 0 {
+				grid[y*1000+x] = 0
+			}
+		}
+	}
+}
 func solve2(s []string) int {
 	res := 0
+
+	g := make([]int, 1000*1000)
+	for _, l := range s {
+		parts := strings.Split(l, " ")
+
+		var start, end Point
+		var diff int
+		if parts[0] == "turn" {
+			s := strings.Split(parts[2], ",")
+			start = Point{
+				Y: ToInt(s[0]),
+				X: ToInt(s[1]),
+			}
+
+			e := strings.Split(parts[4], ",")
+			end = Point{
+				Y: ToInt(e[0]),
+				X: ToInt(e[1]),
+			}
+
+			if parts[1] == "on" {
+				diff = 1
+			} else {
+				diff = -1
+			}
+
+		} else if parts[0] == "toggle" {
+			s := strings.Split(parts[1], ",")
+			start = Point{
+				Y: ToInt(s[0]),
+				X: ToInt(s[1]),
+			}
+
+			e := strings.Split(parts[3], ",")
+			end = Point{
+				Y: ToInt(e[0]),
+				X: ToInt(e[1]),
+			}
+
+			diff = 2
+		}
+
+		adjustBrightness(g, start, end, diff)
+
+	}
+
+	for _, brightness := range g {
+		res += brightness
+	}
 
 	return res
 }
