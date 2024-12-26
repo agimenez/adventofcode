@@ -4,6 +4,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -80,5 +81,45 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	for _, l := range s {
+		if l == "" {
+			continue
+		}
+
+		houses := map[bool]map[Point]int{
+			true:  {P0: 1},
+			false: {P0: 1},
+		}
+		pos := map[bool]Point{
+			true:  P0,
+			false: P0,
+		}
+		turnSanta := true
+		for _, dir := range l {
+			cur := pos[turnSanta]
+			switch dir {
+			case '>':
+				cur = cur.Right()
+
+			case 'v':
+				cur = cur.Down()
+
+			case '<':
+				cur = cur.Left()
+
+			case '^':
+				cur = cur.Up()
+			}
+			houses[turnSanta][cur]++
+			pos[turnSanta] = cur
+			turnSanta = !turnSanta
+		}
+
+		union := maps.Clone(houses[true])
+		for p := range houses[false] {
+			union[p]++
+		}
+		res = len(union)
+	}
 	return res
 }
