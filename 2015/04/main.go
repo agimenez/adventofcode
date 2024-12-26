@@ -43,14 +43,15 @@ func main() {
 
 }
 
-func hackHash(secret string) int {
+func hackHash(secret string, zeros int) int {
 	i := 0
+	zeroCmp := strings.Repeat("0", zeros)
 	for {
 		dbg("Trying %d", i)
 		padding := strconv.Itoa(i)
 		hash := md5.Sum([]byte(secret + padding))
 		str := hex.EncodeToString(hash[:])
-		if strings.HasPrefix(str, "00000") {
+		if strings.HasPrefix(str, zeroCmp) {
 			break
 		}
 		i++
@@ -77,13 +78,13 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 }
 
 func solve1(s []string) int {
-	res := hackHash(s[0])
+	res := hackHash(s[0], 5)
 
 	return res
 }
 
 func solve2(s []string) int {
-	res := 0
+	res := hackHash(s[0], 6)
 
 	return res
 }

@@ -12,7 +12,7 @@ func TestMain(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := hackHash(tt.in)
+		l := hackHash(tt.in, 5)
 		if l != tt.out {
 			t.Errorf("Test: got %v, expected %v", l, tt.out)
 		}
