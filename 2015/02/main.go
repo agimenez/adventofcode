@@ -4,8 +4,8 @@ import (
 	"flag"
 	"io"
 	"log"
-	"math"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -53,38 +53,44 @@ func main() {
 
 }
 
-func sqFeet(box string) int {
-	res := 0
+func sqFeet(box string) (int, int) {
+	wrap, ribbon := 0, 1
 	parts := strings.Split(box, "x")
 
 	l := utils.ToInt(parts[0])
 	w := utils.ToInt(parts[1])
 	h := utils.ToInt(parts[2])
+	sides := []int{
+		l,
+		w,
+		h,
+	}
+	slices.Sort(sides)
 
-	minSide := math.MaxInt
 	areas := []int{
 		l * w,
 		w * h,
 		h * l,
 	}
+	slices.Sort(areas)
 
 	dbg("box: %v, areas: %v", box, areas)
-	for _, a := range areas {
-		res += 2 * a
-		if a < minSide {
-			minSide = a
-		}
+	for i := range areas {
+		wrap += 2 * areas[i]
+		ribbon *= sides[i]
 	}
 
-	res += minSide
+	wrap += areas[0]
+	ribbon += 2*sides[0]   + 2*sides[1]
 
-	return res
+	return wrap, ribbon
 }
 
 func solve1(s []string) int {
 	res := 0
 	for _, box := range s {
-		res += sqFeet(box)
+		r, _ := sqFeet(box)
+		res += r
 	}
 
 	return res
@@ -92,6 +98,11 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	for _, box := range s {
+		_, r := sqFeet(box)
+		res += r
+	}
 
 	return res
 }
