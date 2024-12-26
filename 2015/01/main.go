@@ -66,7 +66,17 @@ func solve1(s string) int {
 }
 
 func solve2(s string) int {
-	res := 0
+	cur := 0
+	for i, c := range s {
+		if c == '(' {
+			cur++
+		} else if c == ')' {
+			cur--
+		}
+		if cur == -1 {
+			return i   + 1
+		}
+	}
 
-	return res
+	return 0
 }
