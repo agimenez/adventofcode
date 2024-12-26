@@ -5,8 +5,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -105,6 +108,17 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+	// Well... erm...
+	// So RE2 doesn't support backreferences, so I can't be even bothered...
+	cmd := `grep -E '([a-zA-Z]{2}).*\1' input.txt | grep -E '(\w).\1' | wc -l`
+	out, err := exec.Command("bash", "-c", cmd).Output()
+	if err != nil {
+		panic("exec")
+	}
+
+	dbg("Out: %q", string(out))
+	res = utils.ToInt(string(out[:len(out)-1]))
+	dbg("res: %v", res)
 
 	return res
 }

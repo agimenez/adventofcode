@@ -12,7 +12,7 @@ ad:
 	go run main.go -debug < input.txt
 
 test:
-	go test
+	go test -v
 
 help:
 	@just -l
