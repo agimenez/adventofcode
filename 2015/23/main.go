@@ -58,11 +58,11 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-func runProgram(s []string) (int, int) {
+func runProgram(s []string, a, b int) (int, int) {
 
 	reg := map[string]int{
-		"a": 0,
-		"b": 0,
+		"a": a,
+		"b": b,
 	}
 	pc := 0
 
@@ -119,12 +119,13 @@ func runProgram(s []string) (int, int) {
 func solve1(s []string) int {
 	res := 0
 
-	_, res = runProgram(s)
+	_, res = runProgram(s, 0, 0)
 	return res
 }
 
 func solve2(s []string) int {
 	res := 0
+	_, res = runProgram(s, 1, 0)
 
 	return res
 }
