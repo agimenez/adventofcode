@@ -82,5 +82,53 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	cur := P0
+	dir := P0.Up()
+	visited := map[Point]bool{P0: true}
+	minP, maxP := Point{0, 0}, Point{0, 0}
+	for _, instr := range strings.Split(s[0], ", ") {
+		dbg("cur: %v, instr: %v", cur, instr)
+		if instr[0] == 'R' {
+			dir = dir.Rotate90CW()
+		} else {
+			dir = dir.Rotate90CCW()
+		}
+
+		for range ToInt(string(instr[1:])) {
+			cur = cur.Sum(dir)
+			minP = minP.Min(cur)
+			maxP = maxP.Max(cur)
+
+			if !visited[cur] {
+				visited[cur] = true
+			} else {
+				return cur.ManhattanDistance(P0)
+
+			}
+			dbg("minmax: %v - %v", minP, maxP)
+			printVisited(visited, minP, maxP)
+			time.Sleep(20 * time.Millisecond)
+		}
+
+	}
+
+	res = cur.ManhattanDistance(P0)
+
 	return res
+}
+
+func printVisited(visited map[Point]bool, minP, maxP Point) {
+	println("== MAP ==")
+	for y := minP.Y; y <= maxP.Y; y++ {
+		for x := minP.X; x <= maxP.X; x++ {
+			p := Point{x, y}
+			if !visited[p] {
+				print(".")
+			} else {
+				print("#")
+			}
+		}
+		println("")
+	}
+	println("-------")
 }
