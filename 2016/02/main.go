@@ -25,12 +25,6 @@ func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
 
-var grid = []string{
-	"123",
-	"456",
-	"789",
-}
-
 func main() {
 	flag.Parse()
 
@@ -48,7 +42,7 @@ func main() {
 
 }
 
-func solve(lines []string) (int, int, time.Duration, time.Duration) {
+func solve(lines []string) (int, string, time.Duration, time.Duration) {
 	var now time.Time
 	var dur [2]time.Duration
 
@@ -62,6 +56,12 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 	return part1, part2, dur[0], dur[1]
 
+}
+
+var grid = []string{
+	"123",
+	"456",
+	"789",
 }
 
 func solve1(s []string) int {
@@ -93,8 +93,43 @@ func solve1(s []string) int {
 	return res
 }
 
-func solve2(s []string) int {
-	res := 0
+var grid2 = []string{
+	"  1",
+	" 234",
+	"56789",
+	" ABC",
+	"  D",
+}
+
+func solve2(s []string) string {
+	res := ""
+
+	cur := Point{0, 2}
+	dirs := map[rune]Point{
+		'U': P0.Up(),
+		'R': P0.Right(),
+		'D': P0.Down(),
+		'L': P0.Left(),
+	}
+	curChar, _ := GetChInPoint(grid2, cur)
+	chars := []rune{}
+	for _, l := range s {
+		for _, c := range l {
+			nextPos := cur.Sum(dirs[c])
+			nextChar, ok := GetChInPoint(grid2, nextPos)
+			dbg("DIR: %c, CUR: '%c', CURP: %v", c, curChar, cur)
+			dbg(" - NEXTP: %v, NEXTC: '%c'", nextPos, nextChar)
+			if ok && nextChar != ' ' {
+				cur = nextPos
+				curChar = nextChar
+				dbg(" - SWAP!")
+			}
+		}
+		dbg("Next: %c\n\n", curChar)
+		chars = append(chars, rune(curChar))
+	}
+	dbg("Chars: %v", string(chars))
+	res = string(chars)
 
 	return res
 }

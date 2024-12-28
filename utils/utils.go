@@ -109,7 +109,7 @@ func (p Point) Adjacent(diagonals bool) []Point {
 }
 
 func GetChInPoint(s []string, p Point) (byte, bool) {
-	if p.Y > len(s)-1 || p.Y < 0 || p.X < 0 || p.X > len(s[0])-1 {
+	if p.Y > len(s)-1 || p.Y < 0 || p.X < 0 || p.X > len(s[p.Y])-1 {
 		return ' ', false
 	}
 
