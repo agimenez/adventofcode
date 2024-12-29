@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -101,6 +102,61 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	for _, l := range s {
+		freqs := map[rune]int{}
+		parts := strings.Split(l, "-")
+		name := strings.Join(parts[:len(parts)-1], "")
+		dbg("Line: %v", l)
+		dbg(" -> name: %v", name)
+		for _, c := range name {
+			freqs[c]++
+		}
+
+		charSlice := []rune{}
+		for k := range freqs {
+			charSlice = append(charSlice, k)
+		}
+		sort.Slice(charSlice, func(a, b int) bool {
+			fa := freqs[charSlice[a]]
+			fb := freqs[charSlice[b]]
+			if fa == fb {
+				return charSlice[a] < charSlice[b]
+			}
+
+			return fa > fb
+		})
+		dbg(" -> sorted: %v", string(charSlice))
+
+		last := strings.Split(parts[len(parts)-1], "[")
+		room := utils.ToInt(last[0])
+		checksum := last[1][:len(last[1])-1]
+		dbg(" -> Room: %v, check: %v", room, checksum)
+		if string(charSlice[:5]) == checksum {
+			rot := room % 26
+			dbg(" -> ROT: %v (%v)", rot, ('z' - 'a'))
+			var place []rune
+			for _, c := range strings.Join(parts[:len(parts)-1], " ") {
+				if c == ' ' {
+					fmt.Print(" ")
+					place = append(place, c)
+					continue
+				}
+
+				ch := ((c-'a')+rune(rot))%26 + 'a'
+				fmt.Printf("%c", ch)
+				place = append(place, ch)
+			}
+			if string(place) == "northpole object storage" {
+				res = room
+				println()
+				break
+			}
+			println()
+			fmt.Printf("%q: %v\n", string(place), room)
+		}
+
+	}
 
 	return res
 }
