@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -72,18 +73,28 @@ func solve1(s []string) int {
 	}
 
 	out := []rune{}
+	outMin := []rune{}
 	for _, f := range freqs {
 		var maxCount int
+		var minCount = math.MaxInt
 		var maxCh rune
+		var minCh rune
 		for ch, count := range f {
 			if count > maxCount {
 				maxCount = count
 				maxCh = ch
 			}
+
+			if count < minCount {
+				minCount = count
+				minCh = ch
+			}
 		}
 		out = append(out, maxCh)
+		outMin = append(outMin, minCh)
 	}
-	fmt.Printf("%s\n", string(out))
+	fmt.Printf("p1: %s\n", string(out))
+	fmt.Printf("p2: %s\n", string(outMin))
 
 	return res
 }
