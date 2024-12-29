@@ -81,5 +81,28 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	triangles := [3][3]int{}
+	for r, line := range s {
+		parts := strings.Fields(line)
+
+		idx := r % 3
+		for triangle, side := range parts {
+			triangles[triangle][idx] = ToInt(side)
+		}
+		dbg("Triangles: %+v", triangles)
+
+		if (r+1)%3 == 0 {
+			dbg(" -> CALC")
+			for _, triangle := range triangles {
+				sort.Ints(triangle[:])
+				dbg(" -> %v", triangle)
+				if triangle[0]+triangle[1] > triangle[2] {
+					res++
+				}
+			}
+		}
+
+	}
+
 	return res
 }
