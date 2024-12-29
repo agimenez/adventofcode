@@ -63,7 +63,42 @@ func hackHash(secret string, zeros int) string {
 
 }
 
-func solve(lines []string) (string, int, time.Duration, time.Duration) {
+func hackHash2(secret string, zeros int) string {
+	i := 0
+	zeroCmp := strings.Repeat("0", zeros)
+	pwd := [8]rune{}
+	found := 0
+	for i = 0; found < 8; i++ {
+		padding := strconv.Itoa(i)
+		hash := md5.Sum([]byte(secret + padding))
+		str := hex.EncodeToString(hash[:])
+		if strings.HasPrefix(str, zeroCmp) {
+			dbg("CANDIDATE (%d): hash: %v, pwd: %q", i, str, string(pwd[:]))
+			pos := str[5] - '0'
+
+			// position out of bounds
+			if pos > 7 {
+				continue
+			}
+
+			// already set
+			if pwd[pos] != 0 {
+				dbg(" -> pos %d already set!", pos)
+				continue
+			}
+
+			pwd[pos] = rune(str[6])
+			dbg("Found (%d): hash: %v, pwd: %q", i, str, string(pwd[:]))
+			found++
+		}
+	}
+	dbg("FINAL: %d = %v", i, string(pwd[:]))
+
+	return string(pwd[:])
+
+}
+
+func solve(lines []string) (string, string, time.Duration, time.Duration) {
 	var now time.Time
 	var dur [2]time.Duration
 
@@ -85,8 +120,8 @@ func solve1(s []string) string {
 	return res
 }
 
-func solve2(s []string) int {
-	res := 0
+func solve2(s []string) string {
+	res := hackHash2(s[0], 5)
 
 	return res
 }
