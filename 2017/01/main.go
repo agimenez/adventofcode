@@ -73,5 +73,14 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	for _, line := range s {
+		for i := 0; i < len(line); i++ {
+			nextidx := i + len(line)/2
+			if line[i] == line[nextidx%len(line)] {
+				res += ToInt(string(line[i]))
+			}
+		}
+	}
+
 	return res
 }
