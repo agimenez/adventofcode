@@ -45,24 +45,24 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 := solve1(lines)
+	part1 := solve1(lines, 0)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 := solve2(lines)
+	part2 := solve1(lines, 1)
 	dur[1] = time.Since(now)
 
 	return part1, part2, dur[0], dur[1]
 
 }
 
-func solve1(s []string) int {
+func solve1(s []string, c int) int {
 	res := 0
 
 	reg := map[string]int{
 		"a": 0,
 		"b": 0,
-		"c": 0,
+		"c": c,
 		"d": 0,
 	}
 	pc := 0
