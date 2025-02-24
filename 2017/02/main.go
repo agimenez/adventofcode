@@ -77,8 +77,41 @@ func solve1(s []string) int {
 	return res
 }
 
+func divisible(v []int) int {
+	res := 0
+
+	dbg("Vals: %v", v)
+	for i := range v {
+		dbg(" -> %v (%v)", i, v[i])
+		for j := i + 1; j < len(v); j++ {
+			dbg("    -> %v (%v)", j, v[j])
+			v1 := v[i]
+			v2 := v[j]
+			if v1%v2 == 0 {
+				dbg(" RET %v", v1/v2)
+				return v1 / v2
+			}
+
+			if v2%v1 == 0 {
+				dbg(" RET %v", v2/v1)
+				return v2 / v1
+			}
+		}
+	}
+
+	return res
+}
 func solve2(s []string) int {
 	res := 0
 
+	for _, l := range s {
+		vals := []int{}
+		for _, num := range strings.Fields(l) {
+			vals = append(vals, ToInt(num))
+		}
+
+		res += divisible(vals)
+
+	}
 	return res
 }
