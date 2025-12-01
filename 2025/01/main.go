@@ -92,6 +92,7 @@ func solve1(s []string) int {
 	res := 0
 	d := NewDial(100, 50)
 
+	dbg(">>>>> PART 1")
 	for _, rot := range s {
 		d = d.exec(rot)
 		if d.current == 0 {
@@ -105,5 +106,20 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	dbg(">>>>> PART 2")
+	d := NewDial(100, 50)
+
+	for _, rot := range s {
+		count := ToInt(rot[1:])
+		dbg(">>>> ROTATION: " + rot + "<<<<<<<<<<<<<<<<<<<")
+		for range count {
+			r := string(rot[0]) + "1"
+			d = d.exec(r)
+			if d.current == 0 {
+				res++
+			}
+		}
+		dbg(">>>> ROTATION END: %+v <<<<<<<<<<<<<<<", d)
+	}
 	return res
 }
