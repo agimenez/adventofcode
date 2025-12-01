@@ -57,8 +57,47 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
+type dial struct {
+	current int
+	length  int
+}
+
+func NewDial(length int, initial int) *dial {
+	d := &dial{
+		length:  length,
+		current: initial,
+	}
+
+	return d
+}
+
+func (d *dial) exec(rotation string) *dial {
+	dir := rotation[0]
+	count := ToInt(rotation[1:])
+
+	dbg("INIT: %+v", d)
+	dbg("%s (%d)", rotation, count)
+	switch dir {
+	case 'R':
+		d.current = Mod(d.current+count, d.length)
+	case 'L':
+		d.current = Mod(d.current-count, d.length)
+	}
+	dbg("FINAL: %+v", d)
+
+	return d
+}
+
 func solve1(s []string) int {
 	res := 0
+	d := NewDial(100, 50)
+
+	for _, rot := range s {
+		d = d.exec(rot)
+		if d.current == 0 {
+			res++
+		}
+	}
 
 	return res
 }
