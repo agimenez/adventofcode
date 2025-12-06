@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -62,21 +63,21 @@ func findMax(s string, start int, end int) int {
 	res := 0
 
 	max := 0
-	dbg("  -> Finding max for %v", s)
+	dbg("     -> Finding max for %v (%v:%v)", s, start, end)
 	for ; start < end; start++ {
 		v := s[start]
 		num := ToInt(string(v))
-		dbg("    -> max: %v, idx: %v", max, start)
-		dbg("    -> Checking num %c (%v)", v, num)
+		// dbg("    -> max: %v, idx: %v", max, start)
+		// dbg("    -> Checking num %c (%v)", v, num)
 
 		if num > max {
 			max = num
 			res = start
-			dbg("    -> NEW max: %v, idx: %v", max, res)
+			// dbg("    -> NEW max: %v, idx: %v", max, res)
 		}
 	}
 
-	dbg("    -> FINAL max: %v, idx: %v", max, res)
+	// dbg("    -> FINAL max: %v, idx: %v", max, res)
 	return res
 }
 
@@ -98,6 +99,24 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+	for _, bank := range s {
+		dbg("Bank: %v", bank)
+		var output bytes.Buffer
+		jolts := 0
+		idx := 0
+		for maxlen := 11; maxlen >= 0; maxlen-- {
+			// dbg(" -> Checking %v, idx: %v, max: %v", bank[idx:], idx, len(bank)-maxlen)
+			newidx := findMax(bank, idx, len(bank)-maxlen)
+			idx = newidx + 1
+
+			// dbg(" -> FOUND MAX: %c (idx %v), new index: %v, maxlen: %v", bank[newidx], newidx, idx, maxlen)
+			output.WriteByte(bank[newidx])
+			dbg(" >> OUTPUT: %v", output.String())
+		}
+		dbg("FINAL OUTPUT: %v", output.String())
+		jolts = ToInt(output.String())
+		res += jolts
+	}
 
 	return res
 }
