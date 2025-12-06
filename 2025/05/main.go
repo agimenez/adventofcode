@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -88,6 +89,40 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	ranges := []Range{}
+	for _, line := range s {
+		if line == "" {
+			break
+		}
+
+		ranges = append(ranges, NewRange(line))
+	}
+
+	slices.SortFunc(ranges, func(a, b Range) int {
+		return a.Cmp(b)
+	})
+
+	// Try to merge all the ranges into fully continuous ones
+	// ranges is sorted, so we should be able to merge all in a single pass.
+	// Start by the fist (smallest) range, and then try to merge back the subsequent ones
+	merged := []Range{ranges[0]}
+	for i := 1; i < len(ranges); i++ {
+		cur := ranges[i]
+		lastIdx := len(merged) - 1
+		lastMerged := merged[lastIdx]
+
+		if lastMerged.Overlaps(cur) {
+			m := lastMerged.Merge(cur)
+			merged[lastIdx] = m
+		} else {
+			merged = append(merged, cur)
+		}
+	}
+
+	for _, r := range merged {
+		res += r.NumValues()
+	}
 
 	return res
 }
