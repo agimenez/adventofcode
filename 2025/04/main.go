@@ -90,8 +90,48 @@ func solve1(s []string) int {
 	return valid
 }
 
+func getAccessible(s []string) []Point {
+	out := []Point{}
+	for y := range s {
+		for x := range s[0] {
+			p := Point{x, y}
+			if ch, _ := GetChInPoint(s, p); ch != '@' {
+				continue
+			}
+
+			adj := p.Adjacent(true)
+			curvalid := 0
+			for _, point := range adj {
+				ch, valid := GetChInPoint(s, point)
+				if valid && ch == '@' {
+					curvalid++
+				}
+
+			}
+			if curvalid < 4 {
+				out = append(out, p)
+			}
+		}
+	}
+
+	return out
+}
+
 func solve2(s []string) int {
 	res := 0
+	for {
+		accessible := getAccessible(s)
+		if len(accessible) == 0 {
+			break
+		}
+		res += len(accessible)
+
+		for _, p := range accessible {
+			tmp := []byte(s[p.Y])
+			tmp[p.X] = '.'
+			s[p.Y] = string(tmp)
+		}
+	}
 
 	return res
 }
