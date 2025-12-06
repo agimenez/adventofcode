@@ -4,19 +4,14 @@ import "testing"
 
 func TestMain(t *testing.T) {
 	tests := []struct {
-		in  string
-		out int
+		in  int
+		out bool
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{33333, false},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
+		l := isValid2(tt.in)
 		if l != tt.out {
 			t.Errorf("Test: got %v, expected %v", l, tt.out)
 		}
