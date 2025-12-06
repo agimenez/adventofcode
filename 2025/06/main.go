@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"io"
 	"log"
@@ -123,6 +124,54 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	nums := Stack{}
+	for x := len(s[0]) - 1; x >= 0; x-- {
+		var n bytes.Buffer
+		done := false
+		dbg("NUMS: %+v", nums)
+		for y := 0; y < len(s); y++ {
+			ch := s[y][x]
+			switch ch {
+			case '+':
+				num := ToInt(n.String())
+				nums = nums.Push(num)
+				var n int
+				sum := 0
+				for !nums.IsEmpty() {
+					nums, n = nums.Pop()
+					sum += n
+				}
+				res += sum
+				dbg(" >> SUM: %v", sum)
+				done = true
+
+			case '*':
+				num := ToInt(n.String())
+				nums = nums.Push(num)
+				var n int
+				mul := 1
+				for !nums.IsEmpty() {
+					nums, n = nums.Pop()
+					mul *= n
+				}
+				res += mul
+				dbg(" >> MUL: %v", mul)
+				done = true
+			case ' ': // nothing
+			default:
+				n.WriteByte(ch)
+				dbg("  >> Partial: %v", n.String())
+			}
+		}
+
+		num := ToInt(n.String())
+		if !done && num != 0 {
+			nums = nums.Push(num)
+			dbg("Col %v, num: %v", x, num)
+		}
+
+	}
 
 	return res
 }
