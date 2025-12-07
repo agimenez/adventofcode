@@ -115,14 +115,8 @@ func solve1(s []string) int {
 				if ch == '^' {
 					// Found a splitter, so generete new beams on the sides of it
 					// If there's already a beam there, we don't want to count it twice
-					if _, ok := beams[newPos.Left()]; !ok {
-						nextBeams[newPos.Left()] = true
-						dbg("  >>> New split for %v", newPos.Left())
-					}
-					if _, ok := beams[newPos.Right()]; !ok {
-						nextBeams[newPos.Right()] = true
-						dbg("  >>> New split for %v", newPos.Right())
-					}
+					nextBeams[newPos.Left()] = true
+					nextBeams[newPos.Right()] = true
 					done = false
 					res++
 
