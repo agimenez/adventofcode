@@ -67,6 +67,9 @@ func str2grid(lines []string) [][]rune {
 }
 
 func printGrid(grid [][]rune) {
+	if !debug {
+		return
+	}
 	for _, row := range grid {
 		fmt.Println(string(row))
 	}
@@ -144,6 +147,30 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	// Go line by line as we fall down. This is the "previous generation" of timelines
+	// it contains all the timlines that exist in that column of the grid.
+	// Whenever we encounter a splitter, will split also the counts to the 2 adjacent slots
+	prevBeams := make([]int, len(s[0]))
+	for _, line := range s {
+		currentBeams := make([]int, len(line))
+		for x, c := range line {
+			if c == 'S' {
+				currentBeams[x] = 1
+			} else if c == '^' {
+				currentBeams[x-1] += prevBeams[x]
+				currentBeams[x+1] += prevBeams[x]
+			} else {
+				currentBeams[x] += prevBeams[x]
+			}
+		}
+
+		prevBeams = currentBeams
+	}
+
+	for _, n := range prevBeams {
+		res += n
+	}
 
 	return res
 }
