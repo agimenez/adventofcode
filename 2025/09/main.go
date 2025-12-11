@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -88,8 +89,68 @@ func solve1(s []string) int {
 	return res
 }
 
+func (r rect) MinX() int {
+	return min(r.p1.X, r.p2.X)
+}
+
+func (r rect) MaxX() int {
+	return max(r.p1.X, r.p2.X)
+}
+
+func (r rect) MinY() int {
+	return min(r.p1.Y, r.p2.Y)
+}
+
+func (r rect) MaxY() int {
+	return max(r.p1.Y, r.p2.Y)
+}
+
+func AABB(r1, r2 rect) bool {
+
+	return r1.MinX() < r2.MaxX() &&
+		r1.MaxX() > r2.MinX() &&
+		r1.MaxY() > r2.MinY() &&
+		r1.MinY() < r2.MaxY()
+}
+
 func solve2(s []string) int {
 	res := 0
+	tiles := []Point{}
+	for _, line := range s {
+		parts := strings.Split(line, ",")
+		tiles = append(tiles, Point{ToInt(parts[0]), ToInt(parts[1])})
+	}
+
+	rects := []rect{}
+	for i, p1 := range tiles {
+		for _, p2 := range tiles[i+1:] {
+			rects = append(rects, rect{p1, p2})
+		}
+	}
+	slices.SortFunc(rects, func(a, b rect) int {
+		return b.area() - a.area()
+	})
+
+	dbg("%v rectangles found", len(rects))
+	// https://www.reddit.com/r/adventofcode/comments/1pibab2/comment/nt87ndo/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+	// https://manbeardgames.github.io/docs/tutorials/monogame-3-8/collision-detection/aabb-collision/
+	// Check AABB collisions between my rectangle and the "line" rectangle defined by the edges
+	for i, r1 := range rects {
+		dbg("%v... (%v) Area: %v", i, r1, r1.area())
+		collisions := 0
+		for t := range tiles {
+			r2 := rect{tiles[t], tiles[(t+1)%len(tiles)]}
+			dbg("  >> CHECKING COLLISION: %v - %v", r1, r2)
+			if AABB(r1, r2) {
+				dbg("  >>>> COLLISION!!!")
+				collisions++
+			}
+		}
+		if collisions == 0 && r1.area() > res {
+			res = r1.area()
+		}
+
+	}
 
 	return res
 }
