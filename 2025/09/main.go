@@ -144,6 +144,7 @@ func solve2(s []string) int {
 			if AABB(r1, r2) {
 				dbg("  >>>> COLLISION!!!")
 				collisions++
+				break
 			}
 		}
 		if collisions == 0 && r1.area() > res {
