@@ -1,2 +1,4 @@
 github.com/agimenez/adventofcode2019 v0.0.0-20210526123504-13d88c26a0ad h1:ZpgmRCmURWzvb5K4AICtigmpm6bU7QksOm9vkTsAz2k=
 github.com/agimenez/adventofcode2019 v0.0.0-20210526123504-13d88c26a0ad/go.mod h1:SfWtL7g7Y8HDY+ZDarCapZNWpsMdHRF87dz2HF6MTDg=
+gonum.org/v1/gonum v0.16.0 h1:5+ul4Swaf3ESvrOnidPp4GZbzf0mxVQpDCYUQE7OJfk=
+gonum.org/v1/gonum v0.16.0/go.mod h1:fef3am4MQ93R2HHpKnLk4/Tbh/s0+wqD5nfa6Pnwy4E=
