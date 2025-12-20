@@ -81,7 +81,7 @@ func parseGraph(s []string) graph {
 func (g graph) findAllPaths(start, end string) [][]string {
 	allPaths := [][]string{}
 
-	queue := [][]string{[]string{start}}
+	queue := [][]string{{start}}
 
 	for len(queue) > 0 {
 		curPath := queue[len(queue)-1]
@@ -111,18 +111,42 @@ func (g graph) findAllPaths(start, end string) [][]string {
 	return allPaths
 }
 
+func (g graph) countPaths(start, end string, cache map[string]int) int {
+	if start == end {
+		return 1
+	}
+
+	if cache == nil {
+		cache = map[string]int{}
+	}
+
+	num := 0
+	if num, ok := cache[start]; ok {
+		return num
+	}
+
+	for _, child := range g[start] {
+		num += g.countPaths(child, end, cache)
+	}
+
+	cache[start] = num
+	return num
+
+}
+
 func solve1(g graph) int {
 	res := 0
 
-	paths := g.findAllPaths("you", "out")
-	dbg("FINAL PATHS: %v", paths)
-	res = len(paths)
+	res = g.countPaths("you", "out", nil)
 
 	return res
 }
 
 func solve2(g graph) int {
 	res := 0
+	// paths := g.findAllPaths("svr", "out")
+	res += g.countPaths("svr", "fft", nil) * g.countPaths("fft", "dac", nil) * g.countPaths("dac", "out", nil)
+	res += g.countPaths("svr", "dac", nil) * g.countPaths("dac", "fft", nil) * g.countPaths("fft", "out", nil)
 
 	return res
 }
