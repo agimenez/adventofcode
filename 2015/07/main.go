@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -188,7 +189,20 @@ func solve1(s []string) int {
 }
 
 func solve2(s []string) int {
-	res := 0
+	var res uint16 = 0
 
-	return res
+	c := NewCircuit()
+	for _, line := range s {
+		c = c.AddLine(line)
+
+	}
+	// Keep the initial map of direct signals
+	origSignals := maps.Clone(c.signals)
+
+	c, res = c.resolveWireRecursive("a")
+	origSignals["b"] = res
+	c.signals = origSignals
+	c, res = c.resolveWireRecursive("a")
+
+	return int(res)
 }
