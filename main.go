@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,9 +16,9 @@ var (
 	debug bool
 )
 
-func dbg(fmt string, v ...interface{}) {
+func dbg(f string, v ...interface{}) {
 	if debug {
-		log.Printf(fmt, v...)
+		fmt.Printf(f+"\n", v...)
 	}
 }
 
