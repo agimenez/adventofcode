@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"time"
 
 	. "github.com/agimenez/adventofcode/utils"
-	"gonum.org/v1/gonum/mat"
 )
 
 var (
@@ -98,48 +98,150 @@ func (m machine) bfs() int {
 }
 
 func (m machine) solveJoltage() int {
-	res := 0
+	numRows := len(m.joltage)
+	numCols := len(m.buttons)
 
-	// Solve Ax = b, where A is the wired buttons matrix, and b the joltages
-	dbg("== Machine: %v", m)
-	A := mat.NewDense(len(m.joltage), len(m.buttons), nil)
-	for joltagePos, joltage := range m.joltage {
-		dbg("  >> Joltage: %v, pos: %v", joltage, joltagePos)
-		for buttonPos, v := range m.buttons {
-			// check if the `joltagePos`th bit is set in this wire
-			bitmask := 1 << joltagePos
-			if v&bitmask > 0 {
-				A.Set(joltagePos, buttonPos, 1)
+	maxJoltage := 0
+
+	// Build augmented matrix [A | b]
+	aug := make([][]float64, numRows)
+	for row := range m.joltage {
+		aug[row] = make([]float64, numCols+1)
+		for col, v := range m.buttons {
+			if v&(1<<row) > 0 {
+				aug[row][col] = 1
 			}
 		}
+		aug[row][numCols] = float64(m.joltage[row]) // b column
+
+		maxJoltage = max(maxJoltage, m.joltage[row])
 	}
-	dbg("Matrix:\n%v", mat.Formatted(A))
-	jFloat := []float64{}
-	for i := range m.joltage {
-		jFloat = append(jFloat, float64(m.joltage[i]))
+
+	// Gaussian elimination with partial pivoting → RREF
+	pivotCols := []int{} // tracks which columns have pivots
+	pivotRow := 0
+
+	const tolerance = 1e-6
+
+	for col := 0; col < numCols && pivotRow < numRows; col++ {
+		// Find pivot (largest absolute value in this column)
+		maxRow := pivotRow
+		for row := pivotRow + 1; row < numRows; row++ {
+			if math.Abs(aug[row][col]) > math.Abs(aug[maxRow][col]) {
+				maxRow = row
+			}
+		}
+
+		if math.Abs(aug[maxRow][col]) < tolerance {
+			continue // no pivot in this column, it's a free variable
+		}
+
+		// Swap rows
+		aug[pivotRow], aug[maxRow] = aug[maxRow], aug[pivotRow]
+
+		// Scale pivot row to make pivot = 1
+		scale := aug[pivotRow][col]
+		for j := col; j <= numCols; j++ {
+			aug[pivotRow][j] /= scale
+		}
+
+		// Eliminate all other rows (both above and below for RREF)
+		for row := 0; row < numRows; row++ {
+			if row != pivotRow && math.Abs(aug[row][col]) > tolerance {
+				factor := aug[row][col]
+				for j := col; j <= numCols; j++ {
+					aug[row][j] -= factor * aug[pivotRow][j]
+				}
+			}
+		}
+
+		pivotCols = append(pivotCols, col)
+		pivotRow++
 	}
-	b := mat.NewVecDense(len(m.joltage), jFloat)
-	dbg("Joltage vector: %v (%v)", b, jFloat)
 
-	var qr mat.QR
-	// m<n, so need to transpose
-	AT := A.T()
-	qr.Factorize(AT)
+	// Identify free columns
+	freeCols := []int{}
+	pivotSet := make(map[int]bool)
+	for _, p := range pivotCols {
+		pivotSet[p] = true
+	}
+	for col := 0; col < numCols; col++ {
+		if !pivotSet[col] {
+			freeCols = append(freeCols, col)
+		}
+	}
 
-	// Need to multiply by the transposed
-	var ATb mat.VecDense
-	ATb.MulVec(AT, b)
+	dbg("Pivot columns: %v", pivotCols)
+	dbg("Free columns: %v", freeCols)
 
-	var x mat.VecDense
-	err := qr.SolveTo(&x, false, &ATb)
-	if err != nil {
-		fmt.Printf("ERROR SOLVING: %v\n", err)
+	// Brute force over free variables
+	return bruteForce(aug, pivotCols, freeCols, numCols, maxJoltage)
+}
+
+func bruteForce(aug [][]float64, pivotCols, freeCols []int, numCols int, maxJoltage int) int {
+	numFree := len(freeCols)
+	maxVal := maxJoltage // upper bound: no button needs more presses than max joltage
+
+	minSum := math.MaxInt
+
+	// Generate all combinations of free variable values
+	freeVals := make([]int, numFree)
+
+	var search func(idx int)
+	search = func(idx int) {
+		if idx == numFree {
+			// Evaluate this combination
+			x := make([]float64, numCols)
+
+			// Set free variables
+			for i, col := range freeCols {
+				x[col] = float64(freeVals[i])
+			}
+
+			// Back-substitute for pivot variables
+			// RREF: each pivot row i gives us: x[pivotCols[i]] = aug[i][numCols] - sum(aug[i][j]*x[j]) for free j
+			valid := true
+			for i := len(pivotCols) - 1; i >= 0; i-- {
+				pivotCol := pivotCols[i]
+				val := aug[i][numCols]
+				for j := pivotCol + 1; j < numCols; j++ {
+					val -= aug[i][j] * x[j]
+				}
+				x[pivotCol] = val
+
+				// Check non-negative integer
+				rounded := int(math.Round(val))
+				if math.Abs(val-float64(rounded)) > 1e-6 || rounded < 0 {
+					valid = false
+					break
+				}
+			}
+
+			if valid {
+				sum := 0
+				for _, v := range x {
+					sum += int(math.Round(v))
+				}
+				if sum < minSum {
+					minSum = sum
+				}
+			}
+			return
+		}
+
+		for v := 0; v <= maxVal; v++ {
+			freeVals[idx] = v
+			search(idx + 1)
+		}
+	}
+
+	search(0)
+
+	dbg("MinSum: %v", minSum)
+	if minSum == math.MaxInt {
 		return 0
 	}
-
-	dbg("SOLUTION:\n%v", x)
-
-	return res
+	return minSum
 }
 
 func parseMachine(s string) machine {
