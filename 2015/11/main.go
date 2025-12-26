@@ -51,7 +51,7 @@ func solve(lines []string) (string, string, time.Duration, time.Duration) {
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 := solve2(lines)
+	part2 := solve2(part1)
 	dur[1] = time.Since(now)
 
 	return part1, part2, dur[0], dur[1]
@@ -116,7 +116,7 @@ func FirstCandidate(s string) string {
 
 	firstInvalid := strings.IndexAny(s, "iol")
 	if firstInvalid == -1 {
-		return s
+		return Increment(s)
 	}
 
 	var b bytes.Buffer
@@ -131,9 +131,6 @@ func FirstCandidate(s string) string {
 func NextPass(s string) string {
 	dbg("NextPass %q", s)
 	next := FirstCandidate(s)
-	if len(next) != len(s) {
-		panic(fmt.Sprintf("Len mismatch: %q (%d) -> %q (%d)", next, len(next), s, len(s)))
-	}
 	dbg(" >> FIRST CANDIDATE: %v", next)
 	for !Valid(next) {
 		next = Increment(next)
@@ -172,8 +169,8 @@ func solve1(s []string) string {
 	return res
 }
 
-func solve2(s []string) string {
-	res := s[0]
+func solve2(s string) string {
+	res := NextPass(s)
 
 	return res
 }
