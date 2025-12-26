@@ -49,11 +49,11 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 := solve1(lines)
+	part1, part2 := solve1(lines)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 := solve2(lines)
+	// part2 := solve2(lines)
 	dur[1] = time.Since(now)
 
 	return part1, part2, dur[0], dur[1]
@@ -98,30 +98,41 @@ func (r Reindeer) String() string {
 }
 
 // I know, this is a math problem and simulate is stupid, but let me be!
-func SimulateRace(m map[string]Reindeer, t int) []int {
+func SimulateRace(m map[string]Reindeer, t int) ([]int, []int) {
 	reindeers := slices.Collect(maps.Values(m))
 
-	for i := range t {
-		dbg("TIME: %v", i+1)
-		for r := range reindeers {
-			reindeers[r].Step()
-			dbg("%v", reindeers[r])
+	score := make([]int, len(m))
+	dist := make([]int, len(m))
+	for s := range t {
+		dbg("TIME: %v", s+1)
+		maxDist := 0
+		leads := []int{}
+		for i := range reindeers {
+			reindeers[i].Step()
+			dbg("%v", reindeers[i])
+			dist[i] = reindeers[i].distance
+
+			// New maximum, reset list of leaders
+			if reindeers[i].distance > maxDist {
+				maxDist = reindeers[i].distance
+				leads = []int{i}
+			} else if reindeers[i].distance == maxDist {
+				leads = append(leads, i)
+			}
 		}
+		dbg(" >> LEADS: %v", leads)
+
+		for _, l := range leads {
+			score[l]++
+		}
+		dbg(" >> SCORES: %v", score)
 
 	}
 
-	dist := slices.Collect(func(yield func(int) bool) {
-		for _, r := range reindeers {
-			if !yield(r.distance) {
-				return
-			}
-		}
-	})
-
-	return dist
+	return dist, score
 }
 
-func solve1(s []string) int {
+func solve1(s []string) (int, int) {
 	res := 0
 
 	race := map[string]Reindeer{}
@@ -137,12 +148,16 @@ func solve1(s []string) int {
 		race[parts[0]] = r
 	}
 
-	dists := SimulateRace(race, 2503)
+	dists, scores := SimulateRace(race, 2503)
 
 	slices.Sort(dists)
 	res = dists[len(dists)-1]
 
-	return res
+	slices.Sort(scores)
+	score := scores[len(scores)-1]
+	dbg("%v", scores)
+
+	return res, score
 }
 
 func solve2(s []string) int {
