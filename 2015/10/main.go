@@ -89,5 +89,11 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	nums := CSVToIntSlice(s[0], "")
+	for range 50 {
+		nums = lookAndSay(nums)
+	}
+	res = len(nums)
+
 	return res
 }
