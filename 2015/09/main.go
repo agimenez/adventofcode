@@ -167,5 +167,22 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	g := NewGraph()
+	for _, str := range s {
+		parts := strings.Split(str, " = ")
+		cost := ToInt(parts[1])
+		cities := strings.Split(parts[0], " to ")
+
+		g = g.AddEdge(cities[0], cities[1], cost)
+
+	}
+	cities := g.GetVertices()
+	for p := range Permutations(cities) {
+		cost := g.PathCost(p)
+		if cost > res {
+			res = cost
+		}
+	}
+
 	return res
 }
