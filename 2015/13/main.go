@@ -141,5 +141,37 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	g := NewGraph()
+
+	for _, str := range s {
+		parts := strings.Fields(str)
+		from := parts[0]
+		to := parts[len(parts)-1]
+		to = to[:len(to)-1] // Final dot
+		cost := ToInt(parts[3])
+		if parts[2] == "lose" {
+			cost = -cost
+		}
+
+		g = g.AddEdge(from, to, cost)
+
+		// Add myself
+		g = g.AddEdge(from, "myself", 0)
+		g = g.AddEdge("myself", from, 0)
+	}
+
+	seats := g.GetVertices()
+
+	// Add myself
+	res = math.MinInt
+	for p := range Permutations(seats) {
+		// Close the cycle
+		p = append(p, p[0])
+		happiness := g.PathCost(p)
+		if happiness > res {
+			res = happiness
+		}
+	}
+
 	return res
 }
