@@ -1,15 +1,17 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -72,8 +74,49 @@ func solve1(s []string) int {
 	return res
 }
 
+func processDoc(doc any) int {
+	res := 0
+
+	switch v := doc.(type) {
+	case int:
+		dbg("INT -> %v", v)
+		return v
+	case float64:
+		dbg("FLOAT64 -> %v", v)
+		return int(v)
+	case string:
+		return 0
+	case []any:
+		for _, u := range v {
+			res += processDoc(u)
+		}
+	case map[string]any:
+		for _, vv := range v {
+			if vv == "red" {
+				return 0
+			}
+
+			res += processDoc(vv)
+		}
+
+	default:
+		panic(fmt.Sprintf("Unknown type: %T (%v)", v, v))
+
+	}
+
+	return res
+}
+
 func solve2(s []string) int {
 	res := 0
+
+	var doc any
+	err := json.Unmarshal([]byte(s[0]), &doc)
+	if err != nil {
+		panic(err)
+	}
+
+	res = processDoc(doc)
 
 	return res
 }
