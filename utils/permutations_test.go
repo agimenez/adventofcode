@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+// NOTE: AI generated
 func TestPermutations(t *testing.T) {
 	tests := []struct {
 		name     string

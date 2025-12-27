@@ -2,6 +2,7 @@ package utils
 
 import "iter"
 
+// NOTE: AI generated
 // Permutations returns an iterator over all permutations of the input slice.
 // Uses Heap's algorithm for efficient generation.
 // Each yielded slice is a new copy, safe to store or modify.
