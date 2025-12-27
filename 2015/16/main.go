@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
-	"maps"
 	"os"
 	"strings"
 	"time"
 	"unicode"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -60,32 +60,24 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 }
 
 var rules map[string]int = map[string]int{
-	"children": 3,
-	"cats":     7,
-	"samoyeds": 2,
-	"akitas":   0,
-	"vizslas":  0,
-	"goldfish": 0,
-	"trees":    3,
-	"cars":     2,
-	"perfumes": 1,
+	"children":    3,
+	"cats":        7,
+	"samoyeds":    2,
+	"pomeranians": 3,
+	"akitas":      0,
+	"vizslas":     0,
+	"goldfish":    0,
+	"trees":       3,
+	"cars":        2,
+	"perfumes":    1,
 }
 
 func parseAunt(l string) map[string]int {
 	a := map[string]int{}
 
-	maps.Insert(a, func(yield func(k string, v int) bool) {
-		for k := range rules {
-			if !yield(k, -1) {
-				return
-			}
-		}
-	})
-
 	parts := strings.FieldsFunc(l, func(r rune) bool {
 		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
 	})
-	dbg("Parts: %v", parts)
 	// Parts: [Sue 500 cats 2 goldfish 9 children 8]
 	for i := 2; i < len(parts)-1; i += 2 {
 		a[parts[i]] = ToInt(parts[i+1])
@@ -94,16 +86,38 @@ func parseAunt(l string) map[string]int {
 	return a
 }
 
-func checkAunt(aunt map[string]int) bool {
+func checkAunt(aunt map[string]int, ranges bool) bool {
+	dbg("CHECKING %v", aunt)
 	for k, v := range aunt {
-		if v == -1 {
+		if !ranges {
+			if rules[k] != v {
+				return false
+			}
+
 			continue
 		}
 
-		if rules[k] != v {
-			return false
+		dbg("  >> %v => rules: %v, value: %v", k, rules[k], v)
+		switch k {
+		case "cats":
+			fallthrough
+		case "trees":
+			if v <= rules[k] {
+				return false
+			}
+		case "pomeranians":
+			fallthrough
+		case "goldfish":
+			if v >= rules[k] {
+				return false
+			}
+		default:
+			if rules[k] != v {
+				return false
+			}
 		}
 	}
+	dbg("BLAH")
 
 	return true
 }
@@ -113,8 +127,7 @@ func solve1(s []string) int {
 
 	for i, line := range s {
 		aunt := parseAunt(line)
-		dbg("Aunt %3d: %v", i+1, aunt)
-		if checkAunt(aunt) {
+		if checkAunt(aunt, false) {
 			return i + 1
 		}
 	}
@@ -124,6 +137,14 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	dbg("===== PART 2 =====")
+	for i, line := range s {
+		aunt := parseAunt(line)
+		if checkAunt(aunt, true) {
+			return i + 1
+		}
+	}
 
 	return res
 }
