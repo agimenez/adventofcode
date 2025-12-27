@@ -3,6 +3,7 @@ package utils
 import (
 	"flag"
 	"fmt"
+	"iter"
 	"log"
 	"strconv"
 	"strings"
@@ -23,6 +24,13 @@ type Point struct {
 }
 
 var P0 = Point{0, 0}
+
+func NewPoint(x, y int) Point {
+	return Point{
+		X: x,
+		Y: y,
+	}
+}
 
 func (p Point) Min(p2 Point) Point {
 	return Point{
@@ -88,24 +96,30 @@ func (p Point) Rotate90CCW() Point {
 	return Point{p.Y, -p.X}
 }
 
-func (p Point) Adjacent(diagonals bool) []Point {
-	dirs := []Point{
-		p.Up(),
-		p.Right(),
-		p.Down(),
-		p.Left(),
-	}
+func (p Point) Adjacent(diagonals bool) iter.Seq[Point] {
+	return func(yield func(p Point) bool) {
+		dirs := []Point{
+			p.Up(),
+			p.Right(),
+			p.Down(),
+			p.Left(),
+		}
 
-	if diagonals {
-		dirs = append(dirs, []Point{
-			p.Up().Right(),
-			p.Down().Right(),
-			p.Down().Left(),
-			p.Left().Up(),
-		}...)
-	}
+		if diagonals {
+			dirs = append(dirs, []Point{
+				p.Up().Right(),
+				p.Down().Right(),
+				p.Down().Left(),
+				p.Left().Up(),
+			}...)
+		}
 
-	return dirs
+		for _, p := range dirs {
+			if !yield(p) {
+				return
+			}
+		}
+	}
 }
 
 func GetChInPoint(s []string, p Point) (byte, bool) {
