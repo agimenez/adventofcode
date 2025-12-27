@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -47,11 +48,11 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 := solve1(lines)
+	part1, part2 := solve1(lines)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 := solve2(lines)
+	// part2 := solve2(lines)
 	dur[1] = time.Since(now)
 
 	return part1, part2, dur[0], dur[1]
@@ -60,14 +61,16 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 const target int = 150
 
-func solve1(s []string) int {
+func solve1(s []string) (int, int) {
 	res := 0
+	res2 := 0
 
 	containers := []int{}
 	for _, line := range s {
 		containers = append(containers, ToInt(line))
 	}
 	dbg("%v", containers)
+	minContainers := math.MaxInt
 	for k := 1; k <= len(containers); k++ {
 		for combination := range CombinationsInPlace(containers, k) {
 			dbg("Combination: %v", combination)
@@ -77,12 +80,27 @@ func solve1(s []string) int {
 			}
 
 			if capacity == target {
+				minContainers = Min(minContainers, len(combination))
 				res++
 			}
 		}
 	}
 
-	return res
+	// part 2: This could be done memoizing combinations, but meh.
+	dbg("Min containers: %v", minContainers)
+	for combination := range CombinationsInPlace(containers, minContainers) {
+		dbg("Combination: %v", combination)
+		capacity := 0
+		for _, container := range combination {
+			capacity += container
+		}
+
+		if capacity == target {
+			res2++
+		}
+	}
+
+	return res, res2
 }
 
 func solve2(s []string) int {
