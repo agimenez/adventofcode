@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 	// . "github.com/agimenez/adventofcode/utils"
@@ -105,12 +107,43 @@ func solve1(s []string) int {
 
 	}
 	dbg("Distinct: %v", distinct)
+	res = len(distinct)
 
 	return res
 }
 
 func solve2(s []string) int {
 	res := 0
+
+	replacements := map[string]string{}
+	var molecule string
+
+	// This might not work, but let's try first sorting the longest substitutions first, and see what happens
+	for _, line := range s {
+		if line == "" {
+			continue
+		}
+
+		parts := strings.Split(line, " => ")
+		if len(parts) == 2 {
+			replacements[parts[1]] = parts[0]
+			continue
+		}
+
+		molecule = parts[0]
+	}
+	replList := slices.SortedFunc(maps.Keys(replacements), func(a, b string) int { return len(b) - len(a) })
+	for molecule != "e" {
+		for _, rep := range replList {
+			newmol := strings.Replace(molecule, rep, replacements[rep], 1)
+			if newmol != molecule {
+				dbg(molecule)
+				res++
+			}
+			molecule = newmol
+
+		}
+	}
 
 	return res
 }
