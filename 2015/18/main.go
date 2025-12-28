@@ -86,10 +86,24 @@ func ConwayStep(g Grid) Grid {
 	return next
 }
 
-func ConwaysGame(g Grid, steps int) Grid {
+func SwitchCornersOn(g Grid) Grid {
+	w := g.Width() - 1
+	h := g.Height() - 1
+	for _, p := range []Point{NewPoint(0, 0), NewPoint(0, h), NewPoint(w, 0), NewPoint(w, h)} {
+		g.SetRune(p, '#')
+	}
+
+	return g
+}
+
+func ConwaysGame(g Grid, steps int, stuckCorners bool) Grid {
 
 	for range steps {
 		g = ConwayStep(g)
+		if stuckCorners {
+			g = SwitchCornersOn(g)
+		}
+
 		dbg("%v", g)
 	}
 
@@ -104,9 +118,9 @@ func solve1(s []string) int {
 
 	// Kind of cheat?
 	if len(s) < 10 {
-		g = ConwaysGame(g, 4)
+		g = ConwaysGame(g, 4, false)
 	} else {
-		g = ConwaysGame(g, 100)
+		g = ConwaysGame(g, 100, false)
 	}
 
 	g.MapFunc(func(r rune) {
@@ -120,6 +134,22 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	g := SwitchCornersOn(NewGridFromStr(s))
+	dbg("%v", g)
+
+	// Kind of cheat?
+	if len(s) < 10 {
+		g = ConwaysGame(g, 5, true)
+	} else {
+		g = ConwaysGame(g, 100, true)
+	}
+
+	g.MapFunc(func(r rune) {
+		if r == '#' {
+			res++
+		}
+	})
 
 	return res
 }
