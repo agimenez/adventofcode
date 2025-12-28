@@ -83,6 +83,26 @@ func deliver(target int) int {
 	return lowest
 }
 
+// Lots of duplicate but who cares
+func deliver2(target int) int {
+	now := time.Now()
+	houses := make(map[int]int, target)
+	fmt.Printf("Slice creation time: %v\n", time.Since(now))
+
+	for elf := 1; elf < target/10; elf++ {
+		for house, hcount := elf, 0; hcount < 50; house, hcount = house+elf, hcount+1 {
+			houses[house] += elf * 11
+			// dbg("House %v got %v presents from elf %v (total: %v)", house, elf*10, elf, houses[house])
+		}
+
+		if houses[elf] >= target {
+			return elf
+		}
+	}
+
+	return -1
+}
+
 func solve1(s []string) int {
 	res := 0
 	target := ToInt(s[0])
@@ -93,6 +113,8 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+	target := ToInt(s[0])
+	res = deliver2(target)
 
 	return res
 }
