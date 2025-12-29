@@ -1,6 +1,6 @@
 
-default:
-	go run main.go -debug < test.txt
+d name="test.txt":
+	go run main.go -debug < {{name}}
 
 t:
 	go run main.go < test.txt

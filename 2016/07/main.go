@@ -105,8 +105,55 @@ func solve1(s []string) int {
 	return res
 }
 
+func FindABAs(s string) []string {
+	if len(s) < 3 {
+		return nil
+	}
+
+	ret := []string{}
+	for i := 0; i < len(s)-2; i++ {
+		if s[i] == s[i+2] && s[i] != s[i+1] {
+			ret = append(ret, s[i:i+3])
+		}
+	}
+
+	return ret
+}
+
+func BAB(s string) string {
+	b := []byte(s)
+	b[0], b[1], b[2] = b[1], b[0], b[1]
+	return string(b)
+}
+
+func supportsSSL(s string) bool {
+	parts := strings.FieldsFunc(s, func(r rune) bool {
+		return r == '[' || r == ']'
+	})
+
+	for i := 0; i < len(parts); i = i + 2 {
+		address := parts[i]
+		for _, aba := range FindABAs(address) {
+			dbg("%v -> ABA: %v, BAB: %v", address, aba, BAB(aba))
+			for j := 1; j < len(parts); j = j + 2 {
+				if strings.Contains(parts[j], BAB(aba)) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}
+
 func solve2(s []string) int {
 	res := 0
+
+	for _, line := range s {
+		if supportsSSL(line) {
+			res++
+		}
+	}
 
 	return res
 }
