@@ -171,17 +171,20 @@ func battleWinner(me, boss Player) bool {
 	}
 }
 
-func simulate(me Player, boss Player) int {
+func simulate(me Player, boss Player) (int, int) {
 	minGold := math.MaxInt
+	maxGold := 0
 	for equipment := range AllEquipments() {
 		meEquipped, cost := me.EquipAll(equipment)
 
 		if battleWinner(meEquipped, boss) {
 			minGold = Min(minGold, cost)
+		} else {
+			maxGold = Max(maxGold, cost)
 		}
 	}
 
-	return minGold
+	return minGold, maxGold
 }
 
 func solve1(s []string) int {
@@ -190,7 +193,7 @@ func solve1(s []string) int {
 	me := Player{hp: 100, dmg: 0, def: 0}
 	boss := parsePlayer(s)
 
-	res = simulate(me, boss)
+	res, _ = simulate(me, boss)
 
 	//TEST
 	// me = Player{hp: 8, dmg: 5, def: 5}
@@ -202,6 +205,11 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	me := Player{hp: 100, dmg: 0, def: 0}
+	boss := parsePlayer(s)
+
+	_, res = simulate(me, boss)
 
 	return res
 }
