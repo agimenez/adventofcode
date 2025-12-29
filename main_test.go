@@ -18,7 +18,7 @@ func TestMain(t *testing.T) {
 	for _, tt := range tests {
 		l := len(tt.in)
 		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+			t.Errorf("Test (%v): got %v, expected %v", tt.in, l, tt.out)
 		}
 	}
 

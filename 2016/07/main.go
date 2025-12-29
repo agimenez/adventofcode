@@ -7,8 +7,7 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	. "github.com/agimenez/adventofcode/utils"
+	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -57,8 +56,51 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
+func isABBA(s string) bool {
+	if len(s) < 4 {
+		return false
+	}
+
+	for i := 0; i < len(s)-3; i++ {
+		if s[i] != s[i+1] && s[i+1] == s[i+2] && s[i] == s[i+3] {
+			return true
+		}
+	}
+
+	return false
+}
+
+func supportsTLS(s string) bool {
+
+	// The idea is that, since we don't seem to have nested hypernet squences
+	// we consider odd parts as normal, and even parts as hypernets
+	parts := strings.FieldsFunc(s, func(r rune) bool {
+		return r == '[' || r == ']'
+	})
+
+	valid := false
+	for i, address := range parts {
+		if isABBA(address) {
+			// ABBA sequence in hypernet
+			if i%2 != 0 {
+				return false
+			} else {
+				valid = true
+			}
+		}
+	}
+
+	return valid
+}
+
 func solve1(s []string) int {
 	res := 0
+
+	for _, line := range s {
+		if supportsTLS(line) {
+			res++
+		}
+	}
 
 	return res
 }

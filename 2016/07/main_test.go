@@ -5,20 +5,18 @@ import "testing"
 func TestMain(t *testing.T) {
 	tests := []struct {
 		in  string
-		out int
+		out bool
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
+		{"abba[mnop]qrst", true},
+		{"abcd[bddb]xyyx", false},
+		{"aaaa[qwer]tyui", false},
+		{"ioxxoj[asdfgh]zxcvbn", true},
 	}
 
 	for _, tt := range tests {
-		l := len(tt.in)
+		l := supportsTLS(tt.in)
 		if l != tt.out {
-			t.Errorf("Test: got %v, expected %v", l, tt.out)
+			t.Errorf("Test (%v): got %v, expected %v", tt.in, l, tt.out)
 		}
 	}
 
