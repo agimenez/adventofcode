@@ -289,11 +289,18 @@ func (s state) AppendSpell(name string) state {
 	return s
 }
 
-func Simulate(me Player, boss Player, currentMinMana int, s state) int {
+func Simulate(me Player, boss Player, currentMinMana int, s state, hardMode bool) int {
 	s.depth++
 	dbg("DEPTH: %v, Spells: %+v", s.depth, s.spells)
 	if me.usedMana >= currentMinMana {
 		return currentMinMana
+	}
+
+	if hardMode {
+		me.hp--
+		if me.hp <= 0 {
+			return currentMinMana
+		}
 	}
 
 	for _, spell := range Spells {
@@ -313,7 +320,7 @@ func Simulate(me Player, boss Player, currentMinMana int, s state) int {
 
 		if outcome == WIN {
 			if newMe.usedMana < currentMinMana {
-				fmt.Printf("New win: %d, Spells: %+v\n", Min(newMe.usedMana, currentMinMana), newState.spells)
+				dbg("New win: %d, Spells: %+v\n", Min(newMe.usedMana, currentMinMana), newState.spells)
 			}
 			currentMinMana = Min(newMe.usedMana, currentMinMana)
 		}
@@ -322,7 +329,7 @@ func Simulate(me Player, boss Player, currentMinMana int, s state) int {
 			dbg("CONTINUING (min used: %v)", currentMinMana)
 			dbg("PREVIOUS: %v || %v", me, boss)
 			dbg("NEW     : %v || %v", newMe, newBoss)
-			currentMinMana = Simulate(newMe, newBoss, currentMinMana, newState)
+			currentMinMana = Simulate(newMe, newBoss, currentMinMana, newState, hardMode)
 		}
 		dbg("")
 	}
@@ -455,13 +462,22 @@ func solve1(s []string) int {
 		depth:  0,
 		spells: []string{},
 	}
-	res = Simulate(me, boss, math.MaxInt, state)
+	res = Simulate(me, boss, math.MaxInt, state, false)
 
 	return res
 }
 
 func solve2(s []string) int {
 	res := 0
+
+	me := Player{hp: 50, mana: 500, effects: map[string]Effect{}}
+	boss := parsePlayer(s)
+
+	state := state{
+		depth:  0,
+		spells: []string{},
+	}
+	res = Simulate(me, boss, math.MaxInt, state, true)
 
 	return res
 }
