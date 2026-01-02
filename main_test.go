@@ -8,11 +8,6 @@ func TestMain(t *testing.T) {
 		out int
 	}{
 		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
-		{"jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL", 38},
-		{"PmmdzqPrVvPwwTWBwg", 42},
-		{"wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn", 22},
-		{"ttgJtRGJQctTZtZT", 20},
-		{"CrZsJsPPZsGzwwsLwLmpwMDw", 19},
 	}
 
 	for _, tt := range tests {

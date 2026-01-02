@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
-	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -104,6 +104,35 @@ func decompress(l string) string {
 	return sb.String()
 }
 
+func decompressV2(s string) int {
+	dbg("DECOMPRESS: %q", s)
+	if len(s) == 0 {
+		return 0
+	}
+
+	length := 0
+	for i := 0; i < len(s); i++ {
+		dbg("   >> Pos %v, c = %c", i, s[i])
+		if s[i] != '(' {
+			length++
+			continue
+		}
+
+		// This should always return a valid index
+		startMark := strings.IndexRune(s[i:], '(')
+		endMark := strings.IndexRune(s[i:], ')')
+		parts := strings.Split(s[i+startMark+1:i+endMark], "x")
+		dbg("   >> FOUND marker: %q (%v)", s[i+startMark+1:i+endMark], parts)
+
+		count, mult := ToInt(parts[0]), ToInt(parts[1])
+		length += mult * decompressV2(s[i+endMark+1:i+endMark+count+1])
+		i += endMark + count
+	}
+	dbg("RETURN: %v", length)
+
+	return length
+}
+
 func solve1(s []string) int {
 	res := 0
 	for _, l := range s {
@@ -117,6 +146,8 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	res = decompressV2(s[0])
 
 	return res
 }
