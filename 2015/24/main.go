@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -59,23 +60,37 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-func solve1(s []string) int {
-	nums := LinesToIntSlice(s)
+func BalancePackages(nums []int, groups int) int {
 	totalSum := Reduce(nums, 0, ReduceSum)
-	sumByGroup := totalSum / 3
-	maxElems := len(nums) / 3
+	sumByGroup := totalSum / groups
+	maxElems := len(nums) / groups
 	dbg("Total Sum: %v, sum by group: %v, total elems: %v, max elems in G1: %v", totalSum, sumByGroup, len(nums), maxElems)
 
+	slices.Sort(nums)
+	slices.Reverse(nums)
+
 	minEntanglement := math.MaxInt
-	for i := 1; i < maxElems; i++ {
+	minLen := math.MaxInt
+	found := false
+	for i := 1; i <= maxElems && !found; i++ {
 		for group1 := range Combinations(nums, i) {
 			sum := Reduce(group1, 0, ReduceSum)
+			dbg("Testing %v (sum: %v, required: %v)", group1, sum, sumByGroup)
 			if sum != sumByGroup {
+				dbg(" >> Sum mismatch!")
 				continue
 			}
+
+			if len(group1) > minLen {
+				dbg(" >> We have a shorter combination!")
+				continue
+			}
+
 			entanglement := Reduce(group1, 1, ReduceMult)
 			minEntanglement = Min(minEntanglement, entanglement)
-			dbg("%v -> %v (%v)", group1, entanglement, minEntanglement)
+			minLen = len(group1)
+			dbg("NEW! %v -> %v (%v)", group1, entanglement, minEntanglement)
+			found = true
 		}
 
 	}
@@ -83,8 +98,14 @@ func solve1(s []string) int {
 	return minEntanglement
 }
 
-func solve2(s []string) int {
-	res := 0
+func solve1(s []string) int {
+	nums := LinesToIntSlice(s)
 
-	return res
+	return BalancePackages(nums, 3)
+}
+
+func solve2(s []string) int {
+	nums := LinesToIntSlice(s)
+
+	return BalancePackages(nums, 4)
 }
