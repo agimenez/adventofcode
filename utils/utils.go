@@ -187,11 +187,38 @@ func ToInt(s string) int {
 	return v
 }
 
+func LinesToIntSlice(s []string) []int {
+	res := []int{}
+	for _, line := range s {
+		res = append(res, ToInt(line))
+	}
+
+	return res
+}
+
 func CSVToIntSlice(s string, sep string) []int {
 	res := []int{}
 	for _, p := range strings.Split(s, sep) {
 		n, _ := strconv.Atoi(p)
 		res = append(res, n)
+	}
+
+	return res
+}
+
+type ReduceFunc[T, R any] func(R, T) R
+
+var ReduceSum = func(acc, n int) int {
+	return acc + n
+}
+var ReduceMult = func(acc, n int) int {
+	return acc * n
+}
+
+func Reduce[T, R any](s []T, init R, fn ReduceFunc[T, R]) R {
+	res := init
+	for i := range s {
+		res = fn(res, s[i])
 	}
 
 	return res
