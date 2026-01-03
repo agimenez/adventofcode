@@ -155,7 +155,7 @@ func (g *InfiniteGrid) AdjacentPoints(p Point, fav int) iter.Seq[Point] {
 	}
 }
 
-func findShortestPath(start, end Point, fav int) int {
+func findShortestPath(start, end Point, fav int, maxDist int) map[Point]int {
 	queue := []path{{node: start, cost: start.ManhattanDistance(end)}}
 	distances := map[Point]int{
 		start: 0,
@@ -177,13 +177,18 @@ func findShortestPath(start, end Point, fav int) int {
 
 		dbg("CUR: %v", cur)
 		if cur.node == end {
-			return distances[cur.node]
+			dbg("GRID:\n%v", g)
+			return distances
 		}
 
 		for next := range g.AdjacentPoints(cur.node, fav) {
 			dbg(" -> %v", next)
 
 			nextDist := distances[cur.node] + 1
+			if maxDist != -1 && nextDist > maxDist {
+				continue
+			}
+
 			if _, ok := distances[next]; !ok {
 				distances[next] = nextDist
 				queue = append(queue, path{
@@ -193,11 +198,11 @@ func findShortestPath(start, end Point, fav int) int {
 			}
 		}
 		dbg("DIST: %v", distances)
-		dbg("GRID:\n%v", g)
 
 	}
 
-	return -1
+	dbg("GRID:\n%v", g)
+	return distances
 }
 
 func TestRun() {
@@ -205,7 +210,7 @@ func TestRun() {
 	end := NewPoint(7, 4)
 	fav := 10
 
-	shortest := findShortestPath(start, end, fav)
+	shortest := findShortestPath(start, end, fav, -1)
 	dbg("Shortest test run: %v", shortest)
 }
 
@@ -218,13 +223,24 @@ func solve1(s []string) int {
 
 	start := NewPoint(1, 1)
 	end := NewPoint(31, 39)
-	res = findShortestPath(start, end, 1358)
+	dist := findShortestPath(start, end, 1358, -1)
+	res = dist[end]
 
 	return res
 }
 
 func solve2(s []string) int {
 	res := 0
+
+	start := NewPoint(1, 1)
+	end := NewPoint(31, 39)
+	dist := findShortestPath(start, end, 1358, 50)
+
+	for _, v := range dist {
+		if v <= 50 {
+			res++
+		}
+	}
 
 	return res
 }
