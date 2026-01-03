@@ -126,6 +126,7 @@ func (g *InfiniteGrid) isWall(p Point, fav int) bool {
 	tmp := x*x + 3*x + 2*x*y + y + y*y
 	tmp += fav
 
+	// NOTE: After implementing this lazy ass thing, I discovered bits.OnesCount
 	bin := fmt.Sprintf("%b", tmp)
 	numOnes := strings.Count(bin, "1")
 	if numOnes%2 == 0 {

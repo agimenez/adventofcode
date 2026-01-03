@@ -25,6 +25,7 @@ func dbg(f string, v ...interface{}) {
 func init() {
 	flag.BoolVar(&debug, "debug", false, "enable debug")
 }
+
 func main() {
 	flag.Parse()
 
