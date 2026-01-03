@@ -3,13 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
+
+	. "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -61,13 +64,18 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 type Factory struct {
 	bots    map[int]*Bot
 	outputs map[int]chan int
+
+	// For outputs, goroutines usually try to modify the map concurrently
+	mu      sync.Mutex
 	outBins map[int]int
+	wg      sync.WaitGroup // When we simulate the factory, will wait for the outputs
 }
 
-func NewFactory() Factory {
-	return Factory{
+func NewFactory() *Factory {
+	return &Factory{
 		bots:    map[int]*Bot{},
 		outputs: map[int]chan int{},
+		outBins: map[int]int{},
 	}
 }
 
@@ -87,13 +95,13 @@ func NewBot(id int) *Bot {
 	}
 }
 
-func (f Factory) SendValue(v int, botId int) {
+func (f *Factory) SendValue(v int, botId int) {
 	bot := f.GetOrCreateBot(botId)
 
 	bot.In <- v
 }
 
-func (f Factory) GetOrCreateBot(botId int) *Bot {
+func (f *Factory) GetOrCreateBot(botId int) *Bot {
 	bot, ok := f.bots[botId]
 	if !ok {
 		bot = NewBot(botId)
@@ -103,35 +111,18 @@ func (f Factory) GetOrCreateBot(botId int) *Bot {
 	return bot
 }
 
-func (f Factory) GetOrCreateOutput(outputId int) chan int {
+func (f *Factory) GetOrCreateOutput(outputId int) chan int {
 	dbg("Creating output %v", outputId)
 	out, ok := f.outputs[outputId]
 	if !ok {
-		out = make(chan int)
+		out = make(chan int, 1)
 		f.outputs[outputId] = out
 	}
 
 	return out
 }
 
-func (f Factory) GetOutput(id int) (int, bool) {
-	if v, ok := f.outBins[id]; ok {
-		return v, ok
-	}
-	select {
-
-	case v := <-f.outputs[id]:
-		dbg("[OUT: %3d] Got value: %v", v)
-		f.outBins[id] = v
-		return v, true
-
-	default:
-		return 0, false
-
-	}
-}
-
-func (f Factory) Connect(srcId int, outLowType string, outLowId int, outHighType string, outHighId int) {
+func (f *Factory) Connect(srcId int, outLowType string, outLowId int, outHighType string, outHighId int) {
 	srcBot := f.GetOrCreateBot(srcId)
 
 	if outLowType == "bot" {
@@ -140,6 +131,18 @@ func (f Factory) Connect(srcId int, outLowType string, outLowId int, outHighType
 	} else {
 		dstOut := f.GetOrCreateOutput(outLowId)
 		srcBot.Low = dstOut
+
+		f.wg.Go(func() {
+			dbg("[OUT %d] Waiting for value", outLowId)
+			v := <-dstOut
+			dbg("[OUT %d] Got %v", outLowId, v)
+			f.mu.Lock()
+			dbg("[OUT %d] LOCK %v", outLowId, v)
+			f.outBins[outLowId] = v
+			f.mu.Unlock()
+			dbg("[OUT %d] UNLOCK %v", outLowId, v)
+			dbg("[OUT %d] FACTORY BINS: %v", outLowId, f.outBins)
+		})
 	}
 
 	if outHighType == "bot" {
@@ -148,6 +151,17 @@ func (f Factory) Connect(srcId int, outLowType string, outLowId int, outHighType
 	} else {
 		dstOut := f.GetOrCreateOutput(outHighId)
 		srcBot.High = dstOut
+		f.wg.Go(func() {
+			dbg("[OUT %d] Waiting for value", outHighId)
+			v := <-dstOut
+			dbg("[OUT %d] Got %v", outHighId, v)
+			f.mu.Lock()
+			dbg("[OUT %d] LOCK %v", outHighId, v)
+			f.outBins[outHighId] = v
+			f.mu.Unlock()
+			dbg("[OUT %d] UNLOCK %v", outHighId, v)
+			dbg("[OUT %d] FACTORY BINS: %v", outHighId, f.outBins)
+		})
 	}
 
 	go func(b *Bot) {
@@ -170,10 +184,10 @@ func (f Factory) Connect(srcId int, outLowType string, outLowId int, outHighType
 
 }
 
-func (f Factory) processInstruction(s string) {
+func (f *Factory) processInstruction(s string) {
 	dbg("INSTRUCTION: %q", s)
 	valueRE := regexp.MustCompile(`value (\d+) goes to bot (\d+)`)
-	wireRE := regexp.MustCompile(`bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d)`)
+	wireRE := regexp.MustCompile(`bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d+)`)
 
 	vals := valueRE.FindStringSubmatch(s)
 	if vals != nil {
@@ -203,6 +217,12 @@ func (f Factory) processInstruction(s string) {
 
 }
 
+func (f *Factory) GetOutputs() map[int]int {
+	f.wg.Wait()
+
+	return maps.Clone(f.outBins)
+}
+
 func solve1(s []string) int {
 	res := 0
 
@@ -210,11 +230,10 @@ func solve1(s []string) int {
 
 	for _, l := range s {
 		f.processInstruction(l)
-		dbg("%+v", f)
 	}
-	for i := range f.outputs {
-		dbg("Output %v: %v", i, <-f.outputs[i])
-	}
+
+	out := f.GetOutputs()
+	res = out[0] * out[1] * out[2]
 
 	return res
 }
