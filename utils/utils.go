@@ -223,3 +223,16 @@ func Reduce[T, R any](s []T, init R, fn ReduceFunc[T, R]) R {
 
 	return res
 }
+
+type FilterFunc[T any] func(T) bool
+
+func Filter[T any](s []T, fn FilterFunc[T]) []T {
+	res := []T{}
+	for _, elem := range s {
+		if fn(elem) {
+			res = append(res, elem)
+		}
+	}
+
+	return res
+}
