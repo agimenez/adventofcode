@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -66,16 +67,19 @@ type Crypt struct {
 	salt string // salt to generate next keys
 	seq  int    // sequence to generate next keys
 	idx  int    // Current next key read index
+
+	sfactor int // Stretch factor
 }
 
-func NewCrypt(salt string) Crypt {
+func NewCrypt(salt string, stretch int) Crypt {
 	return Crypt{
 		keys:     []string{},
 		validIdx: []int{},
 
-		salt: salt,
-		seq:  0,
-		idx:  0,
+		salt:    salt,
+		sfactor: stretch,
+		seq:     0,
+		idx:     0,
 	}
 }
 
@@ -88,6 +92,11 @@ func (c *Crypt) genNext() (string, int) {
 	var idx int
 
 	d := md5.Sum([]byte(fmt.Sprintf("%s%d", c.salt, c.seq)))
+
+	for range c.sfactor {
+		d = md5.Sum([]byte(hex.EncodeToString(d[:])))
+	}
+
 	key = fmt.Sprintf("%x", d)
 	idx = c.seq
 
@@ -139,11 +148,11 @@ func (c *Crypt) readKey(offset int) string {
 	return key
 }
 
-func (c *Crypt) getNextKeys(max int) iter.Seq[string] {
-	return func(yield func(k string) bool) {
-		for i := 1; i <= max; i++ {
+func (c *Crypt) getNextKeys(max int) iter.Seq2[string, int] {
+	return func(yield func(k string, idx int) bool) {
+		for i := 0; i < max; i++ {
 			offset := i + c.idx
-			if !yield(c.readKey(offset)) {
+			if !yield(c.readKey(offset), offset) {
 				return
 			}
 
@@ -154,9 +163,7 @@ func (c *Crypt) getNextKeys(max int) iter.Seq[string] {
 func (c *Crypt) hasFiveOf(b byte) bool {
 	fiveOf := strings.Repeat(string(b), 5)
 
-	dbg("   >> FIVE %q", fiveOf)
 	for key := range c.getNextKeys(1000) {
-		// dbg("    >> Testing %q (%d)", key, idx)
 		if strings.Contains(key, fiveOf) {
 			return true
 		}
@@ -206,7 +213,7 @@ func (c *Crypt) GetKey() (string, int) {
 func solve1(s []string) int {
 	res := 0
 
-	c := NewCrypt(s[0])
+	c := NewCrypt(s[0], 0)
 	for valid := 1; valid <= 64; valid++ {
 		var k string
 		k, res = c.GetKey()
@@ -226,6 +233,20 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+	dbg("====== PART 2 =====")
+	c := NewCrypt(s[0], 2016)
+	for valid := 1; valid <= 64; valid++ {
+		var k string
+		k, res = c.GetKey()
+		dbg("== VALID KEY: %q (%d)", k, res)
+	}
+	dbg("==== VALID KEYS ====")
+	for idx := range c.validIdx {
+		keyIdx := c.validIdx[idx]
+		// dbg("[%d][%d] %q", idx, keyIdx, c.keys[keyIdx])
+		fmt.Printf("%d\n", keyIdx)
+	}
+	dbg("%v", c.Stats())
 
 	return res
 }
