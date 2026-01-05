@@ -7,7 +7,7 @@ func TestMain(t *testing.T) {
 		in  string
 		out int
 	}{
-		{"vJrwpWtwJgWrhcsFMMfFFhFp", 16},
+		{"test", 4},
 	}
 
 	for _, tt := range tests {
