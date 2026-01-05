@@ -10,6 +10,7 @@ import (
 	"io"
 	"iter"
 	"log"
+	"math"
 	"os"
 	"slices"
 	"strings"
@@ -114,13 +115,16 @@ func NextPoint(p Point, d byte) Point {
 	panic("Unknown direction: " + string(d))
 }
 
-func findShortestPath(pass string, start, end Point) state {
+func findShortestPath(pass string, start, end Point) (state, state) {
 	queue := []state{{node: start, cost: start.ManhattanDistance(end), path: []byte{}}}
 	distances := map[string]state{
 		"": {node: P0, cost: 0, path: []byte{}},
 	}
-	g := NewGrid(4, 4)
+	g := NewGrid(3, 3)
 	b := bytes.NewBufferString(pass)
+
+	shortest := state{cost: math.MaxInt}
+	var longest state
 
 	for len(queue) > 0 {
 		// Poor man's priority queue
@@ -134,8 +138,16 @@ func findShortestPath(pass string, start, end Point) state {
 
 		dbg("CUR: %v", cur)
 		if cur.node == end {
-			dbg("FOUND: %v", cur)
-			return cur
+			// fmt.Printf("FOUND: %v\n", cur)
+			if cur.cost > longest.cost {
+				longest = cur
+			}
+
+			if cur.cost < shortest.cost {
+				shortest = cur
+			}
+
+			continue
 		}
 
 		b.Truncate(len(pass))
@@ -178,7 +190,7 @@ func findShortestPath(pass string, start, end Point) state {
 
 	}
 
-	return state{}
+	return shortest, longest
 }
 
 func solve1(s []string) int {
@@ -186,8 +198,9 @@ func solve1(s []string) int {
 
 	start := NewPoint(0, 0)
 	end := NewPoint(3, 3)
-	dist := findShortestPath(s[0], start, end)
-	fmt.Printf("Dist: %v\n", dist)
+	short, long := findShortestPath(s[0], start, end)
+	fmt.Printf("SHORTEST: %v\n", short)
+	fmt.Printf("LONGEST: %v\n", long)
 
 	return res
 }
