@@ -124,5 +124,18 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	ds := NewDiscStack()
+	for _, line := range s {
+		ds.AddDisc(line)
+	}
+	ds = append(ds, Disc{positions: 11, initial: 0})
+
+	for ; ; res++ {
+		out := ds.PressButtonAt(res)
+		if out {
+			break
+		}
+	}
+
 	return res
 }
