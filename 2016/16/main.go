@@ -78,26 +78,25 @@ func DragonStep(s string) string {
 func DragonCurve(s string, length int) string {
 	var data string
 	for data = s; len(data) < length; data = DragonStep(data) {
+		dbg("Data len: %v", len(data))
 	}
 
 	return data[:length]
 }
 
 func CheckSum(s string) string {
-	dbg("CheckSum %q", s)
+	dbg("Checksum len: %v", len(s))
 	if len(s)%2 != 0 {
 		return s
 	}
 
 	var b bytes.Buffer
 	for i := 0; i < len(s)-1; i += 2 {
-		dbg("  >> Pair %c%c", s[i], s[i+1])
 		if s[i] == s[i+1] {
 			b.WriteRune('1')
 		} else {
 			b.WriteRune('0')
 		}
-		dbg("  >> out: %q", b.String())
 	}
 
 	return CheckSum(b.String())
@@ -107,7 +106,6 @@ func solve1(s []string) int {
 	res := 0
 
 	data := DragonCurve(s[0], 272)
-	dbg("Got data: %v", data)
 	fmt.Println(CheckSum(data))
 
 	return res
@@ -115,6 +113,9 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	data := DragonCurve(s[0], 35651584)
+	fmt.Println(CheckSum(data))
 
 	return res
 }
