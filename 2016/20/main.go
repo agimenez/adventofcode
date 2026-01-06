@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"slices"
 	"strings"
@@ -59,9 +60,7 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-func solve1(s []string) int {
-	res := 0
-
+func compileRanges(s []string) []Range {
 	ranges := []Range{}
 	for _, line := range s {
 		ranges = append(ranges, NewRange(line))
@@ -86,6 +85,13 @@ func solve1(s []string) int {
 			merged = append(merged, cur)
 		}
 	}
+	return merged
+}
+
+func solve1(s []string) int {
+	res := 0
+
+	merged := compileRanges(s)
 
 	dbg("%v", merged)
 	res = merged[0].Max() + 1
@@ -96,5 +102,10 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	merged := compileRanges(s)
+	for _, r := range merged {
+		res += r.NumValues()
+	}
+	res = math.MaxUint32 - res + 1
 	return res
 }
