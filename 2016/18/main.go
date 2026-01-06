@@ -123,5 +123,7 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 
+	res = CountSafe(s[0], 400000)
+
 	return res
 }
