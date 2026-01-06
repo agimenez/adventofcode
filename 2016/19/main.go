@@ -110,6 +110,41 @@ func SimulateElephantJoseph(n int) int {
 	return res
 }
 
+func SimulateElephantJosephAcross(n int) int {
+	res := 0
+
+	r := ring.New(n)
+	var across *ring.Ring
+
+	for i := 1; i <= n; i++ {
+		r.Value = i
+		r = r.Next()
+		if i == n/2 {
+			across = r
+		}
+	}
+
+	count := n
+	for ; across != r; r = r.Next() {
+		dbg("CUR: %d, across: %d", r.Value.(int), across.Value.(int))
+		across = across.Prev()
+		dbg(" -> REMOVE %d", across.Next().Value.(int))
+		across.Unlink(1)
+		count--
+
+		// If the remaining items is even, we need to jump an additional
+		// elf to get the correct one across
+		if count%2 == 0 {
+			across = across.Next()
+		}
+
+		across = across.Next()
+	}
+	res = r.Value.(int)
+
+	return res
+}
+
 // After looking in Reddit, this looks like the Josephus Problem, and
 // there is a mathematical way to solve it, but let's simulate, because
 // simulations are cool!
@@ -123,6 +158,8 @@ func solve1(s []string) int {
 
 func solve2(s []string) int {
 	res := 0
+
+	res = SimulateElephantJosephAcross(ToInt(s[0]))
 
 	return res
 }

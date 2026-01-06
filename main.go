@@ -62,11 +62,13 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 func solve1(s []string) int {
 	res := 0
 
+	dbg("")
 	return res
 }
 
 func solve2(s []string) int {
 	res := 0
+	dbg("========== PART 2 ===========")
 
 	return res
 }
