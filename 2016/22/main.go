@@ -65,8 +65,17 @@ type Node struct {
 	size, used, avail int
 }
 
-func ReadCluster(df []string) map[Point]Node {
-	cluster := map[Point]Node{}
+type Cluster struct {
+	nodes    map[Point]Node
+	maxPoint Point
+}
+
+func ReadCluster(df []string) Cluster {
+	cluster := Cluster{
+		nodes:    map[Point]Node{},
+		maxPoint: P0,
+	}
+
 	for _, line := range df {
 		// Filesystem              Size  Used  Avail  Use%
 		// /dev/grid/node-x0-y0     85T   67T    18T   78%
@@ -74,7 +83,9 @@ func ReadCluster(df []string) map[Point]Node {
 		coords := strings.Split(parts[0], "-")
 		p := NewPoint(ToInt(coords[1][1:]), ToInt(coords[2][1:]))
 
-		cluster[p] = Node{
+		cluster.maxPoint = p.Max(cluster.maxPoint)
+
+		cluster.nodes[p] = Node{
 			size:  ToInt(parts[1][:len(parts[1])-1]),
 			used:  ToInt(parts[2][:len(parts[2])-1]),
 			avail: ToInt(parts[3][:len(parts[3])-1]),
@@ -93,9 +104,8 @@ func solve1(s []string) int {
 	res := 0
 
 	cluster := ReadCluster(s[2:])
-	nodes := slices.Collect(maps.Values(cluster))
+	nodes := slices.Collect(maps.Values(cluster.nodes))
 	for pair := range Combinations(nodes, 2) {
-		dbg("%+v -> %+v", pair[0], pair[1])
 		if pair[0].FitsInto(pair[1]) || pair[1].FitsInto(pair[0]) {
 			res++
 		}
@@ -105,9 +115,36 @@ func solve1(s []string) int {
 	return res
 }
 
+func cluster2Grid(c Cluster) Grid {
+	g := NewGrid(c.maxPoint.X, c.maxPoint.Y)
+	for p, n := range c.nodes {
+		if n.used == 0 {
+			g.SetRune(p, '_')
+		} else if n.size > 200 {
+			g.SetRune(p, '#')
+
+		} else if p == NewPoint(c.maxPoint.X-1, 0) {
+			g.SetRune(p, 'G')
+		} else if p == P0 {
+			g.SetRune(p, '*')
+		} else {
+			g.SetRune(p, '.')
+		}
+	}
+
+	return g
+}
+
+// I got desperate with this, and looks like most people on Reddit, including Eric
+// mentioned to just print the grid, and solve it manually. FML
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+
+	cluster := ReadCluster(s[2:])
+	grid := cluster2Grid(cluster)
+
+	fmt.Println(grid)
 
 	return res
 }
