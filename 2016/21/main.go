@@ -182,5 +182,14 @@ func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
 
+	target := "fbgdceah"
+	for pass := range Permutations([]byte("abcdefgh")) {
+		scrambled := Scramble(s, string(pass))
+		if scrambled == target {
+			fmt.Println(string(pass))
+			break
+		}
+	}
+
 	return res
 }
