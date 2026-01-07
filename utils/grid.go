@@ -80,7 +80,7 @@ func (g Grid) String() string {
 }
 
 func (g Grid) OutOfBounds(p Point) bool {
-	return p.X > g.w || p.X < 0 || p.Y > g.h || p.Y < 0
+	return p.X >= g.w || p.X < 0 || p.Y >= g.h || p.Y < 0
 }
 
 func (g Grid) AdjacentPoints(p Point, diagonals bool) iter.Seq[Point] {

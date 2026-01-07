@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"flag"
 	"fmt"
 	"io"
@@ -66,8 +67,9 @@ type Node struct {
 }
 
 type Cluster struct {
-	nodes    map[Point]Node
-	maxPoint Point
+	nodes     map[Point]Node
+	maxPoint  Point
+	emptyNode Point
 }
 
 func ReadCluster(df []string) Cluster {
@@ -85,10 +87,15 @@ func ReadCluster(df []string) Cluster {
 
 		cluster.maxPoint = p.Max(cluster.maxPoint)
 
-		cluster.nodes[p] = Node{
+		n := Node{
 			size:  ToInt(parts[1][:len(parts[1])-1]),
 			used:  ToInt(parts[2][:len(parts[2])-1]),
 			avail: ToInt(parts[3][:len(parts[3])-1]),
+		}
+		cluster.nodes[p] = n
+
+		if n.used == 0 {
+			cluster.emptyNode = p
 		}
 
 	}
@@ -116,14 +123,14 @@ func solve1(s []string) int {
 }
 
 func cluster2Grid(c Cluster) Grid {
-	g := NewGrid(c.maxPoint.X, c.maxPoint.Y)
+	g := NewGrid(c.maxPoint.X+1, c.maxPoint.Y+1)
 	for p, n := range c.nodes {
 		if n.used == 0 {
 			g.SetRune(p, '_')
 		} else if n.size > 200 {
 			g.SetRune(p, '#')
 
-		} else if p == NewPoint(c.maxPoint.X-1, 0) {
+		} else if p == NewPoint(c.maxPoint.X, 0) {
 			g.SetRune(p, 'G')
 		} else if p == P0 {
 			g.SetRune(p, '*')
@@ -135,16 +142,128 @@ func cluster2Grid(c Cluster) Grid {
 	return g
 }
 
+type path struct {
+	node Point
+	cost int
+	path []Point
+}
+
+func findShortestPath(g Grid, start, end Point) []Point {
+	queue := []path{{
+		node: start,
+		cost: start.ManhattanDistance(end),
+		path: []Point{start},
+	}}
+
+	distances := map[Point]int{
+		start: 0,
+	}
+
+	for len(queue) > 0 {
+		// Poor man's priority queue
+		slices.SortFunc(queue, func(i, j path) int {
+			return cmp.Compare(i.cost, j.cost)
+		})
+
+		dbg("Q: %v", queue)
+
+		cur := queue[0]
+		queue = queue[1:]
+
+		dbg("CUR: %v", cur)
+		if cur.node == end {
+			// Do not include the goal in the path
+			return cur.path[1:]
+
+		}
+
+		for next := range g.AdjacentPoints(cur.node, false) {
+			dbg(" -> %v", next)
+			if g.GetRune(next) == '#' {
+				continue
+			}
+
+			if _, ok := distances[next]; !ok {
+				nextDist := distances[cur.node] + 1
+				distances[next] = nextDist
+
+				nextPath := slices.Clone(cur.path)
+				nextPath = append(nextPath, next)
+
+				queue = append(queue, path{
+					node: next,
+					cost: nextDist + next.ManhattanDistance(end),
+					path: nextPath,
+				})
+			}
+		}
+		dbg("DIST: %v", distances)
+
+	}
+
+	dbg("GRID:\n%v", g)
+	return []Point{}
+}
+
+func printGrid(g Grid, special map[Point]rune, path []Point) {
+	g2 := g.Clone()
+
+	for _, p := range path {
+		g2.SetRune(p, '*')
+	}
+
+	for p, r := range special {
+		g2.SetRune(p, r)
+	}
+	fmt.Printf("%v\n", g2)
+}
+
 // I got desperate with this, and looks like most people on Reddit, including Eric
 // mentioned to just print the grid, and solve it manually. FML
+// Update: found a somewhat "simple" BFS-based algo in Reddit that can solve this specific
+// puzzle
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
 
 	cluster := ReadCluster(s[2:])
 	grid := cluster2Grid(cluster)
-
 	fmt.Println(grid)
+
+	// First find the path from the empty node to the goal
+	g := grid.Clone()
+	empty := cluster.emptyNode
+	goal := NewPoint(cluster.maxPoint.X, 0)
+	start := NewPoint(0, 0)
+	pathGoalStart := findShortestPath(g, goal, start)
+
+	fmt.Println(pathGoalStart)
+	for goal != start {
+		nextG := pathGoalStart[0]
+		pathGoalStart = pathGoalStart[1:]
+		fmt.Printf("Empty: %v\n", empty)
+		fmt.Printf("P0: %v\n", nextG)
+		fmt.Printf("Goal(obst): %v\n", goal)
+
+		g.SetRune(goal, '#')
+		path := findShortestPath(g, empty, nextG)
+		fmt.Printf("Path: %v\n", path)
+		g.SetRune(goal, '.')
+		printGrid(g, map[Point]rune{
+			empty: '_',
+			goal:  '#',
+		}, path)
+		empty = goal
+		g.SetRune(goal, '.')
+		goal = path[len(path)-1]
+		printGrid(g, map[Point]rune{
+			empty: '_',
+			goal:  '#',
+		}, path)
+
+		res += len(path) + 1
+	}
+	fmt.Printf("%v\n", g)
 
 	return res
 }
