@@ -39,6 +39,29 @@ func NewGridFromStr(lines []string) Grid {
 	return g
 }
 
+// NewGridFromStrFunc applies the callback function f() to the runes read from
+// the grid, and stores the returned value in the grid position.
+// This can be used to extend the Grid capabilities to trigger external
+// actions, like for example collect a number of "interesting" locations,
+// like in 2016/24
+func NewGridFromStrFunc(lines []string, f func(p Point, r rune) rune) Grid {
+	g := Grid{
+		h: len(lines),
+		w: len(lines[0]),
+
+		grid: map[Point]rune{},
+	}
+
+	for y, l := range lines {
+		for x, c := range l {
+			p := NewPoint(x, y)
+			g.grid[p] = f(p, c)
+		}
+	}
+
+	return g
+}
+
 func (g Grid) Height() int {
 	return g.h
 }
