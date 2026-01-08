@@ -229,13 +229,16 @@ func (dm DuctMap) PathCost(pois []Point) int {
 
 }
 
-func shortestRoute(dm DuctMap) int {
+func shortestRoute(dm DuctMap, circular bool) int {
 	res := 0
 
 	res = math.MaxInt
 	for p := range Permutations(dm.POIs()) {
 		if p[0] != dm.poi0 {
 			continue
+		}
+		if circular {
+			p = append(p, dm.poi0)
 		}
 
 		dbg("%v", p)
@@ -256,7 +259,7 @@ func solve1(s []string) int {
 	dm := ReadDuctMap(s)
 	dbg("%v", dm)
 
-	res = shortestRoute(dm)
+	res = shortestRoute(dm, false)
 
 	dbg("")
 	return res
@@ -265,6 +268,9 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+
+	dm := ReadDuctMap(s)
+	res = shortestRoute(dm, true)
 
 	return res
 }
