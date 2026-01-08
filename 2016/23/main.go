@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -47,11 +48,14 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 	var dur [2]time.Duration
 
 	now = time.Now()
-	part1 := solve1(lines, 7)
+	l := slices.Clone(lines)
+	part1 := 0
+	// part1 := solve1(l, 7)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
-	part2 := solve1(lines, 7)
+	l = slices.Clone(lines)
+	part2 := solve1(l, 12)
 	dur[1] = time.Since(now)
 
 	return part1, part2, dur[0], dur[1]
@@ -70,6 +74,7 @@ func solve1(s []string, a int) int {
 	}
 	pc := 0
 
+	tick := 0
 	for {
 		if pc >= len(s) {
 			break
@@ -150,6 +155,15 @@ func solve1(s []string, a int) int {
 			panic("Unknown instruction: " + decoded[0])
 		}
 		// dbg("%v", strings.Join(s, "\n"))
+		// fmt.Printf("[%d] IP: %d (%s) -- A: %d B: %d C: %d D: %d\n", tick, pc, decoded[0], reg["a"], reg["b"], reg["c"], reg["d"])
+		tick++
+		if tick%1_000_000 == 0 {
+			print(".")
+
+			if tick%120_000_000 == 0 {
+				fmt.Printf(" (%d)\n", tick)
+			}
+		}
 	}
 
 	dbg("=== [%d] HALT: %v", pc, reg)
