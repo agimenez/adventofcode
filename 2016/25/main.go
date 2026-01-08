@@ -70,9 +70,10 @@ func exec(s []string, a int) bool {
 	}
 	pc := 0
 
-	out := make(chan int, 16)
-	done := make(chan bool, 1)
+	out := make(chan int)
+	done := make(chan bool)
 
+	found := false
 	go func() {
 		var b strings.Builder
 		prev := <-out
@@ -91,14 +92,25 @@ func exec(s []string, a int) bool {
 			if prev == cur {
 				dbg(b.String())
 				dbg("RETURNING, BAD")
-				done <- false
+				close(done)
+
+				// drain channel
+				dbg("DRAINING")
+				for range out {
+				}
+
 				return
 			}
 			prev = cur
 		}
+		dbg("FOUND!!!")
 		dbg(b.String())
-		done <- true
+		found = true
+		dbg("CLOSING DONE!!!")
 		close(done)
+		dbg("DRAINING")
+		for range out {
+		}
 	}()
 
 	for {
@@ -193,10 +205,10 @@ func exec(s []string, a int) bool {
 		// dbg("%v", strings.Join(s, "\n"))
 		// fmt.Printf("[%d] IP: %d (%s) -- A: %d B: %d C: %d D: %d\n", tick, pc, decoded[0], reg["a"], reg["b"], reg["c"], reg["d"])
 		select {
-		case v := <-done:
+		case <-done:
 			dbg("EXITING")
 			close(out)
-			return v
+			return found
 		default:
 		}
 
@@ -204,7 +216,7 @@ func exec(s []string, a int) bool {
 
 	dbg("=== [%d] HALT: %v", pc, reg)
 
-	return false
+	return found
 }
 
 func solve1(s []string) int {
