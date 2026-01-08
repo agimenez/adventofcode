@@ -49,8 +49,7 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 	now = time.Now()
 	l := slices.Clone(lines)
-	part1 := 0
-	// part1 := solve1(l, 7)
+	part1 := solve1(l, 7)
 	dur[0] = time.Since(now)
 
 	now = time.Now()
@@ -150,6 +149,12 @@ func solve1(s []string, a int) int {
 			b.WriteString(strings.Join(parts[1:], " "))
 			// dbg(" >> TGL: %s", b.String())
 			s[offset] = b.String()
+		case "mul":
+			r1 := reg[decoded[1]]
+			r2 := reg[decoded[2]]
+			reg[decoded[3]] = r1 * r2
+
+		case "nop": // nothing
 
 		default:
 			panic("Unknown instruction: " + decoded[0])
