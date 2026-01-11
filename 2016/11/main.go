@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"maps"
 	"os"
 	"regexp"
 	"slices"
@@ -62,21 +63,44 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-type Item struct {
-	name      string
-	generator bool
-	floor     int
+const (
+	CHIP = iota
+	GEN
+)
+
+type Pair struct {
+	name  string
+	floor [2]int
 }
 
-func (i Item) abbrev() string {
-	b := []byte{i.name[0], i.name[len(i.name)-1]}
+func (p Pair) Chip() string {
+	b := []byte{p.name[0], 'M'}
 
 	return strings.ToUpper(string(b))
 }
 
+func (p Pair) Gen() string {
+	b := []byte{p.name[0], 'G'}
+
+	return strings.ToUpper(string(b))
+
+}
+
 type State struct {
 	elevator int
-	items    []Item
+	items    []Pair
+}
+
+func (s *State) AddPair(name string, chipFloor, genFloor int) *State {
+	p := Pair{
+		name:  name,
+		floor: [2]int{CHIP: chipFloor, GEN: genFloor},
+	}
+
+	s.items = append(s.items, p)
+	s.sort()
+
+	return s
 }
 
 func (s State) Clone() State {
@@ -84,6 +108,17 @@ func (s State) Clone() State {
 		elevator: s.elevator,
 		items:    slices.Clone(s.items),
 	}
+}
+
+func (s State) sort() {
+	slices.SortFunc(s.items, func(a Pair, b Pair) int {
+		return cmp.Or(
+			cmp.Compare(a.floor[CHIP], b.floor[CHIP]),
+			cmp.Compare(a.floor[GEN], b.floor[GEN]),
+		)
+
+	})
+
 }
 
 func getFloor(s string) int {
@@ -110,13 +145,21 @@ func dbgState(s State) {
 		} else {
 			b.WriteString(". | ")
 		}
-		for _, item := range s.items {
-			if item.floor == f {
-				b.WriteString(item.abbrev())
+
+		for _, pair := range s.items {
+			if pair.floor[CHIP] == f {
+				b.WriteString(pair.Chip())
+				b.WriteRune(' ')
 			} else {
-				b.WriteString(". ")
+				b.WriteString(".  ")
 			}
-			b.WriteRune(' ')
+
+			if pair.floor[GEN] == f {
+				b.WriteString(pair.Gen())
+				b.WriteRune(' ')
+			} else {
+				b.WriteString(".  ")
+			}
 		}
 		b.WriteRune('\n')
 	}
@@ -125,42 +168,43 @@ func dbgState(s State) {
 }
 
 func parseInput(in []string) State {
-	allItems := []Item{}
+	pairs := map[string]Pair{}
 	re := regexp.MustCompile(`([a-z]+)(?:-compatible)? (microchip|generator)`)
 	for _, l := range in {
 		floor := getFloor(l)
 		itemsinFloor := re.FindAllStringSubmatch(l, -1)
 		for _, items := range itemsinFloor {
-			suffix := "M"
-			isGen := false
-			if items[2] == "generator" {
-				suffix = "G"
-				isGen = true
+			var p Pair
+			var ok bool
+			if p, ok = pairs[items[1]]; !ok {
+				p = Pair{name: items[1]}
 			}
-			item := Item{
-				name:      items[1] + suffix,
-				floor:     floor,
-				generator: isGen,
+			if items[2] == "generator" {
+				p.floor[GEN] = floor
+			} else {
+				p.floor[CHIP] = floor
 			}
 
-			allItems = append(allItems, item)
+			pairs[items[1]] = p
+
 		}
 
 	}
 
-	// cosmetic: keep chip and its chip together
-	slices.SortFunc(allItems, func(a, b Item) int {
-		return strings.Compare(a.name, b.name)
-	})
+	s := State{
+		elevator: 1,
+		items:    slices.Collect(maps.Values(pairs)),
+	}
+	s.sort()
 
-	return State{elevator: 1, items: allItems}
+	return s
 }
 
 func (s State) DistToSol() int {
 	res := 4 - s.elevator
 
-	res += Reduce(s.items, 0, func(acc int, i Item) int {
-		return acc + 4 - i.floor
+	res += Reduce(s.items, 0, func(acc int, p Pair) int {
+		return acc + 8 - p.floor[CHIP] - p.floor[GEN]
 	})
 	dbg("s: %s, dist: %d", s.Serial(), res)
 
@@ -178,19 +222,23 @@ func (s State) Serial() string {
 
 	b.WriteRune(rune(s.elevator + '0'))
 	for _, i := range s.items {
-		b.WriteRune(rune(i.floor + '0'))
+		b.WriteRune(rune(i.floor[CHIP] + '0'))
+		b.WriteRune(rune(i.floor[GEN] + '0'))
 	}
 
 	return b.String()
 }
 
-func (s State) MoveItems(items []Item, dir int) State {
+func (s State) MoveItems(items [][2]int, dir int) State {
 	s.elevator += dir
 
-	for _, it := range items {
-		idx := slices.IndexFunc(s.items, func(i Item) bool { return i.name == it.name })
-		s.items[idx].floor += dir
+	for _, item := range items {
+		dbg("   >> MoveItems: got item %v", item)
+		pair := item[0]
+		component := item[1]
+		s.items[pair].floor[component] += dir
 	}
+	s.sort()
 
 	return s
 }
@@ -200,49 +248,64 @@ func (s State) IsValid() bool {
 		return false
 	}
 
-	// debug = false
-	if s.Serial() == "22232" {
-		debug = true
-	}
 	gensByFloor := map[int]int{}
-	for i := 0; i < len(s.items); i += 2 {
-		gensByFloor[s.items[i].floor]++
+	for i := 0; i < len(s.items); i++ {
+		gensByFloor[s.items[i].floor[GEN]]++
 	}
+
 	dbg("================= IsValid ================")
 	dbgState(s)
 	dbg("IsValid (%s) Gens by floor: %v", s.Serial(), gensByFloor)
 
-	for i := 0; i <= len(s.items)-1; i += 2 {
-		gen := s.items[i]
-		chip := s.items[i+1]
+	for i := 0; i < len(s.items); i++ {
+		pair := s.items[i]
 
-		dbg("[%d/%d] Checking [%s/%d] [%s/%d]", i, len(s.items)-1, gen.name, gen.floor, chip.name, chip.floor)
+		dbg("[%d/%d] Checking [%s] [chip: %d/ gen: %d]", i, len(s.items)-1, pair.name, pair.floor[CHIP], pair.floor[GEN])
 
 		// NOK: Chip is not with its generator AND not by itself in a floor
-		if chip.floor != gen.floor && gensByFloor[chip.floor] > 0 {
-			dbg("  >> [%s] [%s] INVALID 1!!!", chip.name, gen.name)
+		if pair.floor[CHIP] != pair.floor[GEN] && gensByFloor[pair.floor[CHIP]] > 0 {
+			dbg("  >> [%s] INVALID 1!!!", pair.name)
 			return false
 		}
 	}
-	// debug = false
 
 	return true
 }
 
 func (s State) NextMoves() []State {
 	nextStates := []State{}
-	currentItems := Filter(s.items, func(i Item) bool {
-		return i.floor == s.elevator
-	})
-	dbg("Current Items on floor %d: %v", s.elevator, currentItems)
 
-	combinations := CollectCombinations(currentItems, 1)
-	combinations = append(combinations, CollectCombinations(currentItems, 2)...)
+	currentPairIndices := slices.Collect(func(yield func([2]int) bool) {
+		for i, pair := range s.items {
+			out := [2]int{i, -1}
+
+			if pair.floor[CHIP] == s.elevator {
+				out[1] = CHIP
+				if !yield(out) {
+					return
+				}
+			}
+
+			if pair.floor[GEN] == s.elevator {
+				out[1] = GEN
+				if !yield(out) {
+					return
+				}
+			}
+
+		}
+	})
+	dbg("Current pairs with items on floor %d: %v", s.elevator, currentPairIndices)
+
+	combinations := CollectCombinations(currentPairIndices, 1)
+	combinations = append(combinations, CollectCombinations(currentPairIndices, 2)...)
+	// dbg("Got Combinations: %v", combinations)
 
 	for _, dir := range []int{-1, 1} {
 		for _, comb := range combinations {
 			// dbg("[%d] TESTING combination %v", dir, comb)
 			next := s.Clone().MoveItems(comb, dir)
+			next.sort()
 			nextStates = append(nextStates, next)
 		}
 	}
@@ -282,7 +345,7 @@ func findShortestPath(s State) int {
 		s.Serial(): 0,
 	}
 
-	end := strings.Repeat("4", len(s.items)+1)
+	end := strings.Repeat("4", (2*len(s.items))+1)
 	dbg("Initial: %s", s.Serial())
 	dbg("End sta: %s", end)
 
@@ -298,7 +361,7 @@ func findShortestPath(s State) int {
 
 		cur := queue[0]
 		queue = queue[1:]
-		fmt.Println("Q len: ", len(queue))
+		// fmt.Println("Q len: ", len(queue))
 
 		dbg("================ CURRENT STATE ===============")
 		dbgState(cur.state)
@@ -341,7 +404,7 @@ func solve1(s []string) int {
 
 	state := parseInput(s)
 	// dbg("%v", state)
-	// dbgState(state)
+	dbgState(state)
 	res = findShortestPath(state)
 
 	dbg("")
@@ -351,6 +414,12 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	state := parseInput(s)
+	state.AddPair("elerium", 1, 1)
+	state.AddPair("dilitium", 1, 1)
+
+	dbgState(state)
+	res = findShortestPath(state)
 
 	return res
 }
