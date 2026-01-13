@@ -97,6 +97,31 @@ func exec(m []int) int {
 	return steps
 }
 
+func execv2(m []int) int {
+	steps := 1
+	idx := 0
+
+	dbgMaze(m, idx)
+	for {
+		jmp := m[idx]
+		if jmp >= 3 {
+			m[idx]--
+		} else {
+			m[idx]++
+		}
+
+		if idx+jmp >= len(m) {
+			break
+		}
+		idx += jmp
+
+		steps++
+		dbgMaze(m, idx)
+	}
+
+	return steps
+}
+
 func solve1(s []string) int {
 	res := 0
 	maze := make([]int, len(s))
@@ -113,6 +138,11 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	maze := make([]int, len(s))
+	for i, l := range s {
+		maze[i] = ToInt(l)
+	}
+	res = execv2(maze)
 
 	return res
 }
