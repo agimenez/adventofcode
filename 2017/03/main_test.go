@@ -35,7 +35,7 @@ func TestMain(t *testing.T) {
 		{1024, 31},
 	}
 
-	sp := genSpiral(1024)
+	sp, _ := genSpiral(1024)
 	for _, tt := range tests {
 		p := sp[tt.in]
 

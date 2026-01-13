@@ -224,6 +224,15 @@ func Reduce[T, R any](s []T, init R, fn ReduceFunc[T, R]) R {
 	return res
 }
 
+func ReduceCollect[T, R any](seq iter.Seq[T], init R, fn ReduceFunc[T, R]) R {
+	res := init
+	for i := range seq {
+		res = fn(res, i)
+	}
+
+	return res
+}
+
 type FilterFunc[T any] func(T) bool
 
 func Filter[T any](s []T, fn FilterFunc[T]) []T {

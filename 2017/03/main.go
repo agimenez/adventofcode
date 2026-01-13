@@ -61,21 +61,31 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 type Spiral map[int]Point
 
-func genSpiral(pos int) Spiral {
+func genSpiral(pos int) (Spiral, int) {
 	s := Spiral{}
 
 	curPoint := P0
 	dir := P0.Down()
 	seen := map[Point]bool{}
 
+	neighbourSum := map[Point]int{P0: 1}
+	max := 0
+
 	// The logic of this is:
 	// - try to turn left (always)
 	// - If the left point is already seen (we're in a loop) -> keep going
 	// - If the point of turning left is not seen, then we need to actually turn
 	for curPos := 1; curPos <= pos; curPos++ {
-
 		seen[curPoint] = true
 		s[curPos] = curPoint
+
+		neighbourSum[curPoint] = ReduceCollect(curPoint.Adjacent(true), neighbourSum[curPoint], func(acc int, p Point) int {
+			return acc + neighbourSum[p]
+		})
+
+		if neighbourSum[curPoint] > pos && max == 0 {
+			max = neighbourSum[curPoint]
+		}
 
 		if turnLeft := curPoint.Sum(dir.Rotate90CCW()); seen[turnLeft] == false {
 			curPoint = turnLeft
@@ -85,7 +95,7 @@ func genSpiral(pos int) Spiral {
 		}
 	}
 
-	return s
+	return s, max
 }
 
 // This part is Ulam's spiral, and could be solved mathemathically, but
@@ -94,7 +104,7 @@ func solve1(s []string) int {
 	res := 0
 
 	pos := ToInt(s[0])
-	sp := genSpiral(pos)
+	sp, _ := genSpiral(pos)
 	res = sp[pos].ManhattanDistance(P0)
 	dbg("%v", sp)
 
@@ -105,6 +115,8 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	pos := ToInt(s[0])
+	_, res = genSpiral(pos)
 
 	return res
 }
