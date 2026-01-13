@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
-	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -83,9 +83,32 @@ func solve1(s []string) int {
 	return res
 }
 
+func noAnagrams(pass string) bool {
+	anagrams := map[string]bool{}
+	for _, word := range strings.Fields(pass) {
+
+		// Some form of anagram of this word has been seen
+		if _, ok := anagrams[word]; ok {
+			return false
+		}
+
+		// Record all anagrams of this word
+		for comb := range Permutations([]byte(word)) {
+			anagrams[string(comb)] = true
+		}
+	}
+
+	return true
+}
+
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	for _, pass := range s {
+		if valid(pass) && noAnagrams(pass) {
+			res++
+		}
+	}
 
 	return res
 }

@@ -20,3 +20,24 @@ func TestMain(t *testing.T) {
 	}
 
 }
+
+func Test_noAnagrams(t *testing.T) {
+	tests := []struct {
+		pass string
+		want bool
+	}{
+		{"abcde fghij", true},
+		{"abcde xyz ecdab", false},
+		{"a ab abc abd abf abj", true},
+		{"iiii oiii ooii oooi oooo", true},
+		{"oiii ioii iioi iiio", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.pass, func(t *testing.T) {
+			got := noAnagrams(tt.pass)
+			if got != tt.want {
+				t.Errorf("noAnagrams() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
