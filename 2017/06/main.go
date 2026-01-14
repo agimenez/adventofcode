@@ -128,7 +128,6 @@ func redistribute(m Memory) int {
 	steps := 0
 	seen := map[string]bool{m.Serial(): true}
 	for {
-		fmt.Println(m.banks)
 		m = m.Redistribute()
 		steps++
 		if ok := seen[m.Serial()]; ok {
@@ -154,6 +153,18 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	m := parseBanks(s[0])
+	steps := 0
+	seen := map[string]int{m.Serial(): 1}
+	for {
+		m = m.Redistribute()
+		steps++
+		if _, ok := seen[m.Serial()]; ok {
+			break
+		}
+		seen[m.Serial()] = steps
+	}
+	res = steps - seen[m.Serial()]
 
 	return res
 }
