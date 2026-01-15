@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	// . "github.com/agimenez/adventofcode/utils"
 	"io"
 	"log"
 	"os"
 	"strings"
 	"time"
-	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -78,9 +78,6 @@ func parseTree(s []string) *Node {
 	vertices := map[string][]string{}
 
 	for _, line := range s {
-		dbg("Line: %v", line)
-		dbg("Edges: %v", edges)
-		dbg("vertices: %v", vertices)
 		parts := strings.Split(line, " -> ")
 		var name string
 		var value int
@@ -120,11 +117,62 @@ func parseTree(s []string) *Node {
 	return t
 }
 
+func (n *Node) ChildSums() int {
+	// dbg(">> %s (%d)", n.name, n.weight)
+	sum := n.weight
+	for _, child := range n.children {
+		sum += child.ChildSums()
+		// dbg("   >> %s -> %d", child.name, child.ChildSums())
+	}
+
+	return sum
+}
+
+func findUnbalance(n *Node) (int, int) {
+	res := 0
+
+	sums := map[int][]*Node{}
+
+	dbg(">> %s (%d)", n.name, n.weight)
+	for _, child := range n.children {
+		sum := child.ChildSums()
+		sums[sum] = append(sums[sum], child)
+
+		dbg("   >> %s (%d)", child.name, sum)
+	}
+
+	var childSums [2]int // good and bad sum
+	var unbalancedChild *Node
+	for sum, children := range sums {
+		if len(children) == 1 {
+			dbg("Unbalance detected for sum %d (%v)", sum, children[0])
+			// First one to detect an offset with its children is the one to rebalance
+			unbalancedChild = children[0]
+			childSums[1] = sum
+		} else {
+			childSums[0] = sum
+		}
+	}
+
+	// If it's unbalanced, go deep to the next unbalanced child
+	if unbalancedChild != nil {
+		offset := childSums[0] - childSums[1]
+		dbg("UNBalanced (%s): going deeper -> %s, offset: %d", n.name, unbalancedChild.name, offset)
+		orig, _ := findUnbalance(unbalancedChild)
+		return orig, offset
+	}
+
+	res = n.weight
+	dbg("Balanced (%s): returning %d", n.name, res)
+
+	return res, 0
+}
+
 func solve1(s []string) int {
 	res := 0
 
 	t := parseTree(s)
-	dbg("%v", t)
+	// dbg("%v", t)
 	fmt.Println(t.name)
 
 	dbg("")
@@ -134,6 +182,9 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	t := parseTree(s)
+	res, offset := findUnbalance(t)
+	res += offset
 
 	return res
 }
