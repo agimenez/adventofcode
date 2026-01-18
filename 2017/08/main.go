@@ -85,7 +85,7 @@ func cond(s string, reg map[string]int) bool {
 
 }
 
-func exec(s string, reg map[string]int) {
+func exec(s string, reg map[string]int) int {
 	parts := strings.Fields(s)
 	r := parts[0]
 	v := ToInt(parts[2])
@@ -101,6 +101,8 @@ func exec(s string, reg map[string]int) {
 		panic("Unknown op: " + parts[1])
 
 	}
+
+	return reg[r]
 }
 
 func solve1(s []string) int {
@@ -127,6 +129,15 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	reg := map[string]int{}
+	for _, line := range s {
+		parts := strings.Split(line, " if ")
+		if cond(parts[1], reg) {
+			res = Max(res, exec(parts[0], reg))
+		}
+
+	}
+	dbg("%v", reg)
 
 	return res
 }
