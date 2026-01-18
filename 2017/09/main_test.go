@@ -35,7 +35,7 @@ func Test_getGroups(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
-			got := getGroups(tt.s)
+			got, _ := processStream(tt.s)
 			// TODO: update the condition below to compare got with tt.want.
 			if got != tt.want {
 				t.Errorf("getGroups(%s) = %v, want %v", tt.s, got, tt.want)

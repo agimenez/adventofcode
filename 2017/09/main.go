@@ -58,8 +58,9 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 }
 
-func getGroups(s string) int {
+func processStream(s string) (int, int) {
 	res := 0
+	removed := 0
 
 	group := 0
 	escaped := false
@@ -76,6 +77,8 @@ func getGroups(s string) int {
 				escaped = true
 			case '>':
 				garbage = false
+			default:
+				removed++
 			}
 			continue
 		}
@@ -92,13 +95,13 @@ func getGroups(s string) int {
 			group--
 		}
 	}
-	return res
+	return res, removed
 }
 
 func solve1(s []string) int {
 	res := 0
 
-	res = getGroups(s[0])
+	res, _ = processStream(s[0])
 
 	dbg("")
 	return res
@@ -107,6 +110,7 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	_, res = processStream(s[0])
 
 	return res
 }
