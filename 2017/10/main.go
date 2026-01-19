@@ -143,20 +143,52 @@ func (kh *KnotHash) step(l int) {
 
 }
 
-func (kh *KnotHash) Hash(lens []int) {
-	for _, l := range lens {
-		kh.step(l)
-		dbg("After step: %v", kh)
-		dbg("")
+func (kh *KnotHash) Hash(lens []int, rounds int) {
+	for range rounds {
+		for _, l := range lens {
+			kh.step(l)
+			dbg("After step: %v", kh)
+			dbg("")
+		}
 	}
+}
+
+func (kh *KnotHash) HashText(in string, rounds int) {
+	lens := make([]int, 0, len(in))
+
+	for _, c := range in {
+		lens = append(lens, int(c))
+	}
+
+	lens = slices.Concat(lens, []int{17, 31, 73, 47, 23})
+	kh.Hash(lens, rounds)
+}
+
+func (kh KnotHash) SparseHash() []int {
+	return slices.Collect(kh.AllItems())
+}
+
+func (kh KnotHash) DenseHash() string {
+	var b strings.Builder
+	sparse := kh.SparseHash()
+
+	for block := 0; block < 16; block++ {
+		res := 0
+		for j := 0; j < 16; j++ {
+			res ^= sparse[block*16+j]
+		}
+		b.WriteString(fmt.Sprintf("%02x", res))
+	}
+
+	return b.String()
 }
 
 func TestRun() {
 	kh := NewKnotHash(5)
 	lens := []int{3, 4, 1, 5}
-	kh.Hash(lens)
+	kh.Hash(lens, 1)
 
-	v := slices.Collect(kh.AllItems())
+	v := kh.SparseHash()
 	println(v[0] * v[1])
 }
 
@@ -166,8 +198,8 @@ func solve1(s []string) int {
 	kh := NewKnotHash(256)
 	dbg("%v", kh)
 	lens := CSVToIntSlice(s[0], ",")
-	kh.Hash(lens)
-	v := slices.Collect(kh.AllItems())
+	kh.Hash(lens, 1)
+	v := kh.SparseHash()
 	res = v[0] * v[1]
 
 	TestRun()
@@ -179,6 +211,12 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	kh := NewKnotHash(256)
+	kh.HashText(s[0], 64)
+
+	r := kh.DenseHash()
+	fmt.Println(r)
+	dbg("%v", r)
 
 	return res
 }
