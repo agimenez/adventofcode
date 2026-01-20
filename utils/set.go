@@ -32,6 +32,10 @@ func NewSetFromMapKeys[T comparable, V any](m map[T]V) Set[T] {
 	return s
 }
 
+func (s Set[T]) Remove(v T) {
+	delete(s, v)
+}
+
 func (s Set[T]) Contains(v T) bool {
 	_, ok := s[v]
 

@@ -7,8 +7,10 @@ import (
 	"log"
 	"maps"
 	"os"
+	"slices"
 	"strings"
 	"time"
+
 	. "github.com/agimenez/adventofcode/utils"
 )
 
@@ -93,17 +95,29 @@ func SpanTree(g Graph, start string) Set[string] {
 	return visited
 }
 
+// This could be done using Floyd-Warshall...
+func GraphGroups(g Graph) int {
+	res := 0
+	pending := NewSetFromMapKeys(g)
+
+	for len(pending) > 0 {
+		res++
+		next := slices.Collect(pending.All())[0]
+		dbg("Got next element: %v", next)
+		reachable := SpanTree(g, next)
+		dbg("  >> Reachable: %v", reachable)
+
+		pending = pending.Difference(reachable)
+		dbg("  >> Pending: %v", pending)
+	}
+
+	return res
+}
+
 func solve1(s []string) int {
 	res := 0
 
-	g := Graph{}
-	for _, line := range s {
-		parts := strings.Split(line, " <-> ")
-		for _, dst := range strings.Split(parts[1], ", ") {
-			g.AddEdge(parts[0], dst)
-		}
-
-	}
+	g := parseGraph(s)
 	dbg("%v", g)
 	visited := SpanTree(g, "0")
 	dbg("%v", visited)
@@ -113,9 +127,23 @@ func solve1(s []string) int {
 	return res
 }
 
+func parseGraph(s []string) Graph {
+	g := Graph{}
+	for _, line := range s {
+		parts := strings.Split(line, " <-> ")
+		for _, dst := range strings.Split(parts[1], ", ") {
+			g.AddEdge(parts[0], dst)
+		}
+
+	}
+	return g
+}
+
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	g := parseGraph(s)
+	res = GraphGroups(g)
 
 	return res
 }
