@@ -114,6 +114,18 @@ func CountSteps(path string) int {
 	return Walk(path).ManhattanDist(H0)
 }
 
+func FurtherDistance(path string) int {
+	res := 0
+	cur := Hex{}
+	for _, dir := range strings.Split(path, ",") {
+		cur = cur.Move(dir)
+
+		res = Max(res, cur.ManhattanDist(H0))
+	}
+
+	return res
+}
+
 func solve1(s []string) int {
 	res := 0
 
@@ -129,6 +141,10 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+
+	for _, path := range s {
+		res = FurtherDistance(path)
+	}
 
 	return res
 }
