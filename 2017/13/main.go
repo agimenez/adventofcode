@@ -91,6 +91,32 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	f := Firewall{}
+	maxLayer := 0
+	for _, layer := range s {
+		parts := strings.Split(layer, ": ")
+		maxLayer = ToInt(parts[0])
+		f[maxLayer] = ToInt(parts[1])
+	}
+
+	dbg("%v (%v)", f, maxLayer)
+	for ; ; res++ {
+		caught := false
+		for layer := 0; layer <= maxLayer; layer++ {
+			if depth, ok := f[layer]; ok {
+				cycle := 2 * (depth - 1)
+
+				if (layer+res)%cycle == 0 {
+					caught = true
+					break
+
+				}
+			}
+		}
+		if !caught {
+			break
+		}
+	}
 
 	return res
 }
