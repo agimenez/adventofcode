@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	. "github.com/agimenez/adventofcode/utils"
 	"io"
 	"iter"
 	"log"
@@ -13,7 +14,6 @@ import (
 	"slices"
 	"strings"
 	"time"
-	// . "github.com/agimenez/adventofcode/utils"
 )
 
 var (
@@ -198,9 +198,99 @@ func solve1(s []string) int {
 	return res
 }
 
+func hash2bits(hex []byte) [128]bool {
+	ret := [128]bool{}
+	for i, v := range hex {
+		lo := v & 0x0f
+		hi := v >> 4
+
+		base := 8 * i
+		ret[base] = hi&8 != 0
+		ret[base+1] = hi&4 != 0
+		ret[base+2] = hi&2 != 0
+		ret[base+3] = hi&1 != 0
+
+		ret[base+4] = lo&8 != 0
+		ret[base+5] = lo&4 != 0
+		ret[base+6] = lo&2 != 0
+		ret[base+7] = lo&1 != 0
+	}
+
+	return ret
+}
+
+func dbgGrid(g [128][128]bool) {
+	if !debug {
+		return
+	}
+
+	var sb strings.Builder
+	for _, row := range g {
+		for _, col := range row {
+			if col {
+				sb.WriteRune('#')
+			} else {
+				sb.WriteRune('.')
+			}
+		}
+		sb.WriteRune('\n')
+	}
+
+	dbg("%s", sb.String())
+}
+
+func processRegion(g [128][128]bool, x, y int, r [128][128]bool) [128][128]bool {
+	p := NewPoint(x, y)
+	r[x][y] = true
+	for n := range p.Adjacent(false) {
+		if n.X < 0 || n.X > 127 || n.Y < 0 || n.Y > 127 {
+			continue
+		}
+
+		if g[n.X][n.Y] && !r[n.X][n.Y] {
+			r = processRegion(g, n.X, n.Y, r)
+		}
+	}
+
+	return r
+}
+
+func gridRegions(g [128][128]bool) int {
+	count := 0
+	r := [128][128]bool{}
+
+	for i, row := range g {
+		for j, v := range row {
+			if v && !r[i][j] {
+				r = processRegion(g, i, j, r)
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
 func solve2(s []string) int {
 	res := 0
+
 	dbg("========== PART 2 ===========")
+	grid := [128][128]bool{}
+
+	for i := range 128 {
+		input := fmt.Sprintf("%s-%d", s[0], i)
+		kh := NewKnotHash(256)
+		kh.HashText(input, 64)
+		r := kh.DenseHash()
+		values, _ := hex.DecodeString(r)
+		for _, byte := range values {
+			res += bits.OnesCount8(byte)
+		}
+		grid[i] = hash2bits(values)
+	}
+	dbgGrid(grid)
+
+	res = gridRegions(grid)
 
 	return res
 }
