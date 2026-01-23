@@ -70,9 +70,13 @@ func (g Generator) Value() uint64 {
 	return g.value
 }
 
-func (g *Generator) Next() Generator {
-	next := g.value * g.factor
-	g.value = next % div
+func (g *Generator) Next(multiple uint64) Generator {
+	next := (g.value * g.factor) % div
+	for next%multiple != 0 {
+		next = (next * g.factor) % div
+	}
+
+	g.value = next
 
 	return *g
 }
@@ -91,22 +95,12 @@ func solve1(s []string) int {
 		value:  uint64(ToInt(parts[len(parts)-1])),
 		factor: 48271,
 	}
-	dbg("A: %v\nB: %v", genA, genB)
-	tick := 0
 	for range 40_000_000 {
-		vA := genA.Next().Value()
-		vB := genB.Next().Value()
-		// dbg("%032b (%d)", vA, vA)
-		// dbg("%032b (%d)", vB, vB)
-		// dbg("")
+		vA := genA.Next(1).Value()
+		vB := genB.Next(1).Value()
 
 		if vA&0xffff == vB&0xffff {
 			res++
-		}
-
-		tick++
-		if tick > 6 {
-			// break
 		}
 	}
 
@@ -117,6 +111,28 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	parts := strings.Fields(s[0])
+	genA := Generator{
+		value:  uint64(ToInt(parts[len(parts)-1])),
+		factor: 16807,
+	}
+
+	parts = strings.Fields(s[1])
+	genB := Generator{
+		value:  uint64(ToInt(parts[len(parts)-1])),
+		factor: 48271,
+	}
+	for range 5_000_000 {
+		vA := genA.Next(4).Value()
+		vB := genB.Next(8).Value()
+		// dbg("%032b (%d)", vA, vA)
+		// dbg("%032b (%d)", vB, vB)
+		// dbg("")
+
+		if vA&0xffff == vB&0xffff {
+			res++
+		}
+	}
 
 	return res
 }
