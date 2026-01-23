@@ -64,8 +64,13 @@ func Move(progs []byte, move string) []byte {
 	params := strings.Split(move[1:], "/")
 	switch move[0] {
 	case 's': // spin
-		pos := ToInt(params[0])
-		progs = append(progs[len(progs)-pos:], progs[:len(progs)-pos]...)
+		spin := ToInt(params[0])
+		newprogs := make([]byte, len(progs))
+		pos := len(progs) - spin
+
+		copy(newprogs, progs[pos:])
+		copy(newprogs[len(progs)-pos:], progs[:pos])
+		progs = newprogs
 	case 'x': // swap by position
 		from := ToInt(params[0])
 		to := ToInt(params[1])
@@ -89,15 +94,64 @@ func solve1(s []string) int {
 		progs = Move(progs, move)
 		dbg("%s (%s)", progs, move)
 	}
-	fmt.Println(string(progs))
+	fmt.Println("part 1:", string(progs))
 
 	dbg("")
 	return res
 }
 
+func printCache(c map[string][]byte) {
+	fmt.Println("Cache contents:")
+	for k, v := range c {
+		fmt.Printf("%s -> %s\n", k, v)
+	}
+	fmt.Println("---------------")
+}
+
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+
+	progs := []byte("abcdefghijklmnop")
+	moves := strings.Split(s[0], ",")
+	cache := map[string][]byte{}
+	positions := map[int]string{}
+	cycle := 0
+	hits := 0
+	for range 1000000000 {
+		origprog := string(progs)
+		var result []byte
+		var ok bool
+		positions[cycle] = origprog
+		if result, ok = cache[origprog]; !ok {
+			for _, move := range moves {
+				progs = Move(progs, move)
+				// dbg("%s (%s)", progs, move)
+			}
+
+			cache[origprog] = bytes.Clone(progs)
+			dbg("[%d] CACHED: %s -> %s cache[%s] = %s", cycle, origprog, string(progs), origprog, cache[origprog])
+		} else {
+			dbg("Position %d repeats (%s -> %s (cached result))", cycle, origprog, result)
+			hits++
+			break
+		}
+		dbg("[%d]         %s -> %s", cycle, origprog, positions[cycle])
+		// printCache(cache)
+		cycle++
+
+		if cycle%100_000 == 0 {
+			fmt.Print(".")
+		}
+
+		if cycle%10_000_000 == 0 {
+			fmt.Printf(" (%d) - cache: %d, %d hits\n", cycle, len(cache), hits)
+		}
+
+	}
+	pos := 1_000_000_000 % cycle
+	dbg("Position in the array: %d -> %s", pos, positions[pos])
+	fmt.Println("part 2:", positions[pos])
 
 	return res
 }
