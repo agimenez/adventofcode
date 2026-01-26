@@ -75,10 +75,11 @@ func isChar(r rune) bool {
 	return r >= 'A' && r <= 'Z'
 }
 
-func followPath(g Grid, p Point) string {
+func followPath(g Grid, p Point) (string, int) {
 	var sb strings.Builder
 
 	dir := P0.Down()
+	steps := 0
 	for {
 		ch := g.GetRune(p)
 		dbg("%v (%v) -> '%c'", p, dir, ch)
@@ -103,9 +104,10 @@ func followPath(g Grid, p Point) string {
 		}
 
 		p = p.Sum(dir)
+		steps++
 	}
 
-	return sb.String()
+	return sb.String(), steps
 }
 
 func solve1(s []string) int {
@@ -114,7 +116,10 @@ func solve1(s []string) int {
 	g := NewGridFromStr(s)
 	start := getStart(g)
 	dbg("Got start: %v", start)
-	fmt.Println("Part 1:", followPath(g, start))
+
+	p1, res := followPath(g, start)
+	fmt.Println("Part 1:", p1)
+	fmt.Println("Part 2:", res)
 
 	dbg("")
 	return res
