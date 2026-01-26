@@ -125,9 +125,59 @@ func solve1(s []string) int {
 	return res
 }
 
+func (p Point3D) Add(p2 Point3D) Point3D {
+	return Point3D{
+		X: p.X + p2.X,
+		Y: p.Y + p2.Y,
+		Z: p.Z + p2.Z,
+	}
+}
+
+func (p Particle) Tick() Particle {
+	p.V = p.V.Add(p.A)
+	p.P = p.P.Add(p.V)
+
+	return p
+}
+
+func SimulateCollisions(p map[Point3D]Particle) int {
+
+	left := 0xDEADBEEF
+	for range 1000 {
+		next := map[Point3D]Particle{}
+		collide := map[Point3D]bool{}
+		for _, particle := range p {
+			nextPart := particle.Tick()
+
+			if _, ok := next[nextPart.P]; ok {
+				collide[nextPart.P] = true
+			} else {
+				next[nextPart.P] = nextPart
+			}
+		}
+
+		for point := range collide {
+			delete(next, point)
+		}
+
+		p = next
+	}
+
+	left = len(p)
+
+	return left
+}
+
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	particles := map[Point3D]Particle{}
+	for _, line := range s {
+		p := parseParticle(line)
+		particles[p.P] = p
+	}
+
+	res = SimulateCollisions(particles)
 
 	return res
 }
