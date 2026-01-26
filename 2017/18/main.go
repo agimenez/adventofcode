@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	. "github.com/agimenez/adventofcode/utils"
@@ -60,18 +61,25 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 }
 
 type CPU struct {
+	id int
 	r  map[string]int
 	pc int
 
 	// sound playing
-	out int
+	ch chan int
 
 	prog []string
 }
 
-func NewCPU() CPU {
+func (c CPU) Queue() chan int {
+	return c.ch
+}
+
+func NewCPU(id int) CPU {
 	return CPU{
-		r: map[string]int{},
+		id: id,
+		r:  map[string]int{"p": id},
+		ch: make(chan int, 2000),
 	}
 }
 
@@ -92,20 +100,24 @@ func (c CPU) resolve(param string) int {
 	return ret
 }
 
-func (c *CPU) Run() int {
+func (c *CPU) Run(ch chan int) int {
+	sends := 0
 	for {
 		if c.pc < 0 || c.pc >= len(c.prog) {
-			return -1
+			return sends
 		}
 
 		inst := c.prog[c.pc]
 		op := strings.Fields(inst)
 		params := op[1:]
 
+		dbg("[%d] %v", c.id, inst)
+
 		switch op[0] {
 		case "snd":
-			v := c.resolve(params[0])
-			c.out = v
+			sends++
+			fmt.Printf("[%d] SENDS: %v\n", c.id, sends)
+			ch <- c.resolve(params[0])
 
 		case "set":
 			c.r[params[0]] = c.resolve(params[1])
@@ -120,9 +132,8 @@ func (c *CPU) Run() int {
 			c.r[params[0]] = c.r[params[0]] % c.resolve(params[1])
 
 		case "rcv":
-			if c.resolve(params[0]) != 0 {
-				return c.out
-			}
+			v := <-c.ch
+			c.r[params[0]] = v
 
 		case "jgz":
 			if c.resolve(params[0]) > 0 {
@@ -141,9 +152,24 @@ func (c *CPU) Run() int {
 func solve1(s []string) int {
 	res := 0
 
-	cpu := NewCPU()
-	cpu.Load(s)
-	res = cpu.Run()
+	// Part 1 is very different form part2, so here it's only part2
+	// This actually deadlocks, so I guess we should be OK?
+	c0 := NewCPU(0)
+	c0.Load(s)
+
+	c1 := NewCPU(1)
+	c1.Load(s)
+
+	var wg sync.WaitGroup
+
+	wg.Go(func() {
+		c0.Run(c1.Queue())
+	})
+
+	wg.Go(func() {
+		res = c1.Run(c0.Queue())
+	})
+	wg.Wait()
 
 	dbg("")
 	return res
