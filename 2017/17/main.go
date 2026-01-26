@@ -62,6 +62,7 @@ func solve(lines []string) (int, int, time.Duration, time.Duration) {
 
 type SpinLock struct {
 	lock  *ring.Ring
+	start *ring.Ring
 	len   int
 	steps int
 }
@@ -72,6 +73,7 @@ func NewLock(steps int) SpinLock {
 
 	return SpinLock{
 		lock:  ring,
+		start: ring,
 		len:   1,
 		steps: steps,
 	}
@@ -83,6 +85,10 @@ func (s SpinLock) Current() int {
 
 func (s SpinLock) Next() int {
 	return s.lock.Next().Value.(int)
+}
+
+func (s SpinLock) ValueIndex(idx int) int {
+	return s.start.Move(idx).Value.(int)
 }
 
 func (s SpinLock) String() string {
@@ -101,28 +107,34 @@ func (s SpinLock) String() string {
 }
 
 func (s *SpinLock) Exec(n int) {
-	for range n {
-		dbg("BEFORE: %v", s)
+	const mod = 10_000
 
+	for i := range n {
 		s.lock = s.lock.Move(s.steps)
-		dbg("MOVE:   %v", s)
 
 		r := ring.New(1)
 		r.Value = s.len
 		s.len++
 
 		s.lock.Link(r)
-		dbg("LINK:   %v", s)
 		s.lock = r
 
 		dbg("AFTER:  %v", s)
-		dbg("")
+
+		if i%mod == 0 {
+			fmt.Print(".")
+		}
+
+		if i%(mod*100) == 0 {
+			fmt.Printf(" (%d)\n", i)
+		}
 	}
+	fmt.Println("")
 }
 
 func Test() {
 	l := NewLock(3)
-	l.Exec(2017)
+	l.Exec(20)
 	dbg("Test: %d", l.Next())
 }
 
@@ -143,6 +155,18 @@ func solve1(s []string) int {
 func solve2(s []string) int {
 	res := 0
 	dbg("========== PART 2 ===========")
+	l := NewLock(ToInt(s[0]))
+
+	// This one takes a lot to bruteforce (>3m)
+	// Can be calculated algorithmically by just keeping track of what goes in position 1, but meh.
+	// pos := 0
+	// for i := range 50_000_000
+	//   pos = ((input+pos) % i) + 1
+	//   if pos == 1 -> res = i
+	// Done is done.
+	l.Exec(50_000_000)
+
+	res = l.ValueIndex(1)
 
 	return res
 }
